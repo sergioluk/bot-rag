@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.ragnarok</groupId>
+    <artifactId>bot-ragnarok</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <dependencies>
+        <!-- Dependência do OpenCV -->
+        <dependency>
+            <groupId>org.openpnp</groupId>
+            <artifactId>opencv</artifactId>
+            <version>4.5.1-2</version>
+        </dependency>
+        <dependency>
+	        <groupId>net.sourceforge.tess4j</groupId>
+	        <artifactId>tess4j</artifactId>
+	        <version>5.4.0</version> <!-- Verifique se há uma versão mais recente -->
+    	</dependency>
+    	<!-- SLF4J API -->
+	    <dependency>
+	        <groupId>org.slf4j</groupId>
+	        <artifactId>slf4j-api</artifactId>
+	        <version>1.7.30</version> <!-- Verifique se há uma versão mais recente -->
+	    </dependency>
+
+	    <!-- Logback como implementação do SLF4J -->
+	    <dependency>
+	        <groupId>ch.qos.logback</groupId>
+	        <artifactId>logback-classic</artifactId>
+	        <version>1.2.3</version> <!-- Verifique se há uma versão mais recente -->
+	    </dependency>
+	    
+		<dependency>
+		        <groupId>net.java.dev.jna</groupId>
+		        <artifactId>jna</artifactId>
+		        <version>5.13.0</version>
+		    </dependency>
+		<dependency>
+		        <groupId>net.java.dev.jna</groupId>
+		        <artifactId>jna-platform</artifactId>
+		        <version>5.13.0</version>
+		</dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+            	<groupId>org.apache.maven.plugins</groupId>
+            	<artifactId>maven-shade-plugin</artifactId>
+            	<version>3.4.1</version>
+            	<executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>shade</goal>
+                    </goals>
+                    <configuration>
+                        <transformers>
+                            <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                <mainClass>com.ragnarokbot.bot.BotRagnarok</mainClass>
+                            </transformer>
+                        </transformers>
+                    </configuration>
+                </execution>
+            </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
