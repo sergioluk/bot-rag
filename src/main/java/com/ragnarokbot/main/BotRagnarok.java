@@ -1,6 +1,5 @@
-package com.ragnarokbot.bot;
+package com.ragnarokbot.main;
 
-import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -38,6 +37,8 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 
 import com.sun.jna.platform.win32.WinDef;
+import com.ragnarokbot.bot.Bot;
+import com.ragnarokbot.model.Coordenadas;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinUser;
 
@@ -51,12 +52,29 @@ public class BotRagnarok {
 	public static int Y = 0;
 	public static String estado = "andando";
 
-	public static void main(String[] args) throws InterruptedException, AWTException, IOException, TesseractException {
-		// TODO Auto-generated method stub
+	public static void main(String[] args) throws Exception {
+		
+		//Chat GPT
+		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+
+        ITesseract tesseract = new Tesseract();
+        tesseract.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
+        tesseract.setLanguage("eng");
+
+        Robot robot = new Robot();
+        Bot bot = new Bot(tesseract, robot);
+
+        GameController gameController = new GameController(bot);
+        gameController.run();
+        
+        
+        
+        
+		//Fim Chat GPT
 		
 		/*Tentando Organizar sapora*/
 		// Carregar a biblioteca nativa do OpenCV
-        System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+        /*System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 		
 		//Configurando o tesseract
 		ITesseract tesseract = new Tesseract();
@@ -93,12 +111,12 @@ public class BotRagnarok {
         		Math.sqrt(Math.pow(Imgproc.boundingRect(m).x - X, 2) + Math.pow(Imgproc.boundingRect(m).y - Y, 2)))
         			);
         	
-        	/*
-        	 for (MatOfPoint monstro : listaMonstros) {
-        		 Rect m = Imgproc.boundingRect(monstro);
-        		 double distancia = Math.sqrt(Math.pow(m.x - X, 2) + Math.pow(m.y - Y, 2));
-                 System.out.println("Distancia do monstro: " + distancia);
-        	 }*/
+        	
+        	 //for (MatOfPoint monstro : listaMonstros) {
+        	//	 Rect m = Imgproc.boundingRect(monstro);
+        	//	 double distancia = Math.sqrt(Math.pow(m.x - X, 2) + Math.pow(m.y - Y, 2));
+            //     System.out.println("Distancia do monstro: " + distancia);
+        	 
         	if (estado.equals("andando")) {
         		//coordenadaXY
         		List<Coordenadas> caminho = new ArrayList<>();
@@ -132,18 +150,18 @@ public class BotRagnarok {
         	        System.out.println("Nova coordenada destino: " + destino.x + ", " + destino.y);
         	    }
         		
-        	    /*
+        	    
         		//X e Y são a posição no meio da tela, ou seja do personagem
-        		if (c.x <= caminho.get(rota).x) {
-        			xMouse = X + distanciaMouse;
-        		} else if (c.x >= caminho.get(rota).x) {
-        			xMouse = X - distanciaMouse;
-        		}
-        		if (c.y <= caminho.get(rota).y) {
-        			yMouse = Y - distanciaMouse;
-        		} else if (c.y >= caminho.get(rota).y) {
-        			yMouse = Y + distanciaMouse;
-        		}*/
+        		//if (c.x <= caminho.get(rota).x) {
+        		//	xMouse = X + distanciaMouse;
+        		//} else if (c.x >= caminho.get(rota).x) {
+        		//	xMouse = X - distanciaMouse;
+        		//}
+        		//if (c.y <= caminho.get(rota).y) {
+        		//	yMouse = Y - distanciaMouse;
+        		//} else if (c.y >= caminho.get(rota).y) {
+        		//	yMouse = Y + distanciaMouse;
+        		//}
         	    
         	    xMouse = X + (destino.x - c.x) * 4; // Escalar o movimento
         	    yMouse = Y - (destino.y - c.y) * 4;
@@ -192,9 +210,9 @@ public class BotRagnarok {
             estado = "andando";
         }
         
+        */
         
-        
-		/*Fim tentando Organizar sapora*/
+		//Fim tentando Organizar sapora
         
         Boolean inutil = false;
         if (inutil) {

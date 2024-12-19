@@ -1,4 +1,4 @@
-package com.ragnarokbot.bot;
+package com.ragnarokbot.model;
 
 public class Coordenadas {
 	
@@ -13,6 +13,13 @@ public class Coordenadas {
 	public Coordenadas(String coordenada) {
 		// Usar expressão regular para capturar apenas números
 	    String[] substrings = coordenada.split(" ");
+	    if (substrings.length == 1) {
+	    	System.out.println("Orc size = 1, coordenadas orc mudadas para 150 150");
+	    	this.x = 150;
+	        this.y = 150;
+	        return;
+	    }
+	    System.out.println("Ocr: " + coordenada + "Tamanho: " + substrings.length + "/2");
 	    String xString = substrings[0].replaceAll("[^0-9]", ""); // Remover tudo que não é número
 	    String yString = substrings[1].replaceAll("[^0-9]", ""); // Remover tudo que não é número
 	    
