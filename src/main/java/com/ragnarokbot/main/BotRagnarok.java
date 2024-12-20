@@ -48,9 +48,9 @@ public class BotRagnarok {
     //public static final int WM_LBUTTONUP = 0x0202;   // Soltar botão esquerdo
 	//public static Mat apagar = null;
 	
-	public static int X = 0;
-	public static int Y = 0;
-	public static String estado = "andando";
+	//public static int X = 0;
+	//public static int Y = 0;
+	//public static String estado = "andando";
 
 	public static void main(String[] args) throws Exception {
 		

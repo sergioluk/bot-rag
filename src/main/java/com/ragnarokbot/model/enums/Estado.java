@@ -1,4 +1,4 @@
-package com.ragnarokbot.bot;
+package com.ragnarokbot.model.enums;
 
 public enum Estado {
 
