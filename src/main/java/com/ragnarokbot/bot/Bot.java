@@ -23,6 +23,7 @@ import org.opencv.imgproc.Imgproc;
 
 import com.ragnarokbot.main.BotRagnarok;
 import com.ragnarokbot.model.Coordenadas;
+import com.ragnarokbot.model.MyUser32;
 
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
@@ -33,11 +34,14 @@ import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinUser;
 import com.sun.jna.platform.win32.WinDef.HWND;
 import com.sun.jna.platform.win32.WinDef.RECT;
+import com.sun.jna.platform.win32.WinDef.POINT;
 
 public class Bot {
 	
 	private Robot robot;
 	private ITesseract tesseract;
+	
+	public static HWND hwnd;
 	
     private int coordenadasJogadorTelaX;
     private int coordenadasJogadorTelaY;
@@ -45,10 +49,10 @@ public class Bot {
     private int height;
     
     //Variaveis para coordenadas mini mapa
-    private int xOcrCoordenadas;
-    private int yOcrCoordenadas;
-    private int widthOcrCoordenadas;
-    private int heightOcrCoordenadas;
+    private int xOcrCoordenadas = 0;
+    private int yOcrCoordenadas = 0;
+    private int widthOcrCoordenadas = 0;
+    private int heightOcrCoordenadas = 0;
     private int xJanela;
     private int yJanela;
 
@@ -58,22 +62,8 @@ public class Bot {
         this.robot = robot;
         
         getWidthHeight();
-        this.coordenadasJogadorTelaX = width/2;
-        this.coordenadasJogadorTelaY = (height/2) +5;
-        
-        xOcrCoordenadas = (int) (width * 0.9273);
-        yOcrCoordenadas = (int) (height * 0.1582);
-        widthOcrCoordenadas = (int) (width * 0.0290);
-        heightOcrCoordenadas = (int) (height * 0.0107);
-        
-        System.out.println("xOcrCoordenadas " + xOcrCoordenadas);
-        System.out.println("yOcrCoordenadas " + yOcrCoordenadas);
-        System.out.println("widthOcrCoordenadas " + widthOcrCoordenadas);
-        System.out.println("heightOcrCoordenadas " + heightOcrCoordenadas);
-        
-        //BufferedImage telaPrintada = this.printarTela();
-        //this.coordenadasJogadorTelaX = telaPrintada.getWidth()/2 - 40;
-        //this.coordenadasJogadorTelaY = telaPrintada.getHeight()/2 + 30;
+        this.coordenadasJogadorTelaX = width / 2;
+        this.coordenadasJogadorTelaY = height / 2;
 		
 	}
 	
@@ -82,8 +72,8 @@ public class Bot {
         BufferedImage areaCapturada = robot.createScreenCapture(area);
         
         // Salva a imagem capturada para verificar se está correta (opcional)
-        ImageIO.write(areaCapturada, "png", new File("hp_capture.png"));
-        System.out.println("Imagem do HP salva como 'hp_capture.png'.");
+        //ImageIO.write(areaCapturada, "png", new File("hp_capture.png"));
+        //System.out.println("Imagem do HP salva como 'hp_capture.png'.");
         
         // Executa o OCR na imagem capturada
         String ocr = tesseract.doOCR(areaCapturada);
@@ -102,7 +92,7 @@ public class Bot {
 		
 		// Captura a tela da área da janela
         Rectangle captureArea = new Rectangle(xJanela, yJanela, width, height);
-       return robot.createScreenCapture(captureArea);
+        return robot.createScreenCapture(captureArea);
 		//Pegar tamanho da tela
         //Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
         // Tirar o print da tela
@@ -113,7 +103,7 @@ public class Bot {
 		
 		BufferedImage screenFullImage = printarTela();
         
-     // Converter BufferedImage para array de bytes
+		// Converter BufferedImage para array de bytes
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ImageIO.write(screenFullImage, "png", byteArrayOutputStream);
         byte[] imageBytes = byteArrayOutputStream.toByteArray();
@@ -169,9 +159,26 @@ public class Bot {
     }
 	
 	public void moverPersonagem(Coordenadas atual, Coordenadas destino) throws Exception {
-        int xMouse = this.xJanela + this.coordenadasJogadorTelaX + (destino.x - atual.x) * 4;
-        int yMouse = this.yJanela + this.coordenadasJogadorTelaY - (destino.y - atual.y) * 4;
-
+	
+		double dx = destino.x - atual.x;
+		double dy = destino.y - atual.y;
+			
+		// Calcular o ângulo em radianos
+	    double angulo = Math.atan2(dy, dx);
+			
+	    // Calcular a distância original entre os pontos
+	    double distanciaOriginal = Math.sqrt(dx * dx + dy * dy);
+ 
+	    double distanciaDesejada = 200.0;
+	    
+	    // Calcular a normalização do vetor (vetor unitário)   
+	    double normalizaX = dx / distanciaOriginal;    
+	    double normalizaY = dy / distanciaOriginal;
+	
+	    int xMouse = (int) (this.xJanela + this.coordenadasJogadorTelaX + normalizaX * distanciaDesejada);
+	    int yMouse = (int) (this.yJanela + this.coordenadasJogadorTelaY - normalizaY * distanciaDesejada);
+		
+		
         moverMouse(xMouse, yMouse);
         Thread.sleep(500);
         clicarMouse();
@@ -209,7 +216,9 @@ public class Bot {
 	private void getWidthHeight() {
 		try {
 			User32 user32 = User32.INSTANCE;
-	        HWND hwnd = user32.FindWindow(null, "History Reborn | Gepard Shield 3.0 (^-_-^)"); // Nome da janela do Ragnarok
+	        //HWND hwnd = user32.FindWindow(null, "History Reborn | Gepard Shield 3.0 (^-_-^)"); // Nome da janela do Ragnarok
+			hwnd = user32.FindWindow(null, "History Reborn | Gepard Shield 3.0 (^-_-^)"); // Nome da janela do Ragnarok
+			MyUser32 myUser32 = MyUser32.INSTANCE; // Usar a interface personalizada
 	        
 	        if (hwnd == null) {
 	            System.out.println("Janela do Ragnarok não encontrada.");
@@ -218,19 +227,99 @@ public class Bot {
 	        // Garantir que a janela tenha o foco
 	        User32.INSTANCE.SetForegroundWindow(hwnd);
 	
-	        RECT rect = new RECT();
-	        user32.GetWindowRect(hwnd, rect);
+	        // Obter as dimensões do cliente
+	        RECT clientRect = new RECT();
+	        user32.GetClientRect(hwnd, clientRect);
+	        
+	        // Converter coordenadas do cliente para coordenadas da tela
+	        POINT topLeft = new POINT(0, 0);
+	        //user32.ClientToScreen(hwnd, topLeft);
+	        boolean success = myUser32.ClientToScreen(hwnd, topLeft);
+	        
+	        if (!success) {
+	            System.out.println("Falha ao converter coordenadas do cliente para coordenadas da tela.");
+	            return;
+	        }
 	
-	        this.width = rect.right - rect.left;
-	        this.height = rect.bottom - rect.top;
-	        this.xJanela = rect.left;
-	        this.yJanela = rect.top;
+	        this.xJanela = topLeft.x;
+	        this.yJanela = topLeft.y;
+	        this.width = clientRect.right - clientRect.left;
+	        this.height = clientRect.bottom - clientRect.top;
 	
 	        System.out.println("Resolução da janela do Ragnarok: " + width + "x" + height);
+	        System.out.println("Posição da janela do Ragnarok: " + xJanela + " " + yJanela);
 	        
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
 	}
+
+	public int getWidth() {
+		return width;
+	}
+
+	public int getHeight() {
+		return height;
+	}
+
+	public int getxJanela() {
+		return xJanela;
+	}
+
+	public int getyJanela() {
+		return yJanela;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public void setxJanela(int xJanela) {
+		this.xJanela = xJanela;
+	}
+
+	public void setyJanela(int yJanela) {
+		this.yJanela = yJanela;
+	}
+
+	public int getxOcrCoordenadas() {
+		return xOcrCoordenadas;
+	}
+
+	public void setxOcrCoordenadas(int xOcrCoordenadas) {
+		this.xOcrCoordenadas = xOcrCoordenadas;
+	}
+
+	public int getyOcrCoordenadas() {
+		return yOcrCoordenadas;
+	}
+
+	public void setyOcrCoordenadas(int yOcrCoordenadas) {
+		this.yOcrCoordenadas = yOcrCoordenadas;
+	}
+
+	public int getWidthOcrCoordenadas() {
+		return widthOcrCoordenadas;
+	}
+
+	public void setWidthOcrCoordenadas(int widthOcrCoordenadas) {
+		this.widthOcrCoordenadas = widthOcrCoordenadas;
+	}
+
+	public int getHeightOcrCoordenadas() {
+		return heightOcrCoordenadas;
+	}
+
+	public void setHeightOcrCoordenadas(int heightOcrCoordenadas) {
+		this.heightOcrCoordenadas = heightOcrCoordenadas;
+	}
+	
+	
+	
+	
 
 }

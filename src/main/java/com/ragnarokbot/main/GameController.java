@@ -42,6 +42,10 @@ public class GameController implements NativeKeyListener {
         Thread.sleep(5000);
         while (ligarBot) {
             Thread.sleep(200);
+            if (bot.getxOcrCoordenadas() == 0) {
+            	System.out.println("Aguardando setar coordenadas");
+            	continue;
+            }
             //System.out.println("ocr: " + bot.ocr(1694, 177, 53, 12));
             System.out.println("ocr: " + bot.ocrCoordenadas());
             List<MatOfPoint> monstros = bot.listaMonstros();

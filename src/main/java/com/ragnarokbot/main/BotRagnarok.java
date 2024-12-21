@@ -14,6 +14,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 import org.opencv.core.Core;
 import org.opencv.core.DMatch;
@@ -38,20 +39,14 @@ import net.sourceforge.tess4j.TesseractException;
 
 import com.sun.jna.platform.win32.WinDef;
 import com.ragnarokbot.bot.Bot;
+import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.model.Coordenadas;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinUser;
 
 public class BotRagnarok {
-	
-	//public static final int WM_LBUTTONDOWN = 0x0201; // Clique do botão esquerdo
-    //public static final int WM_LBUTTONUP = 0x0202;   // Soltar botão esquerdo
-	//public static Mat apagar = null;
-	
-	//public static int X = 0;
-	//public static int Y = 0;
-	//public static String estado = "andando";
 
+	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		
 		//Chat GPT
@@ -60,10 +55,15 @@ public class BotRagnarok {
         ITesseract tesseract = new Tesseract();
         tesseract.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
         tesseract.setLanguage("eng");
+        // Configurar whitelist para reconhecer apenas números
+        tesseract.setTessVariable("tessedit_char_whitelist", "0123456789 ");
+        tesseract.setTessVariable("preserve_interword_spaces", "1");
 
         Robot robot = new Robot();
         Bot bot = new Bot(tesseract, robot);
 
+        SwingUtilities.invokeLater( () -> new Tela(bot));
+        
         GameController gameController = new GameController(bot);
         gameController.run();
         
