@@ -44,12 +44,14 @@ import com.ragnarokbot.model.Coordenadas;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinUser;
 
+import config.ConfigManager;
+import config.ConfigManager.Config;
+
 public class BotRagnarok {
 
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		
-		//Chat GPT
 		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
         ITesseract tesseract = new Tesseract();
@@ -62,15 +64,33 @@ public class BotRagnarok {
         Robot robot = new Robot();
         Bot bot = new Bot(tesseract, robot);
 
-        SwingUtilities.invokeLater( () -> new Tela(bot));
+        Tela tela = new Tela(bot);
+        SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
+        //SwingUtilities.invokeLater( () -> new Tela(bot));
         
-        GameController gameController = new GameController(bot);
+        GameController gameController = new GameController(bot, tela);
         gameController.run();
         
+        /*
+        Config config = ConfigManager.loadConfig();
         
+        // Mostra os valores carregados
+        System.out.println("Rectangle:");
+        System.out.println("x: " + config.rectangle.x);
+        System.out.println("y: " + config.rectangle.y);
+        System.out.println("width: " + config.rectangle.width);
+        System.out.println("height: " + config.rectangle.height);
         
-        
-		//Fim Chat GPT
+        // Altere os valores e salve novamente
+        config.rectangle.x = 100;
+        config.rectangle.y = 200;
+        config.rectangle.width = 300;
+        config.rectangle.height = 400;
+        ConfigManager.saveConfig(config);
+
+        System.out.println("Configuração salva!");
+        */
+		
 		
 		/*Tentando Organizar sapora*/
 		// Carregar a biblioteca nativa do OpenCV

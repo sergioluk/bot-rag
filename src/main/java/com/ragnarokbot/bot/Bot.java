@@ -1,5 +1,6 @@
 package com.ragnarokbot.bot;
 
+import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
@@ -8,6 +9,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -23,6 +25,7 @@ import org.opencv.imgproc.Imgproc;
 
 import com.ragnarokbot.main.BotRagnarok;
 import com.ragnarokbot.model.Coordenadas;
+import com.ragnarokbot.model.MonstrosImagem;
 import com.ragnarokbot.model.MyUser32;
 
 import net.sourceforge.tess4j.ITesseract;
@@ -32,6 +35,10 @@ import net.sourceforge.tess4j.TesseractException;
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinUser;
+
+import config.ConfigManager;
+import config.ConfigManager.Config;
+
 import com.sun.jna.platform.win32.WinDef.HWND;
 import com.sun.jna.platform.win32.WinDef.RECT;
 import com.sun.jna.platform.win32.WinDef.POINT;
@@ -48,18 +55,17 @@ public class Bot {
     private int width;
     private int height;
     
-    //Variaveis para coordenadas mini mapa
-    private int xOcrCoordenadas = 0;
-    private int yOcrCoordenadas = 0;
-    private int widthOcrCoordenadas = 0;
-    private int heightOcrCoordenadas = 0;
     private int xJanela;
     private int yJanela;
+    
+    //Variaveis para coordenadas mini mapa
+    public Config configOCR;
 
 	public Bot(ITesseract tesseract, Robot robot) {
 		
 		this.tesseract = tesseract;
         this.robot = robot;
+        this.configOCR = ConfigManager.loadConfig();
         
         getWidthHeight();
         this.coordenadasJogadorTelaX = width / 2;
@@ -85,7 +91,8 @@ public class Bot {
 	
 	public String ocrCoordenadas() throws IOException, TesseractException {
 		System.out.println("X da janela: " + xJanela + ", Y da janela: " +yJanela);
-		return this.ocr( xJanela + xOcrCoordenadas, yJanela + yOcrCoordenadas,widthOcrCoordenadas,heightOcrCoordenadas);
+		//return this.ocr( xJanela + xOcrCoordenadas + configOCR.rectangle.x, yJanela + yOcrCoordenadas,widthOcrCoordenadas,heightOcrCoordenadas);
+		return this.ocr( xJanela + configOCR.rectangle.x, yJanela + configOCR.rectangle.y,configOCR.rectangle.width,configOCR.rectangle.height);
 	}
 	
 	public BufferedImage printarTela() {
@@ -99,7 +106,8 @@ public class Bot {
         //return robot.createScreenCapture(screenRect);
 	}
 	
-	public List<MatOfPoint> listaMonstros() throws IOException {
+	//public List<MatOfPoint> listaMonstros() throws IOException {
+	public MonstrosImagem monstrosImagem() throws IOException {
 		
 		BufferedImage screenFullImage = printarTela();
         
@@ -135,16 +143,24 @@ public class Bot {
         Core.inRange(hsvImage, lowerColor, upperColor, mask);
 
         // Encontrar contornos na máscara
-        java.util.List<MatOfPoint> monstros = new java.util.ArrayList<>();
+        java.util.List<MatOfPoint> todosMonstros = new java.util.ArrayList<>();
         Mat hierarchy = new Mat();
-        Imgproc.findContours(mask, monstros, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+        Imgproc.findContours(mask, todosMonstros, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
         
-        
+        // Filtrar monstros com altura maior que 20 pixels
+        List<MatOfPoint> monstrosFiltrados = new ArrayList<>();
+        for (MatOfPoint monstro : todosMonstros) {
+            Rect boundingRect = Imgproc.boundingRect(monstro);
+            if (boundingRect.height >= 20) {
+                monstrosFiltrados.add(monstro);
+            }
+        }
+
         //salvar no disco
         //BotRagnarok.apagar = screen;
         //Imgcodecs.imwrite("C:/Users/Sergio/eclipse-workspace/ragnarokbot/src/main/resources/sprites/testeRam.png", screen);
         
-        return monstros;
+        return new MonstrosImagem(monstrosFiltrados, screen);
     }
 	
 	
@@ -154,8 +170,13 @@ public class Bot {
 	
 	public double calcularDistanciaCentro(MatOfPoint monstro) {
         Rect boundingRect = Imgproc.boundingRect(monstro);
-        return Math.sqrt(Math.pow(xJanela + boundingRect.x - coordenadasJogadorTelaX + xJanela, 2) 
-        		+ Math.pow(yJanela + boundingRect.y - coordenadasJogadorTelaY + yJanela, 2));
+        
+        // Calcula o centro do monstro
+        int monstroCentroX = boundingRect.x + boundingRect.width / 2;
+        int monstroCentroY = boundingRect.y + boundingRect.height / 2;
+        
+        return Math.sqrt(Math.pow(xJanela + monstroCentroX - coordenadasJogadorTelaX + xJanela, 2) 
+        		+ Math.pow(yJanela + monstroCentroY - coordenadasJogadorTelaY + yJanela, 2));
     }
 	
 	public void moverPersonagem(Coordenadas atual, Coordenadas destino) throws Exception {
@@ -169,7 +190,8 @@ public class Bot {
 	    // Calcular a distância original entre os pontos
 	    double distanciaOriginal = Math.sqrt(dx * dx + dy * dy);
  
-	    double distanciaDesejada = 200.0;
+	    //double distanciaDesejada = 200.0;
+	    double distanciaDesejada = width * 17 / 100;
 	    
 	    // Calcular a normalização do vetor (vetor unitário)   
 	    double normalizaX = dx / distanciaOriginal;    
@@ -253,6 +275,90 @@ public class Bot {
 	        e.printStackTrace();
 	    }
 	}
+	
+	private List<Point> raycast(Point start, Point end) {
+	    List<Point> points = new ArrayList<>();
+
+	    int dx = Math.abs(end.x - start.x);
+	    int dy = Math.abs(end.y - start.y);
+
+	    int sx = start.x < end.x ? 1 : -1;
+	    int sy = start.y < end.y ? 1 : -1;
+
+	    int err = dx - dy;
+
+	    int x = start.x;
+	    int y = start.y;
+
+	    while (true) {
+	        points.add(new Point(x, y));
+	        if (x == end.x && y == end.y) break;
+
+	        int e2 = 2 * err;
+	        if (e2 > -dy) {
+	            err -= dy;
+	            x += sx;
+	        }
+	        if (e2 < dx) {
+	            err += dx;
+	            y += sy;
+	        }
+	    }
+
+	    return points;
+	}
+	
+	public List<MatOfPoint> filtrarMonstrosVisiveisRaycast(List<MatOfPoint> monstros, Mat screen) {
+	    List<MatOfPoint> monstrosVisiveis = new ArrayList<>();
+
+	    //Obter posicaoJogador
+        Point posicaoJogador = new Point(width / 2, height / 2);
+        
+	    for (MatOfPoint monstro : monstros) {
+	        Rect boundingRect = Imgproc.boundingRect(monstro);
+
+	        // Obter o centro do monstro
+	        Point centroMonstro = new Point(
+	            boundingRect.x + boundingRect.width / 2,
+	            boundingRect.y + boundingRect.height / 2
+	        );
+	        
+	        // Obter os pontos do raycast (linha)
+	        List<Point> raycastPoints = raycast(posicaoJogador, centroMonstro);
+
+	        boolean bloqueado = false;
+
+	        for (Point ponto : raycastPoints) {
+	            // Certificar-se de que o ponto está dentro dos limites da imagem
+	            if (ponto.x < 0 || ponto.x >= screen.cols() || ponto.y < 0 || ponto.y >= screen.rows()) {
+	                continue;
+	            }
+
+	            double[] pixel = screen.get((int) ponto.y, (int) ponto.x); // Obter o pixel (BGR)
+
+	            // Verificar se o pixel é preto ou cinza
+	            if (pixel != null) {
+	                int b = (int) pixel[0];
+	                int g = (int) pixel[1];
+	                int r = (int) pixel[2];
+
+	                // Verificar se o pixel é preto puro (parede)
+	                if (b == 0 && g == 0 && r == 0) { // Preto
+	                    bloqueado = true;
+	                    break; // Interrompe o loop se encontrar um pixel preto
+	                }
+	            }
+	        }
+
+	        if (!bloqueado) {
+	            monstrosVisiveis.add(monstro); // Adiciona o monstro se não houver bloqueio
+	        }
+	    }
+
+	    return monstrosVisiveis;
+	}
+
+
 
 	public int getWidth() {
 		return width;
@@ -285,41 +391,5 @@ public class Bot {
 	public void setyJanela(int yJanela) {
 		this.yJanela = yJanela;
 	}
-
-	public int getxOcrCoordenadas() {
-		return xOcrCoordenadas;
-	}
-
-	public void setxOcrCoordenadas(int xOcrCoordenadas) {
-		this.xOcrCoordenadas = xOcrCoordenadas;
-	}
-
-	public int getyOcrCoordenadas() {
-		return yOcrCoordenadas;
-	}
-
-	public void setyOcrCoordenadas(int yOcrCoordenadas) {
-		this.yOcrCoordenadas = yOcrCoordenadas;
-	}
-
-	public int getWidthOcrCoordenadas() {
-		return widthOcrCoordenadas;
-	}
-
-	public void setWidthOcrCoordenadas(int widthOcrCoordenadas) {
-		this.widthOcrCoordenadas = widthOcrCoordenadas;
-	}
-
-	public int getHeightOcrCoordenadas() {
-		return heightOcrCoordenadas;
-	}
-
-	public void setHeightOcrCoordenadas(int heightOcrCoordenadas) {
-		this.heightOcrCoordenadas = heightOcrCoordenadas;
-	}
-	
-	
-	
-	
 
 }

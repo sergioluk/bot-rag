@@ -13,6 +13,8 @@ import javax.swing.JPanel;
 
 import com.sun.jna.platform.win32.User32;
 
+import config.ConfigManager;
+
 public class Tela extends JFrame{
 
 	private Point startPoint; // Ponto inicial do clique
@@ -44,6 +46,17 @@ public class Tela extends JFrame{
             }
         };
         panel.setOpaque(false); // Deixa o painel transparente
+        
+        // Desenhar o retângulo se ja estiver salvo
+        if (bot.configOCR != null && bot.configOCR.rectangle != null && bot.configOCR.rectangle.x != 0) {
+            rectangle = new Rectangle(
+                bot.configOCR.rectangle.x,
+                bot.configOCR.rectangle.y,
+                bot.configOCR.rectangle.width,
+                bot.configOCR.rectangle.height
+            );
+        }
+        
         // Listeners para eventos do mouse
         panel.addMouseListener(new MouseAdapter() {
             @Override
@@ -60,10 +73,18 @@ public class Tela extends JFrame{
                     System.out.println("Coordenadas do Retângulo:");
                     System.out.println("X: " + rectangle.x + ", Y: " + rectangle.y);
                     System.out.println("Largura: " + rectangle.width + ", Altura: " + rectangle.height);
-                    bot.setxOcrCoordenadas(rectangle.x);
-                    bot.setyOcrCoordenadas(rectangle.y);
-                    bot.setWidthOcrCoordenadas(rectangle.width);
-                    bot.setHeightOcrCoordenadas(rectangle.height);
+                    
+                    //Salvando as informações no arquivo config.json
+                    bot.configOCR.rectangle.x = rectangle.x;
+                    bot.configOCR.rectangle.y = rectangle.y;
+                    bot.configOCR.rectangle.width = rectangle.width;
+                    bot.configOCR.rectangle.height = rectangle.height;
+                    ConfigManager.saveConfig(bot.configOCR);
+                    
+                    //Carregando as informações do arquivo config.json
+                    bot.configOCR = ConfigManager.loadConfig();
+                    
+                    //Focar no ragnarok
                     User32.INSTANCE.SetForegroundWindow(Bot.hwnd);
                 }
             }
