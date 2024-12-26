@@ -1,16 +1,26 @@
 package com.ragnarokbot.bot;
 
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 
@@ -18,6 +28,7 @@ import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
@@ -27,6 +38,7 @@ import com.ragnarokbot.main.BotRagnarok;
 import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.MonstrosImagem;
 import com.ragnarokbot.model.MyUser32;
+import com.ragnarokbot.model.OcrResult;
 
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
@@ -47,6 +59,7 @@ public class Bot {
 	
 	private Robot robot;
 	private ITesseract tesseract;
+	private ITesseract tesseractLetras;
 	
 	public static HWND hwnd;
 	
@@ -61,9 +74,10 @@ public class Bot {
     //Variaveis para coordenadas mini mapa
     public Config configOCR;
 
-	public Bot(ITesseract tesseract, Robot robot) {
+	public Bot(ITesseract tesseract, Robot robot, ITesseract tesseractLetras) {
 		
 		this.tesseract = tesseract;
+		this.tesseractLetras = tesseractLetras;
         this.robot = robot;
         this.configOCR = ConfigManager.loadConfig();
         
@@ -84,15 +98,36 @@ public class Bot {
         // Executa o OCR na imagem capturada
         String ocr = tesseract.doOCR(areaCapturada);
         
-        System.out.println("x: " + (x) + ", y: " + (y) + " width: " + width + " height " + height );
+        System.out.println("ocr: " + ocr);
 		
 		return ocr;
 	}
 	
 	public String ocrCoordenadas() throws IOException, TesseractException {
-		System.out.println("X da janela: " + xJanela + ", Y da janela: " +yJanela);
 		//return this.ocr( xJanela + xOcrCoordenadas + configOCR.rectangle.x, yJanela + yOcrCoordenadas,widthOcrCoordenadas,heightOcrCoordenadas);
 		return this.ocr( xJanela + configOCR.rectangle.x, yJanela + configOCR.rectangle.y,configOCR.rectangle.width,configOCR.rectangle.height);
+	}
+	
+	public String ocrLetras(int x, int y, int width, int height) throws IOException, TesseractException {
+		Rectangle area = new Rectangle(x, y, width, height);
+        BufferedImage areaCapturada = robot.createScreenCapture(area);
+        String ocr = tesseractLetras.doOCR(areaCapturada);
+        
+        //System.out.println("ocr letras: " + ocr);
+		
+		return ocr;
+	}
+	
+	public void selecionarOpcao(int opcaoEscolhida) throws InterruptedException {
+		if (opcaoEscolhida == 1) {
+   		 apertarTecla(KeyEvent.VK_ENTER);
+	   	} else {
+	   		for (int i = 0; i < opcaoEscolhida - 1; i++) {
+	       		apertarTecla(KeyEvent.VK_DOWN);
+	       		Thread.sleep(200);
+	       	}
+	   		apertarTecla(KeyEvent.VK_ENTER);
+	   	 }
 	}
 	
 	public BufferedImage printarTela() {
@@ -106,63 +141,133 @@ public class Bot {
         //return robot.createScreenCapture(screenRect);
 	}
 	
-	//public List<MatOfPoint> listaMonstros() throws IOException {
-	public MonstrosImagem monstrosImagem() throws IOException {
-		
-		BufferedImage screenFullImage = printarTela();
-        
-		// Converter BufferedImage para array de bytes
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ImageIO.write(screenFullImage, "png", byteArrayOutputStream);
-        byte[] imageBytes = byteArrayOutputStream.toByteArray();
+	private Mat bufferedImageToMat(BufferedImage image) {
+	    // Converter a imagem para o tipo compatível com OpenCV (TYPE_3BYTE_BGR)
+	    BufferedImage convertedImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+	    Graphics2D g = convertedImg.createGraphics();
+	    g.drawImage(image, 0, 0, null);
+	    g.dispose();
 
-        // Converter array de bytes para Mat
-        Mat buffer = new Mat(imageBytes.length, 1, CvType.CV_8UC1); // Mat com os bytes da imagem
-        buffer.put(0, 0, imageBytes);
+	    // Obter os bytes da imagem convertida
+	    byte[] pixels = ((DataBufferByte) convertedImg.getRaster().getDataBuffer()).getData();
 
-        // Decodificar o Mat para obter a imagem
-        Mat screen = Imgcodecs.imdecode(buffer, Imgcodecs.IMREAD_COLOR);
-        
-        if (screen.empty()) {
-            System.out.println("Erro ao carregar a imagem.");
-            return null;
-        }
-        
-        // Converter a imagem para o espaço de cores HSV
-        Mat hsvImage = new Mat();
-        Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+	    // Criar o Mat e preencher com os bytes
+	    Mat mat = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC3);
+	    mat.put(0, 0, pixels);
 
-        // Definir os limites inferior e superior da cor (exemplo: rosa)
-        //Cor origial HSV: 302 80 100 - Hue vai de 0 a 180 (não de 0 a 360) - Saturation vai de 0 a 255 (0% a 100%). - Value vai de 0 a 255 (0% a 100%).
-        //Cor convertida para o OpenCV 151 204 255
-        Scalar lowerColor = new Scalar(148, 200, 200);  // Limite inferior para a cor desejada (era 148,150,150)
-        Scalar upperColor = new Scalar(154, 255, 255); // Limite superior para a cor desejada
-
-        // Criar uma máscara onde a cor estiver dentro do intervalo definido
-        Mat mask = new Mat();
-        Core.inRange(hsvImage, lowerColor, upperColor, mask);
-
-        // Encontrar contornos na máscara
-        java.util.List<MatOfPoint> todosMonstros = new java.util.ArrayList<>();
-        Mat hierarchy = new Mat();
-        Imgproc.findContours(mask, todosMonstros, hierarchy, Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-        
-        // Filtrar monstros com altura maior que 20 pixels
-        List<MatOfPoint> monstrosFiltrados = new ArrayList<>();
-        for (MatOfPoint monstro : todosMonstros) {
-            Rect boundingRect = Imgproc.boundingRect(monstro);
-            if (boundingRect.height >= 20) {
-                monstrosFiltrados.add(monstro);
-            }
-        }
-
-        //salvar no disco
-        //BotRagnarok.apagar = screen;
-        //Imgcodecs.imwrite("C:/Users/Sergio/eclipse-workspace/ragnarokbot/src/main/resources/sprites/testeRam.png", screen);
-        
-        return new MonstrosImagem(monstrosFiltrados, screen);
-    }
+	    return mat;
+	}
 	
+	public MonstrosImagem analisarTela(Scalar lowerColor, Scalar upperColor) throws IOException {
+		
+		// Capturar a tela da área definida
+	    Rectangle captureArea = new Rectangle(xJanela, yJanela, width, height);
+	    BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(screenFullImage);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Definir os limites de cor
+	    //Scalar lowerColor = new Scalar(148, 200, 200);  // Limite inferior (rosa)
+	    //Scalar upperColor = new Scalar(154, 255, 255);  // Limite superior (rosa)
+
+	    // Criar máscara para identificar a cor dentro do intervalo
+	    Mat mask = new Mat();
+	    Core.inRange(hsvImage, lowerColor, upperColor, mask);
+
+	    // Encontrar contornos na máscara
+	    List<MatOfPoint> entidades = new ArrayList<>();
+	    Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	    
+	    
+		
+	    return new MonstrosImagem(entidades, screen);
+	}
+
+	public List<MatOfPoint> listaMonstros() throws IOException {
+		// Definir os limites de cor
+	    Scalar lowerColor = new Scalar(148, 200, 200);  // Limite inferior (rosa)
+	    Scalar upperColor = new Scalar(154, 255, 255);  // Limite superior (rosa)
+		
+		MonstrosImagem analise = analisarTela(lowerColor, upperColor);
+		
+		List<MatOfPoint> monstros = analise.listaEntidades;
+		
+		if (monstros.isEmpty()) {
+        	return monstros;
+        }
+        
+	    // Filtrar monstros com altura maior que 20 pixels
+	    List<MatOfPoint> monstrosFiltrados = monstros.stream()
+	        .filter(monstro -> Imgproc.boundingRect(monstro).height >= 20)
+	        .toList();
+
+	    // Retornar monstros visíveis após raycast    
+	    return filtrarMonstrosVisiveisRaycast(monstrosFiltrados, analise.screen);
+	}
+	
+	public List<MatOfPoint> listaNpcs() throws IOException {
+		// Definir os limites de cor
+	    Scalar lowerColor = new Scalar(0, 151, 215);  // Limite inferior (rosa)
+	    Scalar upperColor = new Scalar(20, 231, 255);  // Limite superior (rosa)
+	    
+	    MonstrosImagem analise = analisarTela(lowerColor, upperColor);
+	    
+	    List<MatOfPoint> npcs = analise.listaEntidades;
+	
+			if (npcs.isEmpty()) {
+	        	return npcs;
+	        }
+	        
+		    // Filtrar monstros com altura maior que 20 pixels
+		    List<MatOfPoint> npcsFiltrados = npcs.stream()
+		        .filter(monstro -> Imgproc.boundingRect(monstro).height >= 20)
+		        .toList();
+	
+		    return npcsFiltrados;   
+	}
+	
+	public List<MatOfPoint> verificarBalaoNpc() throws IOException {
+		// Definir os limites de cor
+	    Scalar lowerColor = new Scalar(0, 0, 207);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+	    
+	    MonstrosImagem analise = analisarTela(lowerColor, upperColor);
+	    
+	   
+	    
+	    
+	    List<MatOfPoint> npcs = analise.listaEntidades;
+	
+			if (npcs.isEmpty()) {
+	        	return npcs;
+	        }
+	        
+		    // Filtrar monstros com altura maior que 20 pixels
+		    List<MatOfPoint> npcsFiltrados = npcs.stream()
+		        .filter(monstro -> Imgproc.boundingRect(monstro).width >= 250 && (Imgproc.boundingRect(monstro).height >= 50))
+		        .toList();
+		    
+		    /*
+		    // Desenhar contornos na imagem original
+		    Mat contouredImage = analise.screen.clone();
+		    Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(contouredImage, npcsFiltrados, -1, greenColor, 2);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, contouredImage);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+	
+		    return npcsFiltrados;   
+	}
 	
 	public int calcularDistancia(Coordenadas atual, Coordenadas destino) {
 	    return (int) Math.sqrt(Math.pow(destino.x - atual.x, 2) + Math.pow(destino.y - atual.y, 2));
@@ -202,7 +307,7 @@ public class Bot {
 		
 		
         moverMouse(xMouse, yMouse);
-        Thread.sleep(500);
+        Thread.sleep(50);
         clicarMouse();
     }
 	

@@ -8,6 +8,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
@@ -28,11 +29,23 @@ public class Tela extends JFrame{
         this.bot = bot;
         
         setUndecorated(true); // Remove bordas da janela
-        setBackground(new Color(0, 0, 0, 10)); // Torna a janela completamente transparente
+//        setBackground(new Color(0, 0, 0, 10)); // Torna a janela completamente transparente
         //setAlwaysOnTop(true); // Mantém a janela sempre acima de outras
         setSize(bot.getWidth(), bot.getHeight());
         setLocation(bot.getxJanela(), bot.getyJanela());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        
+     // Definir o GlassPane
+        MyGlassPane glassPane = new MyGlassPane();
+        setGlassPane(glassPane);
+        glassPane.setVisible(true);
+     // Tornar a janela sempre visível acima das outras
+        setAlwaysOnTop(true); // A janela ficará sempre em cima
+        // Tornar a janela transparente e permitir os cliques passarem para as janelas de fundo
+        setBackground(new Color(0, 0, 0, 0)); // Janela transparente
+        setOpacity(0.2f); // Ajuste a opacidade conforme necessário
+        setFocusableWindowState(false); // Permite que os cliques passem para as janelas de fundo
+
 
         // Configurar a área de desenho
         JPanel panel = new JPanel() {
@@ -110,6 +123,17 @@ public class Tela extends JFrame{
         int width = Math.abs(start.x - end.x);
         int height = Math.abs(start.y - end.y);
         return new Rectangle(x, y, width, height);
+    }
+ // Classe do GlassPane que desenha o retângulo
+    class MyGlassPane extends JComponent {
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (rectangle != null) {
+                g.setColor(new Color(0, 255, 0, 128));
+                g.fillRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+            }
+        }
     }
 
 }

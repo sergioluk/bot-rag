@@ -17,6 +17,7 @@ import javax.imageio.ImageIO;
 import javax.swing.SwingUtilities;
 
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.DMatch;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDMatch;
@@ -60,15 +61,26 @@ public class BotRagnarok {
         // Configurar whitelist para reconhecer apenas números
         tesseract.setTessVariable("tessedit_char_whitelist", "0123456789 ");
         tesseract.setTessVariable("preserve_interword_spaces", "1");
-
+        
+        ITesseract tesseractLetras = new Tesseract();
+        tesseractLetras.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
+        tesseractLetras.setLanguage("eng");
+       
         Robot robot = new Robot();
-        Bot bot = new Bot(tesseract, robot);
+        Bot bot = new Bot(tesseract, robot, tesseractLetras);
 
         Tela tela = new Tela(bot);
         SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
         //SwingUtilities.invokeLater( () -> new Tela(bot));
         
         GameController gameController = new GameController(bot, tela);
+        
+        //Apagar
+        Scalar[] limites = calcularLimites(255, 128, 64);
+        System.out.println("Lower: " + limites[0]);
+        System.out.println("Upper: " + limites[1]);
+        //Apagar
+        
         gameController.run();
         
         /*
@@ -465,6 +477,41 @@ public class BotRagnarok {
 	}
         
 	}
+	
+	public static Scalar[] calcularLimites(int r, int g, int b) {
+        // Criar Mat para a cor RGB
+		Mat rgbColor = new Mat(1, 1, CvType.CV_8UC3, new Scalar(b, g, r)); // Usa 3 canais
+        Mat hsvColor = new Mat();
+        
+        // Converter de BGR para HSV
+        Imgproc.cvtColor(rgbColor, hsvColor, Imgproc.COLOR_BGR2HSV);
+        double[] hsvValues = hsvColor.get(0, 0);
+
+        // Definir tolerância para a cor
+        int hue = (int) hsvValues[0]; // Hue
+        int sat = (int) hsvValues[1]; // Saturation
+        int val = (int) hsvValues[2]; // Value
+
+        // Definir tolerâncias (ajuste conforme necessário)
+        int hueTolerance = 10;
+        int satTolerance = 40;
+        int valTolerance = 40;
+
+        // Limites inferior e superior
+        Scalar lower = new Scalar(
+            Math.max(hue - hueTolerance, 0),
+            Math.max(sat - satTolerance, 0),
+            Math.max(val - valTolerance, 0)
+        );
+
+        Scalar upper = new Scalar(
+            Math.min(hue + hueTolerance, 180),
+            Math.min(sat + satTolerance, 255),
+            Math.min(val + valTolerance, 255)
+        );
+
+        return new Scalar[]{lower, upper};
+    }
 
 }
 /*

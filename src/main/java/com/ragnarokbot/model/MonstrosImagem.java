@@ -7,11 +7,11 @@ import org.opencv.core.MatOfPoint;
 
 public class MonstrosImagem {
 	
-	public List<MatOfPoint> listaMonstros;
+	public List<MatOfPoint> listaEntidades;
 	public Mat screen;
 	
-	public MonstrosImagem(List<MatOfPoint> listaMonstros, Mat screen) {
-		this.listaMonstros = listaMonstros;
+	public MonstrosImagem(List<MatOfPoint> listaEntidades, Mat screen) {
+		this.listaEntidades = listaEntidades;
 		this.screen = screen;
 	}
 }
