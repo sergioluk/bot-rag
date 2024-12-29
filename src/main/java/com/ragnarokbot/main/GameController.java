@@ -10,8 +10,13 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import com.ragnarokbot.bot.Bot;
 import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.model.Coordenadas;
+import com.ragnarokbot.model.Script;
+import com.ragnarokbot.model.Script.Acao;
+import com.ragnarokbot.model.Script.Passo;
+import com.ragnarokbot.model.Script.Rota;
 import com.ragnarokbot.model.enums.Estado;
 
+import config.ScriptLoader;
 import state.StateMachine;
 
 import java.awt.event.KeyEvent;
@@ -28,11 +33,15 @@ public class GameController implements NativeKeyListener {
 	private final Tela tela;
 	private volatile boolean ligarBot = true;
 	private volatile boolean pausarBot = false;
-	private Estado estado = Estado.ANDANDO;
+	//private Estado estado = Estado.ANDANDO;
+    private int passo = 0;
+    
     private int rota = 0;
     
     Coordenadas npc = new Coordenadas(156, 97);
     boolean falarComNpc = true;
+    
+    
     
     public GameController(Bot bot, Tela tela) {
         this.bot = bot;
@@ -49,7 +58,6 @@ public class GameController implements NativeKeyListener {
     
     public void run() throws Exception {
         /*
-         
         List<Coordenadas> caminho = inicializarCaminho();
         Thread.sleep(1000);
         while (ligarBot) {
@@ -107,9 +115,42 @@ public class GameController implements NativeKeyListener {
         
         System.out.println("Bot parado com sucesso.");
         GlobalScreen.unregisterNativeHook(); //Remover o hook do teclado
-        */
+         */
+    	
+    	ScriptLoader scriptLoader = new ScriptLoader();
+    	//Script script = scriptLoader.carregarScriptdoJson("sussurro_sombrio.json");
+    	Script script = scriptLoader.carregarScriptdoJson("teste_de_json.json");
+    	
+    	System.out.println("Era pra ter 4 rotas: " + script.getRotas().size());
+    	
+    	for(Rota rota : script.getRotas()) {
+    		System.out.println("descricao: " + rota.getDescricao());
+    		for(Passo passo : rota.getPassos()) {
+    			System.out.println("[" + passo.getCoordenadas().get(0) + ", " + passo.getCoordenadas().get(1) + "]");
+    		}
+    		System.out.println("Verificacao:");
+    		System.out.println("tipo: " + rota.getVerificacao().getTipo());
+    		System.out.println("coordenadas: [" + rota.getVerificacao().getCoordenadas().get(0) + ", " + rota.getVerificacao().getCoordenadas().get(1) + "]");
+    		if (rota.getVerificacao().getElseAcoes() != null) {
+    			for(Passo elseAcoes : rota.getVerificacao().getElseAcoes()) {
+        			System.out.println("elseAcoes: [" + elseAcoes.getCoordenadas().get(0) + ", " + elseAcoes.getCoordenadas().get(1) + "]");
+        		}
+    		}
+    		if (rota.getVerificacao().getAcoes() != null) {
+    			for(Acao acao : rota.getVerificacao().getAcoes()) {
+        			System.out.println("balaoUnico: " + acao.isBalaoUnico() + ", opcao: " + acao.getOpcao());
+        		}
+    		}
+    	}
+    	System.out.println("finalizacao:");
+    	System.out.println("descricao: " + script.getFinalizacao().getDescricao());
+    	System.out.println("coordenadas: " + script.getFinalizacao().getCoordenadas());
+    	
+    	System.out.println("-------------------------------------------------------------------------------------");
+    	
     	
     	StateMachine stateMachine = new StateMachine(Estado.ANDANDO);
+
 
         List<Coordenadas> caminho = inicializarCaminho();
         Thread.sleep(1000);
@@ -196,86 +237,11 @@ public class GameController implements NativeKeyListener {
     
     private List<Coordenadas> inicializarCaminho() {
         List<Coordenadas> caminho = new ArrayList<>();
-        
-        /*
+ 
         caminho.add(new Coordenadas(135, 93));
         caminho.add(new Coordenadas(147, 92));
         caminho.add(new Coordenadas(156, 91));
         caminho.add(new Coordenadas(171, 93));
-        */
-        
-        /*
-        caminho.add(new Coordenadas(38, 257));
-        caminho.add(new Coordenadas(49, 243));
-        caminho.add(new Coordenadas(68, 223));
-        caminho.add(new Coordenadas(79, 210));
-        caminho.add(new Coordenadas(97, 210));
-        caminho.add(new Coordenadas(106, 192));
-        caminho.add(new Coordenadas(114, 175));
-        caminho.add(new Coordenadas(108, 142));
-        caminho.add(new Coordenadas(106, 114));
-        caminho.add(new Coordenadas(75, 84));
-        caminho.add(new Coordenadas(62, 64));
-        caminho.add(new Coordenadas(75, 38));
-        caminho.add(new Coordenadas(105, 54));
-        caminho.add(new Coordenadas(132, 34));
-        caminho.add(new Coordenadas(152, 28));
-        caminho.add(new Coordenadas(174, 37));
-        caminho.add(new Coordenadas(190, 53));
-        caminho.add(new Coordenadas(190, 70));
-        caminho.add(new Coordenadas(176, 86));
-        caminho.add(new Coordenadas(186, 114));
-        caminho.add(new Coordenadas(185, 140));
-        caminho.add(new Coordenadas(182, 167));
-        caminho.add(new Coordenadas(208, 188));
-        caminho.add(new Coordenadas(206, 221));
-        caminho.add(new Coordenadas(178, 218));
-        caminho.add(new Coordenadas(166, 214));
-        caminho.add(new Coordenadas(145, 206));
-        caminho.add(new Coordenadas(123, 182));
-        caminho.add(new Coordenadas(103, 195));
-        caminho.add(new Coordenadas(87, 222));
-        caminho.add(new Coordenadas(68, 221));
-        caminho.add(new Coordenadas(49, 244));
-        caminho.add(new Coordenadas(37, 256));*/
-        
-        /*
-        //Susurro sombrio rotas pt1
-        caminho.add(new Coordenadas(55, 86));
-        caminho.add(new Coordenadas(36, 80));
-        caminho.add(new Coordenadas(37, 61));
-        caminho.add(new Coordenadas(37, 48));
-        caminho.add(new Coordenadas(62, 50));
-        caminho.add(new Coordenadas(85, 51));
-        caminho.add(new Coordenadas(85, 80));
-        caminho.add(new Coordenadas(80, 97));
-        caminho.add(new Coordenadas(54, 96));
-        caminho.add(new Coordenadas(25, 94));
-        caminho.add(new Coordenadas(27, 62));
-        caminho.add(new Coordenadas(30, 37));
-        caminho.add(new Coordenadas(61, 39));
-        caminho.add(new Coordenadas(94, 41));
-        caminho.add(new Coordenadas(93, 65));
-        caminho.add(new Coordenadas(93, 75));
-        */
-        //pt 2
-        caminho.add(new Coordenadas(210, 64));
-        caminho.add(new Coordenadas(209, 36));
-        caminho.add(new Coordenadas(163, 36));
-        caminho.add(new Coordenadas(142, 39));
-        caminho.add(new Coordenadas(142, 76));
-        caminho.add(new Coordenadas(145, 96));
-        caminho.add(new Coordenadas(179, 94));
-        caminho.add(new Coordenadas(202, 91));
-        caminho.add(new Coordenadas(199, 66));
-        caminho.add(new Coordenadas(199, 45));
-        caminho.add(new Coordenadas(172, 46));
-        caminho.add(new Coordenadas(151, 48));
-        caminho.add(new Coordenadas(153, 65));
-        caminho.add(new Coordenadas(190, 84));
-        caminho.add(new Coordenadas(190, 64));
-        
-        
         
         return caminho;
     }
@@ -316,13 +282,13 @@ public class GameController implements NativeKeyListener {
     private void andar(List<Coordenadas> caminho, Coordenadas atual) throws Exception {
         // Verificar se chegou ao destino atual
         int distanciaMinima = 5; // Defina a distância mínima aceitável
-        Coordenadas destino = caminho.get(rota);
+        Coordenadas destino = caminho.get(passo);
 
         if (bot.calcularDistancia(atual, destino) <= distanciaMinima) {
-            rota++;
+            passo++;
             System.out.println("Destino alcançado, mudando para a próxima rota.");
-            if (rota >= caminho.size()) {
-                rota = 0; // Reiniciar a rota caso chegue ao final
+            if (passo >= caminho.size()) {
+                passo = 0; // Reiniciar a rota caso chegue ao final
             }
         } else {
             // Mover o personagem em direção ao destino

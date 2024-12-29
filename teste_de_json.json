@@ -1,0 +1,145 @@
+{
+    "rotas": [
+      {
+        "descricao": "Andar pra parte de baixo de morroc",
+        "passos": [
+          { "coordenadas": [162, 87] },
+          { "coordenadas": [162, 68] },
+          { "coordenadas": [160, 46] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [160, 46],
+          "elseAcoes": [
+            { "coordenadas": [160, 46] }
+          ]
+        }
+      },
+      {
+        "descricao": "Ir pra parte esquerda baixo de morroc",
+        "passos": [
+          { "coordenadas": [144, 47] },
+          { "coordenadas": [132, 51] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [132, 51],
+          "elseAcoes": [
+            { "coordenadas": [132, 51] }
+          ]
+        }
+      },
+      {
+        "descricao": "Ir pra parte esquerda cima de morroc",
+        "passos": [
+          { "coordenadas": [138, 65] },
+          { "coordenadas": [142, 82] },
+          { "coordenadas": [148, 91] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [148, 91],
+          "elseAcoes": [
+            { "coordenadas": [148, 91] }
+          ]
+        }
+      },
+      {
+        "descricao": "Falar com a kafra e ir pra alberta",
+        "passos": [
+          { "coordenadas": [156, 91] }
+        ],
+        "verificacao": {
+          "tipo": "npc",
+          "coordenadas": [117, 56],
+          "acoes": [
+            {"balaoUnico": false, "opcao": 3 },
+            {"balaoUnico": false, "opcao": 3 }
+          ]
+        }
+      },
+      {
+        "descricao": "Andar pra esquerda de alberta",
+        "passos": [
+          { "coordenadas": [156, 91] },
+          { "coordenadas": [90, 57] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [90, 57],
+          "elseAcoes": [
+            { "coordenadas": [90, 57] }
+          ]
+        }
+      },
+      {
+        "descricao": "Subir alberta",
+        "passos": [
+          { "coordenadas": [94, 70] },
+          { "coordenadas": [96, 87] },
+          { "coordenadas": [98, 107] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [98, 107],
+          "elseAcoes": [
+            { "coordenadas": [98, 107] }
+          ]
+        }
+      },
+      {
+        "descricao": "Descer alberta",
+        "passos": [
+          { "coordenadas": [95, 92] },
+          { "coordenadas": [95, 72] },
+          { "coordenadas": [91, 53] },
+          { "coordenadas": [110, 56] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [110, 56],
+          "elseAcoes": [
+            { "coordenadas": [110, 56] }
+          ]
+        }
+      },
+      {
+        "descricao": "Falar  com a kafra e voltar para morroc",
+        "passos": [
+          { "coordenadas": [95, 92] },
+          { "coordenadas": [95, 72] },
+          { "coordenadas": [91, 53] },
+          { "coordenadas": [110, 56] }
+        ],
+        "verificacao": {
+          "tipo": "npc",
+          "coordenadas": [156, 46],
+          "acoes": [
+            {"balaoUnico": false, "opcao": 3 },
+            {"balaoUnico": false, "opcao": 2 }
+          ]
+        }
+      },
+      {
+        "descricao": "Subir morroc",
+        "passos": [
+          { "coordenadas": [161, 59] },
+          { "coordenadas": [163, 78] },
+          { "coordenadas": [161, 93] },
+          { "coordenadas": [193, 90] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [193, 90],
+          "elseAcoes": [
+            { "coordenadas": [193, 90] }
+          ]
+        }
+      }
+    ],
+    "finalizacao": {
+      "descricao": "Encerrar rota",
+      "coordenadas": [193, 90]
+    }
+  }
+  
