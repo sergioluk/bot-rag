@@ -18,6 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -250,10 +251,19 @@ public class Bot {
 			if (npcs.isEmpty()) {
 	        	return npcs;
 	        }
+			
+			// Altura máxima da imagem
+		    int imageHeight = analise.screen.rows();
 	        
-		    // Filtrar monstros com altura maior que 20 pixels
+		    // Filtrar NPCs por tamanho e posição
 		    List<MatOfPoint> npcsFiltrados = npcs.stream()
-		        .filter(monstro -> Imgproc.boundingRect(monstro).width >= 250 && (Imgproc.boundingRect(monstro).height >= 50))
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            int npcBaseY = boundingBox.y + boundingBox.height; // Base do retângulo (parte inferior)
+		            return boundingBox.width >= 250 &&
+		                   boundingBox.height >= 50 &&
+		                   npcBaseY < (imageHeight * 0.8); // Abaixo de 80% da altura da imagem
+		        })
 		        .toList();
 		    
 		    /*
@@ -305,10 +315,13 @@ public class Bot {
 	    int xMouse = (int) (this.xJanela + this.coordenadasJogadorTelaX + normalizaX * distanciaDesejada);
 	    int yMouse = (int) (this.yJanela + this.coordenadasJogadorTelaY - normalizaY * distanciaDesejada);
 		
-		
-        moverMouse(xMouse, yMouse);
-        Thread.sleep(50);
-        clicarMouse();
+		Random random = new Random();
+		int randX = random.nextInt(4); //0 a 5
+		int randY = random.nextInt(4);
+        moverMouse(xMouse + randX, yMouse + randY);
+        //Thread.sleep(50);
+        //clicarMouse();
+        clicarSegurarMouse();
     }
 	
 	public void atacarMonstro(MatOfPoint monstro) throws Exception {
@@ -329,6 +342,12 @@ public class Bot {
         robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Liberar o botão esquerdo
 	}
 	
+	public void clicarSegurarMouse() {
+	    robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+	}
+	public void soltarMouse() {
+		robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+	}
 	
 	public void moverMouse(int x, int y) {
 		 robot.mouseMove(x, y);

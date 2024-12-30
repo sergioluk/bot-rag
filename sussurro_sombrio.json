@@ -5,13 +5,14 @@
         "passos": [
           { "coordenadas": [53, 67] },
           { "coordenadas": [67, 66] },
-          { "coordenadas": [73, 71] },
-          { "coordenadas": [67, 66] }
+          { "coordenadas": [73, 71] }
         ],
         "verificacao": {
           "tipo": "teleport",
           "coordenadas": [75, 82],
           "elseAcoes": [
+            { "coordenadas": [53, 67] },
+            { "coordenadas": [67, 66] },
             { "coordenadas": [73, 71] }
           ]
         }

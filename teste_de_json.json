@@ -61,7 +61,7 @@
       {
         "descricao": "Andar pra esquerda de alberta",
         "passos": [
-          { "coordenadas": [156, 91] },
+          { "coordenadas": [100, 56] },
           { "coordenadas": [90, 57] }
         ],
         "verificacao": {
@@ -106,9 +106,6 @@
       {
         "descricao": "Falar  com a kafra e voltar para morroc",
         "passos": [
-          { "coordenadas": [95, 92] },
-          { "coordenadas": [95, 72] },
-          { "coordenadas": [91, 53] },
           { "coordenadas": [110, 56] }
         ],
         "verificacao": {

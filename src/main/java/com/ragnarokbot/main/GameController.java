@@ -34,9 +34,14 @@ public class GameController implements NativeKeyListener {
 	private volatile boolean ligarBot = true;
 	private volatile boolean pausarBot = false;
 	//private Estado estado = Estado.ANDANDO;
+	//Contagens de acoes
     private int passo = 0;
-    
     private int rota = 0;
+    private int acoesNpc = 0;
+    private int elseAcoes = 0;
+    
+    private boolean tentandoFalarComNpc = false;
+    private boolean interagindoComNpc = false;
     
     Coordenadas npc = new Coordenadas(156, 97);
     boolean falarComNpc = true;
@@ -118,8 +123,8 @@ public class GameController implements NativeKeyListener {
          */
     	
     	ScriptLoader scriptLoader = new ScriptLoader();
-    	//Script script = scriptLoader.carregarScriptdoJson("sussurro_sombrio.json");
-    	Script script = scriptLoader.carregarScriptdoJson("teste_de_json.json");
+    	Script script = scriptLoader.carregarScriptdoJson("sussurro_sombrio.json");
+    	//Script script = scriptLoader.carregarScriptdoJson("teste_de_json.json");
     	
     	System.out.println("Era pra ter 4 rotas: " + script.getRotas().size());
     	
@@ -179,13 +184,14 @@ public class GameController implements NativeKeyListener {
                 case ANDANDO:
                 	String coordenadaXY = bot.ocrCoordenadas();
                     Coordenadas atual = new Coordenadas(coordenadaXY);
-                    
+                    /*
                     if (falarComNpc && bot.calcularDistancia(atual, npc) <= 10) {
                         falarComNpc();
                         stateMachine.mudarEstado(Estado.NPC);
                     } else {
-                        andar(caminho, atual);
-                    }
+                        andar(caminho, atual, script);
+                    }*/
+                    andar(atual, script, stateMachine);
                     break;
 
                 case ATACANDO:
@@ -196,8 +202,17 @@ public class GameController implements NativeKeyListener {
                     break;
 
                 case NPC:
-                    interagirComNpc();
-                    stateMachine.mudarEstado(Estado.ANDANDO);
+                	if (tentandoFalarComNpc) {
+                		System.out.println("Tentando falar com o npc...");
+                		falarComNpc();
+                		continue;
+                	}
+                	if (interagindoComNpc) {
+                		interagirComNpc(script, stateMachine);
+                		continue;
+                	}
+                    
+                    //stateMachine.mudarEstado(Estado.ANDANDO);
                     break;
 
                 default:
@@ -222,16 +237,36 @@ public class GameController implements NativeKeyListener {
             bot.moverMouse(centerX, centerY);
             Thread.sleep(50);
             bot.clicarMouse();
+            
+            List<MatOfPoint> balao = bot.verificarBalaoNpc();
+            if (!balao.isEmpty()) {
+            	tentandoFalarComNpc = false;
+            	interagindoComNpc = true;
+            }
         }
     }
     
-    private void interagirComNpc() throws Exception {
+    private void interagirComNpc(Script script, StateMachine stateMachine) throws Exception {
         List<MatOfPoint> balao = bot.verificarBalaoNpc();
         System.out.println("tamanho balao " + balao.size());
-        if (balao.size() == 1) {
+        
+        boolean balaoDeOpcoesUnico = script.getRotas().get(rota).getVerificacao().getAcoes().get(acoesNpc).isBalaoUnico();
+        int opcao = script.getRotas().get(rota).getVerificacao().getAcoes().get(acoesNpc).getOpcao();
+        
+        System.out.println("Antes do if balao == 1 e balaounico false");
+        System.out.println("balao.size: " + balao.size() + " balaoDeOpcoesUnico: " + balaoDeOpcoesUnico);
+        if (balao.size() == 1 && balaoDeOpcoesUnico == false) {
             bot.apertarTecla(KeyEvent.VK_ENTER);
-        } else if (balao.size() == 2) {
-            bot.selecionarOpcao(5);
+        } else if (balao.size() >= 2 || balaoDeOpcoesUnico == true) {
+        	interagindoComNpc = true;
+            bot.selecionarOpcao(opcao);
+            acoesNpc++;
+            if (acoesNpc >= script.getRotas().get(rota).getVerificacao().getAcoes().size()) {
+            	acoesNpc = 0;
+            	rota++;
+            	interagindoComNpc = false;
+            	stateMachine.mudarEstado(Estado.ANDANDO);
+            }
         }
     }
     
@@ -279,16 +314,56 @@ public class GameController implements NativeKeyListener {
         }
     }*/
     
-    private void andar(List<Coordenadas> caminho, Coordenadas atual) throws Exception {
+    private void andar(Coordenadas atual, Script script, StateMachine stateMachine) throws Exception {
         // Verificar se chegou ao destino atual
         int distanciaMinima = 5; // Defina a distância mínima aceitável
-        Coordenadas destino = caminho.get(passo);
+        //Coordenadas destino = caminho.get(passo);
+        
+        int destinoX = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(0);
+        int destinoY = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(1);
+        Coordenadas destino = new Coordenadas(destinoX, destinoY);
+        
+        System.out.println(script.getRotas().get(rota).getDescricao());
 
         if (bot.calcularDistancia(atual, destino) <= distanciaMinima) {
             passo++;
             System.out.println("Destino alcançado, mudando para a próxima rota.");
-            if (passo >= caminho.size()) {
-                passo = 0; // Reiniciar a rota caso chegue ao final
+            if (passo >= script.getRotas().get(rota).getPassos().size()) { //Se terminou todos os passos
+            	String verificacao = script.getRotas().get(rota).getVerificacao().getTipo();
+            	passo = 0; // Reiniciar a rota caso chegue ao final
+            	if (verificacao.equals("loop")) {
+            		rota = 0;
+            		elseAcoes = 0;
+            		return;
+            	}
+            	if (verificacao.equals("npc")) {
+            		stateMachine.mudarEstado(Estado.NPC);
+            		tentandoFalarComNpc = true;
+            		return;
+            	}
+            	int verificarX = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(0);
+            	int verificarY = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(1);
+            	if (bot.calcularDistancia(atual, new Coordenadas(verificarX, verificarY)) <= distanciaMinima) {
+            		rota++;
+            		elseAcoes = 0;
+            		if (rota >= script.getRotas().size()) {
+            			rota = 0; //reiniciar tudo ou ir pro finalização
+            			int finalizarX = script.getFinalizacao().getCoordenadas().get(0);
+            			int finalizarY = script.getFinalizacao().getCoordenadas().get(1);
+            			if (bot.calcularDistancia(atual, new Coordenadas(finalizarX, finalizarY)) <= distanciaMinima) {
+            				System.out.println("Finalizou a rota: " + script.getFinalizacao().getDescricao());
+            			}
+            		}
+            	} else {
+            		//Parte dos elseAcoes
+            		int elseX = script.getRotas().get(rota).getVerificacao().getElseAcoes().get(elseAcoes).getCoordenadas().get(0);
+            		int elseY = script.getRotas().get(rota).getVerificacao().getElseAcoes().get(elseAcoes).getCoordenadas().get(1);
+            		bot.moverPersonagem(atual, new Coordenadas(elseX, elseY));
+            		elseAcoes++;
+            		if (elseAcoes >= script.getRotas().get(rota).getVerificacao().getElseAcoes().size()) {
+            		elseAcoes = 0;
+            		}
+            	}
             }
         } else {
             // Mover o personagem em direção ao destino
@@ -313,6 +388,7 @@ public class GameController implements NativeKeyListener {
     	} else {
     		System.out.println("Resumindo o bot...");
     	}
+    	bot.soltarMouse();
     }
     
     public void fecharBot() {
@@ -321,6 +397,7 @@ public class GameController implements NativeKeyListener {
     		tela.dispose();
     	}
         System.out.println("Tecla 'F' pressionada. Parando o bot...");
+        bot.soltarMouse();
     }
     
     @Override
