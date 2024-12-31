@@ -27,12 +27,12 @@ public class Coordenadas {
 	    	usarUltimaCoordenada();
 	        return;
 	    }
-	    System.out.println("Ocr: " + coordenada + "Tamanho: " + substrings.length + "/2");
+	    //System.out.println("Ocr: " + coordenada + "Tamanho: " + substrings.length + "/2");
 	    String xString = substrings[0].replaceAll("[^0-9]", ""); // Remover tudo que não é número
 	    String yString = substrings[1].replaceAll("[^0-9]", ""); // Remover tudo que não é número
 	    
 	    
-		System.out.println("Tamanho vetor: " + substrings.length + " | x: " + substrings[0] + " y: " + substrings[1]);
+		//System.out.println("Tamanho vetor: " + substrings.length + " | x: " + substrings[0] + " y: " + substrings[1]);
 		
 		// Tratar erros de conversão e atribuir valor padrão
 		if (xString.isEmpty() || yString.isEmpty()) {

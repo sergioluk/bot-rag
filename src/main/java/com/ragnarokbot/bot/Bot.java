@@ -36,10 +36,12 @@ import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import com.ragnarokbot.main.BotRagnarok;
+import com.ragnarokbot.main.GameController;
 import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.MonstrosImagem;
 import com.ragnarokbot.model.MyUser32;
 import com.ragnarokbot.model.OcrResult;
+import com.ragnarokbot.model.enums.Estado;
 
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
@@ -159,6 +161,7 @@ public class Bot {
 	    return mat;
 	}
 	
+	/*
 	public MonstrosImagem analisarTela(Scalar lowerColor, Scalar upperColor) throws IOException {
 		
 		// Capturar a tela da área definida
@@ -191,8 +194,63 @@ public class Bot {
 	    
 		
 	    return new MonstrosImagem(entidades, screen);
+	}*/
+	
+public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOException {
+	
+		// Definir a área onde os monstros aparecem na tela capturada
+	    int areaX = 233;  // Coordenada x da área de interesse
+	    int areaY = 192;  // Coordenada y da área de interesse
+	    int areaWidth = 560;  // Largura da área de interesse
+	    int areaHeight = 403; // Altura da área de interesse
+		
+	    
+		// Capturar a tela da área definida
+	    Rectangle captureArea = null;
+	    if (GameController.stateMachine.getEstadoAtual().equals(Estado.ANDANDO)
+	    		|| GameController.stateMachine.getEstadoAtual().equals(Estado.ATACANDO)) {
+	    	captureArea = new Rectangle(xJanela + areaX, yJanela + areaY, areaWidth, areaHeight);
+	    } else {
+	    	captureArea = new Rectangle(xJanela, yJanela, width, height);
+	    }
+	    BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(screenFullImage);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Mapear os resultados
+	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	    
+	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+	        String colorName = entry.getKey();
+	        Scalar lowerColor = entry.getValue()[0];
+	        Scalar upperColor = entry.getValue()[1];
+
+	        // Criar máscara para identificar a cor dentro do intervalo
+	        Mat mask = new Mat();
+	        Core.inRange(hsvImage, lowerColor, upperColor, mask);
+
+	        // Encontrar contornos na máscara
+	        List<MatOfPoint> entidades = new ArrayList<>();
+	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	        
+	        // Armazenar os contornos filtrados associados à cor
+	        detectedEntities.put(colorName, entidades);
+	    }
+
+
+	    return new MonstrosImagem(detectedEntities, screen);
 	}
 
+/*
 	public List<MatOfPoint> listaMonstros() throws IOException {
 		// Definir os limites de cor
 	    Scalar lowerColor = new Scalar(148, 200, 200);  // Limite inferior (rosa)
@@ -213,12 +271,71 @@ public class Bot {
 
 	    // Retornar monstros visíveis após raycast    
 	    return filtrarMonstrosVisiveisRaycast(monstrosFiltrados, analise.screen);
+	}*/
+
+	public Map<String, List<MatOfPoint>> listaMonstros() throws IOException {
+		
+		// Definir a área onde os monstros aparecem na tela capturada
+	    int areaX = 233;  // Coordenada x da área de interesse
+	    int areaY = 192;  // Coordenada y da área de interesse
+	    
+		// Definir os intervalos de cores
+	    Map<String, Scalar[]> colorRanges = new HashMap<>();
+	    colorRanges.put("rosa", new Scalar[]{new Scalar(148, 200, 200), new Scalar(154, 255, 255)});
+	    colorRanges.put("azul", new Scalar[]{new Scalar(108, 215, 204), new Scalar(128, 255, 255)}); // Azul
+	    
+		MonstrosImagem analise = analisarTela(colorRanges);
+		
+		// Analisar a tela para as cores definidas
+	    Map<String, List<MatOfPoint>> detectedEntities = analise.listaEntidades;
+	    
+	    // Map para armazenar as listas filtradas e visíveis
+	    Map<String, List<MatOfPoint>> visibleEntities = new HashMap<>();
+	    
+	    // Processar cada cor
+	    for (Map.Entry<String, List<MatOfPoint>> entry : detectedEntities.entrySet()) {
+	        String color = entry.getKey();
+	        List<MatOfPoint> entities = entry.getValue();
+
+	        // Filtrar monstros com altura >= 20
+	        List<MatOfPoint> filtered = entities.stream()
+	            .filter(monstro -> Imgproc.boundingRect(monstro).height >= 20)
+	            .toList();
+	        
+
+	        // Filtrar por visibilidade usando raycast
+	        List<MatOfPoint> visible = filtrarMonstrosVisiveisRaycast(filtered, analise.screen);
+	        
+	        
+	        
+	        // Ajustar as coordenadas para serem globais
+	        List<MatOfPoint> adjustedEntities = new ArrayList<>();
+	        for (MatOfPoint entidade : visible) {
+	            List<org.opencv.core.Point> adjustedPoints = new ArrayList<>();
+	            for (org.opencv.core.Point p : entidade.toList()) {
+	                adjustedPoints.add(new org.opencv.core.Point(p.x + areaX, p.y + areaY)); // Ajusta as coordenadas
+	            }
+	            MatOfPoint adjustedEntidade = new MatOfPoint();
+	            adjustedEntidade.fromList(adjustedPoints); // Constrói o MatOfPoint ajustado
+	            adjustedEntities.add(adjustedEntidade);
+	        }
+
+	        //System.out.println("Tamanho da lista da imagem pequena " + adjustedEntities.size());
+	        
+	        
+
+	        //System.out.println("Monstros visíveis para a cor " + color + ": " + adjustedEntities.size());
+	        //visibleEntities.put(color, visible); // Adicionar ao mapa de monstros visíveis
+	        visibleEntities.put(color, adjustedEntities); // Adicionar ao mapa de monstros visíveis
+	    }
+		
+	    return visibleEntities;
 	}
-	
+	/*
 	public List<MatOfPoint> listaNpcs() throws IOException {
 		// Definir os limites de cor
-	    Scalar lowerColor = new Scalar(0, 151, 215);  // Limite inferior (rosa)
-	    Scalar upperColor = new Scalar(20, 231, 255);  // Limite superior (rosa)
+	    Scalar lowerColor = new Scalar(0, 151, 215);  // Limite inferior (laranja)
+	    Scalar upperColor = new Scalar(20, 231, 255);  // Limite superior (laranja)
 	    
 	    MonstrosImagem analise = analisarTela(lowerColor, upperColor);
 	    
@@ -230,23 +347,49 @@ public class Bot {
 	        
 		    // Filtrar monstros com altura maior que 20 pixels
 		    List<MatOfPoint> npcsFiltrados = npcs.stream()
-		        .filter(monstro -> Imgproc.boundingRect(monstro).height >= 20)
+		        .filter(monstro -> Imgproc.boundingRect(monstro).height >= 40)
 		        .toList();
 	
 		    return npcsFiltrados;   
+	}*/
+	
+	public List<MatOfPoint> listaNpcs() throws IOException {
+		// Definir os limites de cor
+	    Scalar lowerColor = new Scalar(0, 151, 215);  // Limite inferior (laranja)
+	    Scalar upperColor = new Scalar(20, 231, 255);  // Limite superior (laranja)
+	    
+	    MonstrosImagem analise = analisarTela(Map.of("npcs", new Scalar[]{lowerColor, upperColor}));
+	    
+	    // Obter a lista de NPCs usando a chave "npcs"
+	    List<MatOfPoint> npcs = analise.listaEntidades.getOrDefault("npcs", new ArrayList<>());
+	
+			
+	    if (npcs.isEmpty()) {
+	    	return npcs;
+	    }
+	        
+		// Filtrar monstros com altura maior que 20 pixels
+		List<MatOfPoint> npcsFiltrados = npcs.stream()
+				.filter(monstro -> Imgproc.boundingRect(monstro).height >= 40)
+				.toList();
+	
+		return npcsFiltrados;   
 	}
+	
 	
 	public List<MatOfPoint> verificarBalaoNpc() throws IOException {
 		// Definir os limites de cor
 	    Scalar lowerColor = new Scalar(0, 0, 207);  // Limite inferior (branco)
 	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
 	    
-	    MonstrosImagem analise = analisarTela(lowerColor, upperColor);
-	    
+	    //MonstrosImagem analise = analisarTela(lowerColor, upperColor);
+	    MonstrosImagem analise = analisarTela(Map.of("baloesNpc", new Scalar[]{lowerColor, upperColor}));
 	   
 	    
 	    
-	    List<MatOfPoint> npcs = analise.listaEntidades;
+	    //List<MatOfPoint> npcs = analise.listaEntidades;
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> npcs = analise.listaEntidades.getOrDefault("baloesNpc", new ArrayList<>());
 	
 			if (npcs.isEmpty()) {
 	        	return npcs;
@@ -319,19 +462,20 @@ public class Bot {
 		int randX = random.nextInt(4); //0 a 5
 		int randY = random.nextInt(4);
         moverMouse(xMouse + randX, yMouse + randY);
+		//moverMouse(xMouse, yMouse);
         //Thread.sleep(50);
         //clicarMouse();
         clicarSegurarMouse();
     }
 	
-	public void atacarMonstro(MatOfPoint monstro) throws Exception {
+	public void atacarMonstro(MatOfPoint monstro, int tecla) throws Exception {
         Rect rect = Imgproc.boundingRect(monstro);
         int centerX = xJanela + rect.x + rect.width / 2;
         int centerY = yJanela + rect.y + rect.height / 2;
 
         moverMouse(centerX, centerY);
         Thread.sleep(50);
-        apertarTecla(KeyEvent.VK_Q);
+        apertarTecla(tecla);
         Thread.sleep(50);
         clicarMouse();
     }
@@ -358,6 +502,35 @@ public class Bot {
 		 Thread.sleep(50);
          robot.keyRelease(tecla); // Liberar a tecla
 	}
+	
+	public void moverPersonagemComClick(Coordenadas atual, Coordenadas destino) throws Exception {
+		
+		double dx = destino.x - atual.x;
+		double dy = destino.y - atual.y;
+			
+		// Calcular o ângulo em radianos
+	    double angulo = Math.atan2(dy, dx);
+			
+	    // Calcular a distância original entre os pontos
+	    double distanciaOriginal = Math.sqrt(dx * dx + dy * dy);
+ 
+	    //double distanciaDesejada = 200.0;
+	    double distanciaDesejada = width * 17 / 100;
+	    
+	    // Calcular a normalização do vetor (vetor unitário)   
+	    double normalizaX = dx / distanciaOriginal;    
+	    double normalizaY = dy / distanciaOriginal;
+	
+	    int xMouse = (int) (this.xJanela + this.coordenadasJogadorTelaX + normalizaX * distanciaDesejada);
+	    int yMouse = (int) (this.yJanela + this.coordenadasJogadorTelaY - normalizaY * distanciaDesejada);
+		
+		Random random = new Random();
+		int randX = random.nextInt(4); //0 a 5
+		int randY = random.nextInt(4);
+        moverMouse(xMouse + randX, yMouse + randY);
+        Thread.sleep(50);
+        clicarMouse();
+    }
 	
 	private void getWidthHeight() {
 		try {
@@ -436,7 +609,8 @@ public class Bot {
 	    List<MatOfPoint> monstrosVisiveis = new ArrayList<>();
 
 	    //Obter posicaoJogador
-        Point posicaoJogador = new Point(width / 2, height / 2);
+        //Point posicaoJogador = new Point(width / 2, height / 2);
+	    Point posicaoJogador = new Point(screen.width() / 2, screen.height() / 2);
         
 	    for (MatOfPoint monstro : monstros) {
 	        Rect boundingRect = Imgproc.boundingRect(monstro);
@@ -480,6 +654,14 @@ public class Bot {
 	    }
 
 	    return monstrosVisiveis;
+	}
+	
+	public boolean compararCoordenadas(Coordenadas atual, Coordenadas destino) {
+		if ((atual.x == destino.x) && (atual.y == destino.y)) {
+			return true;
+		}
+		
+		return false;
 	}
 
 

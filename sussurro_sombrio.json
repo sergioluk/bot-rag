@@ -9,7 +9,7 @@
         ],
         "verificacao": {
           "tipo": "teleport",
-          "coordenadas": [75, 82],
+          "coordenadas": [73, 84],
           "elseAcoes": [
             { "coordenadas": [53, 67] },
             { "coordenadas": [67, 66] },
