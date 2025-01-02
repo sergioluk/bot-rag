@@ -39,6 +39,7 @@ import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 
 import com.sun.jna.platform.win32.WinDef;
+
 import com.ragnarokbot.bot.Bot;
 import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.model.Coordenadas;
@@ -61,6 +62,7 @@ public class BotRagnarok {
         // Configurar whitelist para reconhecer apenas números
         tesseract.setTessVariable("tessedit_char_whitelist", "0123456789 ");
         tesseract.setTessVariable("preserve_interword_spaces", "1");
+        tesseract.setTessVariable("user_defined_dpi", "300"); // 150 é rápido e suficiente para números
         
         ITesseract tesseractLetras = new Tesseract();
         tesseractLetras.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
@@ -82,6 +84,7 @@ public class BotRagnarok {
         //Apagar
         
         gameController.run();
+        
         
         /*
         Config config = ConfigManager.loadConfig();

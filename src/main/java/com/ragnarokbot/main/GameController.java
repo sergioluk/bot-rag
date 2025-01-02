@@ -17,10 +17,13 @@ import com.ragnarokbot.model.Script.Rota;
 import com.ragnarokbot.model.enums.Estado;
 
 import config.ScriptLoader;
+import net.sourceforge.tess4j.TesseractException;
 import state.StateMachine;
 
+import java.awt.Event;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -45,7 +48,8 @@ public class GameController implements NativeKeyListener {
     private boolean interagindoComNpc = false;
     
     private long ultimoMovimento = System.currentTimeMillis(); // Timestamp do último movimento
-    private Coordenadas ultimaCoordenada = new Coordenadas(0,0);
+    private Coordenadas ultimaCoordenada;
+    private Coordenadas atual;
     private boolean personagemParado = false;
     
     boolean falarComNpc = true;
@@ -65,6 +69,14 @@ public class GameController implements NativeKeyListener {
         } catch (Exception e) {
         	e.printStackTrace();
         }
+        
+        try {
+			atual = new Coordenadas(bot.ocrCoordenadas());
+			ultimaCoordenada = atual;
+		} catch (IOException | TesseractException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     public void run() throws Exception {
@@ -72,9 +84,13 @@ public class GameController implements NativeKeyListener {
     	Script script = inicializarCaminho("teste_de_json");
         //Script script = inicializarCaminho("sussurro_sombrio");
     	//Script script = inicializarCaminho("teste_formigueiro");
-    	apresentacao(script);
+    	//apresentacao(script);
 
         Thread.sleep(1000);
+        
+        bot.zoomOut();
+        
+       // inicarBotPeloLocalAtualDoPlayer(script);
 
         while (ligarBot) {
             long startTime = System.currentTimeMillis();
@@ -107,7 +123,7 @@ public class GameController implements NativeKeyListener {
             switch (stateMachine.getEstadoAtual()) {
                 case ANDANDO:
                 	String coordenadaXY = bot.ocrCoordenadas();
-                    Coordenadas atual = new Coordenadas(coordenadaXY);
+                    atual = new Coordenadas(coordenadaXY);
                     
                     if (bot.compararCoordenadas(atual, ultimaCoordenada)) {
                     	if (System.currentTimeMillis() - ultimoMovimento >= 3000) {
@@ -118,6 +134,20 @@ public class GameController implements NativeKeyListener {
                     	personagemParado = false;
                     	ultimoMovimento = System.currentTimeMillis();
                     }
+                   
+                    //verificar se tem falha no ocr pra nao dar coordenadas muito longe
+                    if (Math.abs(ultimaCoordenada.x - atual.x) > 20 || Math.abs(ultimaCoordenada.y - atual.y) > 20 ) {
+                   		int diminuirPasso = passo - 1;
+                   		if (diminuirPasso <= 0) {
+                   			diminuirPasso = 0;
+                   		}
+                       	int x = script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().get(0);
+                       	int y = script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().get(1);
+                       	atual = new Coordenadas(x,y);
+                       	System.out.println("****************#########################");
+                       	System.out.println("****************#########################");
+                       	System.out.println("****************#########################");
+                    }
                     
                     ultimaCoordenada = atual;
                    
@@ -126,7 +156,7 @@ public class GameController implements NativeKeyListener {
                         moverParaDirecaoOposta(atual); // Força o movimento do personagem
                         personagemParado = false; // Reseta o estado após o movimento forçado
                     } else {
-                        andar(atual, script, stateMachine);
+                        andar(script);
                     }
                     break;
 
@@ -144,7 +174,7 @@ public class GameController implements NativeKeyListener {
                 		continue;
                 	}
                 	if (interagindoComNpc) {
-                		interagirComNpc(script, stateMachine);
+                		interagirComNpc(script);
                 		continue;
                 	}
                     
@@ -191,7 +221,7 @@ public class GameController implements NativeKeyListener {
         }
     }
     
-    private void interagirComNpc(Script script, StateMachine stateMachine) throws Exception {
+    private void interagirComNpc(Script script) throws Exception {
         List<MatOfPoint> balao = bot.verificarBalaoNpc();
         System.out.println("tamanho balao " + balao.size());
         
@@ -248,7 +278,7 @@ public class GameController implements NativeKeyListener {
     	System.out.println("-------------------------------------------------------------------------------------");
     }
     
-    private void andar(Coordenadas atual, Script script, StateMachine stateMachine) throws Exception {
+    private void andar(Script script) throws Exception {
         // Verificar se chegou ao destino atual
         int distanciaMinima = 5; // Defina a distância mínima aceitável
         //Coordenadas destino = caminho.get(passo);
@@ -297,6 +327,10 @@ public class GameController implements NativeKeyListener {
     		break;
     		
     	case "npc":
+    		
+    		//fazer o personagem parar de andar usando primeiros socorros
+    		bot.soltarMouse();
+    		bot.apertarTecla(KeyEvent.VK_A);
     		passo = 0;
         	stateMachine.mudarEstado(Estado.NPC);
     		tentandoFalarComNpc = true;
@@ -313,7 +347,17 @@ public class GameController implements NativeKeyListener {
             
         } else {
             // Mover o personagem em direção ao destino
-            bot.moverPersonagem(atual, destino);
+        	
+        	//Pegando a ultima coordenada para limite o angulo de movimento do mouse
+        	Coordenadas ultimaCoordenada = null;
+        	int ultimoPasso = passo - 1;
+        	if (ultimoPasso > 0) {
+        		int ultimaCoordenadaX = script.getRotas().get(rota).getPassos().get(ultimoPasso).getCoordenadas().get(0);
+                int ultimaCoordenadaY = script.getRotas().get(rota).getPassos().get(ultimoPasso).getCoordenadas().get(1);
+                ultimaCoordenada = new Coordenadas(ultimaCoordenadaX, ultimaCoordenadaY);
+        	}
+
+            bot.moverPersonagem(atual, destino, ultimaCoordenada);
         }
     }
     
@@ -352,6 +396,39 @@ public class GameController implements NativeKeyListener {
         }
     }
     
+    public void inicarBotPeloLocalAtualDoPlayer(Script script) {
+    	String coordenadaXY = "";
+		try {
+			coordenadaXY = bot.ocrCoordenadas();
+		} catch (IOException | TesseractException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        Coordenadas atual = new Coordenadas(coordenadaXY);
+        
+        int menorDistancia = 99999;
+        int rotaCalculada = 0;
+        int passoCalculada = 0;
+    	for(int i = 0; i < script.getRotas().size(); i++) {
+    		for(int j = 0; j < script.getRotas().get(i).getPassos().size(); j++) {
+    			int x = script.getRotas().get(i).getPassos().get(j).getCoordenadas().get(0);
+    			int y = script.getRotas().get(i).getPassos().get(j).getCoordenadas().get(1);
+    			Coordenadas destino = new Coordenadas(x,y);
+    			int distanciaCalculada = bot.calcularDistancia(atual, destino);
+    			
+    			if (distanciaCalculada <= menorDistancia ) {
+    				menorDistancia = distanciaCalculada;
+    				rotaCalculada = i;
+    				passoCalculada = j;
+    			}
+    		}
+    	}
+    	
+    	this.rota = rotaCalculada;
+    	this.passo = passoCalculada;
+    	
+    }
+    
     public void pausarBot() {
     	pausarBot = !pausarBot;
     	if (pausarBot) {
@@ -359,7 +436,13 @@ public class GameController implements NativeKeyListener {
     	} else {
     		System.out.println("Resumindo o bot...");
     	}
-    	bot.soltarMouse();
+    	try {
+			bot.clicarMouse();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	//bot.soltarMouse();
     }
     
     public void fecharBot() {
@@ -368,7 +451,13 @@ public class GameController implements NativeKeyListener {
     		tela.dispose();
     	}
         System.out.println("Tecla 'F' pressionada. Parando o bot...");
-        bot.soltarMouse();
+        try {
+			bot.clicarMouse();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        //bot.soltarMouse();
     }
     
     @Override

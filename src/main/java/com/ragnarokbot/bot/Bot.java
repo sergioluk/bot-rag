@@ -1,5 +1,6 @@
 package com.ragnarokbot.bot;
 
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
@@ -32,6 +33,7 @@ import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -73,6 +75,8 @@ public class Bot {
     
     private int xJanela;
     private int yJanela;
+
+    
     
     //Variaveis para coordenadas mini mapa
     public Config configOCR;
@@ -90,6 +94,7 @@ public class Bot {
 		
 	}
 	
+	/*
 	public String ocr(int x, int y, int width, int height) throws IOException, TesseractException {
 		Rectangle area = new Rectangle(x, y, width, height);
         BufferedImage areaCapturada = robot.createScreenCapture(area);
@@ -104,7 +109,66 @@ public class Bot {
         System.out.println("ocr: " + ocr);
 		
 		return ocr;
+	}*/
+	
+	public String ocr(int x, int y, int width, int height) throws IOException, TesseractException {
+		Rectangle area = new Rectangle(x, y, width, height);
+        BufferedImage areaCapturada = robot.createScreenCapture(area);
+        
+        // Converter a captura de tela para um formato Mat (imagem OpenCV)
+        Mat matImage = bufferedImageToMat2(areaCapturada);
+        
+        // Aplicar algum processamento de imagem (exemplo: conversão para escala de cinza)
+        Mat grayImage = new Mat();
+        Imgproc.cvtColor(matImage, grayImage, Imgproc.COLOR_BGR2GRAY);
+        
+        
+        // Converter Mat de volta para BufferedImage para o OCR
+        BufferedImage bufferedGrayImage = matToBufferedImage(grayImage);
+        
+        // Executa o OCR na imagem capturada
+        String ocr = tesseract.doOCR(bufferedGrayImage);
+        
+        System.out.println("ocr: " + ocr);
+		
+		return ocr;
 	}
+	
+	// Método para converter BufferedImage para Mat (OpenCV)
+    public Mat bufferedImageToMat2(BufferedImage image) {
+        Mat mat = new Mat(image.getHeight(), image.getWidth(), CvType.CV_8UC3);
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                int rgb = image.getRGB(x, y);
+                byte r = (byte) ((rgb >> 16) & 0xFF);
+                byte g = (byte) ((rgb >> 8) & 0xFF);
+                byte b = (byte) (rgb & 0xFF);
+                mat.put(y, x, new byte[]{b, g, r});
+            }
+        }
+        return mat;
+    }
+    
+    public BufferedImage matToBufferedImage(Mat mat) {
+        int width = mat.width();
+        int height = mat.height();
+        int channels = mat.channels();
+
+        // Se a imagem for em escala de cinza (1 canal), use BufferedImage.TYPE_BYTE_GRAY
+        // Se for colorida (3 canais), use BufferedImage.TYPE_3BYTE_BGR
+        int type = (channels == 1) ? BufferedImage.TYPE_BYTE_GRAY : BufferedImage.TYPE_3BYTE_BGR;
+
+        byte[] data = new byte[width * height * channels];
+        mat.get(0, 0, data);
+
+        BufferedImage image = new BufferedImage(width, height, type);
+
+        // Definir os dados de pixels da imagem
+        image.getRaster().setDataElements(0, 0, width, height, data);
+
+        return image;
+    }
+	
 	
 	public String ocrCoordenadas() throws IOException, TesseractException {
 		//return this.ocr( xJanela + xOcrCoordenadas + configOCR.rectangle.x, yJanela + yOcrCoordenadas,widthOcrCoordenadas,heightOcrCoordenadas);
@@ -437,8 +501,10 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
         		+ Math.pow(yJanela + monstroCentroY - coordenadasJogadorTelaY + yJanela, 2));
     }
 	
-	public void moverPersonagem(Coordenadas atual, Coordenadas destino) throws Exception {
-	
+	public void moverPersonagem(Coordenadas atual, Coordenadas destino, Coordenadas ultimaCoordenada) throws Exception {
+		
+		
+		
 		double dx = destino.x - atual.x;
 		double dy = destino.y - atual.y;
 			
@@ -457,15 +523,68 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	
 	    int xMouse = (int) (this.xJanela + this.coordenadasJogadorTelaX + normalizaX * distanciaDesejada);
 	    int yMouse = (int) (this.yJanela + this.coordenadasJogadorTelaY - normalizaY * distanciaDesejada);
-		
+	   
 		Random random = new Random();
-		int randX = random.nextInt(4); //0 a 5
+		int randX = random.nextInt(4);
 		int randY = random.nextInt(4);
         moverMouse(xMouse + randX, yMouse + randY);
 		//moverMouse(xMouse, yMouse);
         //Thread.sleep(50);
         //clicarMouse();
         clicarSegurarMouse();
+		/*
+		double dx = destino.x - atual.x;
+	    double dy = destino.y - atual.y;
+
+	    // Calcular o ângulo entre atual e destino em radianos
+	    double anguloAtual = Math.atan2(dy, dx);
+
+	    // Definir variáveis para os limites de ângulo em radianos
+	    double limiteInferior = Double.NEGATIVE_INFINITY; // Sem limite por padrão
+	    double limiteSuperior = Double.POSITIVE_INFINITY;
+
+	    if (ultimaCoordenada != null) {
+	        // Calcular o ângulo entre ultimaCoordenada e destino
+	        double dxRef = destino.x - ultimaCoordenada.x;
+	        double dyRef = destino.y - ultimaCoordenada.y;
+	        double anguloReferencia = Math.atan2(dyRef, dxRef);
+
+	        // Definir os limites de ângulo em radianos
+	        double margem = Math.toRadians(15); // Convertendo 15 graus para radianos
+	        limiteInferior = anguloReferencia - margem;
+	        limiteSuperior = anguloReferencia + margem;
+
+	        // Ajustar o ânguloAtual para ficar dentro dos limites
+	        if (anguloAtual < limiteInferior) {
+	            anguloAtual = limiteInferior;
+	        } else if (anguloAtual > limiteSuperior) {
+	            anguloAtual = limiteSuperior;
+	        }
+	       
+	    }
+
+	    // Calcular a distância original entre os pontos
+	    double distanciaOriginal = Math.sqrt(dx * dx + dy * dy);
+
+	    // Distância desejada do mouse em relação ao jogador
+	    double distanciaDesejada = width * 17 / 100;
+
+	    // Calcular a nova direção normalizada com base no ângulo ajustado
+	    double normalizaX = Math.cos(anguloAtual);
+	    double normalizaY = Math.sin(anguloAtual);
+
+	    // Calcular as novas coordenadas do mouse
+	    int xMouse = (int) (this.xJanela + this.coordenadasJogadorTelaX + normalizaX * distanciaDesejada);
+	    int yMouse = (int) (this.yJanela + this.coordenadasJogadorTelaY - normalizaY * distanciaDesejada);
+
+	    // Adicionar um desvio aleatório para simular movimentos mais naturais
+	    Random random = new Random();
+	    int randX = random.nextInt(4);
+	    int randY = random.nextInt(4);
+	    moverMouse(xMouse + randX, yMouse + randY);
+
+	    // Simular o clique do mouse
+	    clicarSegurarMouse();*/
     }
 	
 	public void atacarMonstro(MatOfPoint monstro, int tecla) throws Exception {
@@ -473,7 +592,7 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
         int centerX = xJanela + rect.x + rect.width / 2;
         int centerY = yJanela + rect.y + rect.height / 2;
 
-        moverMouse(centerX, centerY);
+        moverMouse(centerX, centerY + 10);
         Thread.sleep(50);
         apertarTecla(tecla);
         Thread.sleep(50);
@@ -502,6 +621,24 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 		 Thread.sleep(50);
          robot.keyRelease(tecla); // Liberar a tecla
 	}
+	
+	private void scrollMouse(int scrollAmount) {
+	    // scrollAmount positivo = scroll up, scrollAmount negativo = scroll down
+	    robot.mouseWheel(scrollAmount);
+	    try {
+			Thread.sleep(70);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void zoomOut() {
+		for(int i = 0; i < 28; i++) {
+        	scrollMouse(-1);	
+        }
+	}
+
 	
 	public void moverPersonagemComClick(Coordenadas atual, Coordenadas destino) throws Exception {
 		

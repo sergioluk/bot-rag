@@ -11,6 +11,7 @@ import java.awt.event.MouseMotionAdapter;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 
 import com.sun.jna.platform.win32.User32;
 
@@ -55,6 +56,10 @@ public class Tela extends JFrame{
                 if (rectangle != null) {
                     g.setColor(new Color(0, 255, 0, 128));
                     g.drawRect(rectangle.x, rectangle.y, rectangle.width, rectangle.height);
+                    
+                    //g.drawRect(233, 192, 560, 403);
+                    
+                    
                 }
             }
         };

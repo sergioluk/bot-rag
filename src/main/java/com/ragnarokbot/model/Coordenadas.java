@@ -4,15 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import org.opencv.core.Core;
+
 public class Coordenadas {
 	
 	public int x;
 	public int y;
-	private static final List<Coordenadas> coordenadasValidas = new ArrayList<>();
+	private static List<Coordenadas> coordenadasValidas = new ArrayList<>();
     private static final int MAX_COORDENADAS = 10; // Limite máximo de coordenadas na lista
 	
 	private static int tentativasInvalidas = 0;
 	private static final int MAX_TENTATIVAS_INVALIDAS = 3;
+	
 	
 	public Coordenadas(int x, int y) {
 		this.x = x;
@@ -20,6 +23,7 @@ public class Coordenadas {
 	}
 	
 	public Coordenadas(String coordenada) {
+		System.out.println("veio isso doocr novo: " + coordenada);
 		// Usar expressão regular para capturar apenas números
 	    String[] substrings = coordenada.split(" ");
 	    if (substrings.length == 1) {
@@ -77,6 +81,7 @@ public class Coordenadas {
         	this.x = 100;
             this.y = 100;
             tentativasInvalidas = 0;
+            System.out.println("Caiu no fallback de 100 100");
         }
     }
     
@@ -98,9 +103,17 @@ public class Coordenadas {
         } else {
         	Coordenadas ultima = new Coordenadas(0,0);
         	if (coordenadasValidas.size() == 10) {
-        		Random random = new Random();
-        		ultima = coordenadasValidas.get(random.nextInt(coordenadasValidas.size()));
-        		System.out.println("Cheio 10 lista aleatorio");
+        		/*Random random = new Random();
+        		ultima = coordenadasValidas.get(random.nextInt(coordenadasValidas.size()));*/
+        		int somaX = 0, somaY = 0;
+        		for (Coordenadas c : coordenadasValidas) {
+        			somaX += c.x;
+        			somaY += c.y;
+        		}
+        		int mediaX = somaX / coordenadasValidas.size();
+        		int mediaY = somaY / coordenadasValidas.size();
+        		ultima = new Coordenadas(mediaX, mediaY);
+        		System.out.println("Cheio 10 pegando a media");
         	} else {
         		ultima = coordenadasValidas.get(coordenadasValidas.size() - 1);
         		System.out.println("CAIU NO ULTIMO DA LISTA HEHE BOY");
@@ -109,7 +122,7 @@ public class Coordenadas {
             this.y = ultima.y;
             System.out.println("Usando última coordenada válida: " + ultima);
         }
-        fallbackUltimaCoordenda();
+        //fallbackUltimaCoordenda();
     }
 	
 }
