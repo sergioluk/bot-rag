@@ -78,7 +78,7 @@ public class BotRagnarok {
         GameController gameController = new GameController(bot, tela);
         
         //Apagar
-        Scalar[] limites = calcularLimites(0, 18, 244);
+        Scalar[] limites = calcularLimites(33, 16, 16);
         System.out.println("Lower: " + limites[0]);
         System.out.println("Upper: " + limites[1]);
         //Apagar

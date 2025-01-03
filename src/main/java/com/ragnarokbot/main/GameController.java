@@ -10,17 +10,21 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import com.ragnarokbot.bot.Bot;
 import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.model.Coordenadas;
-import com.ragnarokbot.model.Script;
-import com.ragnarokbot.model.Script.Acao;
-import com.ragnarokbot.model.Script.Passo;
-import com.ragnarokbot.model.Script.Rota;
 import com.ragnarokbot.model.enums.Estado;
 
+import config.ContasConfig;
+import config.ContasConfig.Conta;
+import config.ContasConfig.Personagem;
+import config.Script;
 import config.ScriptLoader;
+import config.Script.Acao;
+import config.Script.Passo;
+import config.Script.Rota;
 import net.sourceforge.tess4j.TesseractException;
 import state.StateMachine;
 
 import java.awt.Event;
+import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -28,6 +32,8 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+
+import javax.imageio.ImageIO;
 
 
 
@@ -91,7 +97,45 @@ public class GameController implements NativeKeyListener {
         bot.zoomOut();
         
        // inicarBotPeloLocalAtualDoPlayer(script);
-
+        
+        ScriptLoader scriptLoader = new ScriptLoader();
+    	ContasConfig scriptContas = scriptLoader.carregarContas("teste_login_instancias" + ".json");
+    	
+    	for (Conta conta : scriptContas.getContas()) {
+            System.out.println("Usuário: " + conta.getUsuario());
+            System.out.println("Senha: " + conta.getSenha());
+            System.out.println("PIN: " + conta.getPin());
+            for (Personagem personagem : conta.getPersonagens()) {
+                System.out.println(" - Página: " + personagem.getPagina());
+                System.out.println(" - Index: " + personagem.getIndexPersonagem());
+                System.out.println(" - Passar Itens: " + personagem.isPassarItens());
+                System.out.println(" - Instâncias: " + personagem.getInstancias());
+            }
+        }
+    	
+        
+        bot.aceitarContrato();
+        
+        System.out.println("Apertando enter na selecao de servidor");
+        bot.apertarTecla(KeyEvent.VK_ENTER);
+        Thread.sleep(500);
+      
+        String usuario = "";
+        String senha = "";
+        String pin = "";
+        bot.realizarLogin(usuario,senha);
+        
+        System.out.println("Apertando enter na escolha do canal 1");
+        bot.apertarTecla(KeyEvent.VK_ENTER);
+        Thread.sleep(5000);
+        
+        System.out.println("Chega na parte do pin...");
+        bot.inserirPin(pin);
+        Thread.sleep(1000);
+        
+        bot.escolherPersonagem(1);
+        
+        ligarBot = false;
         while (ligarBot) {
             long startTime = System.currentTimeMillis();
             Thread.sleep(100);

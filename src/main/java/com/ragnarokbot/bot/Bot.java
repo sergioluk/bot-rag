@@ -11,10 +11,13 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
+import java.awt.image.Raster;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +32,7 @@ import javax.imageio.ImageIO;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfByte;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Rect;
@@ -201,11 +205,16 @@ public class Bot {
 		
 		// Captura a tela da área da janela
         Rectangle captureArea = new Rectangle(xJanela, yJanela, width, height);
-        return robot.createScreenCapture(captureArea);
-		//Pegar tamanho da tela
-        //Rectangle screenRect = new Rectangle(Toolkit.getDefaultToolkit().getScreenSize());
-        // Tirar o print da tela
-        //return robot.createScreenCapture(screenRect);
+        BufferedImage print = robot.createScreenCapture(captureArea);
+		
+        File outputFile = new File("tela.png");
+        try {
+			ImageIO.write(print, "png", outputFile);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+        return print;
 	}
 	
 	private Mat bufferedImageToMat(BufferedImage image) {
@@ -259,6 +268,175 @@ public class Bot {
 		
 	    return new MonstrosImagem(entidades, screen);
 	}*/
+	
+	public void inserirPin(String pin) {
+	    // Capturar a tela da área definida
+	    Rectangle captureArea = new Rectangle(xJanela, yJanela, width, height);
+	    BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(screenFullImage);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Definir os limites de cor
+	    Scalar lowerColor = new Scalar(0, 91, 0); // Limite inferior (ajuste conforme necessário)
+	    Scalar upperColor = new Scalar(10, 171, 73); // Limite superior (ajuste conforme necessário)
+
+	    // Criar máscara para identificar a cor dentro do intervalo
+	    Mat mask = new Mat();
+	    Core.inRange(hsvImage, lowerColor, upperColor, mask);
+
+	    // Encontrar contornos na máscara
+	    List<MatOfPoint> entidades = new ArrayList<>();
+	    Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+
+	    if (entidades.isEmpty()) {
+	        System.out.println("Nenhum quadrado encontrado.");
+	        return;
+	    }
+
+	    // Filtrar quadrados com altura maior que 20 pixels
+	    List<MatOfPoint> filtrados = entidades.stream()
+	        .filter(entidade -> (Imgproc.boundingRect(entidade).height >= 50 && Imgproc.boundingRect(entidade).height <= 65)
+	        		&& (Imgproc.boundingRect(entidade).width >= 50 && Imgproc.boundingRect(entidade).width <= 65))
+	        .toList();
+
+	    // Desenhar contornos na imagem original (BGR)
+	    for (MatOfPoint ponto : filtrados) {
+	        Imgproc.drawContours(screen, List.of(ponto), -1, new Scalar(0, 255, 0), 2);
+	    }
+
+	    // Salvar a imagem com os contornos
+	    String outputPath = "pin.png";
+	    MatOfByte matOfByte = new MatOfByte();
+	    Imgcodecs.imencode(".png", screen, matOfByte); // Certifique-se de usar `screen` com contornos desenhados
+	    byte[] byteArray = matOfByte.toArray();
+	    try (FileOutputStream fos = new FileOutputStream(outputPath)) {
+	        fos.write(byteArray);
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
+	    
+	    List<Rect> pins = new ArrayList<>();
+	    for (int i = 0; i < 10; i++) {
+	    	pins.add(new Rect());
+	    }
+	    
+	    Map<String, Integer> hashReferencia = new HashMap<>();
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000111111000000000111001110000000011000111000000001100011100000000111001110000000011111110000000000111110000000000000000000000000000000000000000000000000000000000000000000000", 0);
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000111111000000000111111110000000011111111000000001111111100000000111111110000000011111110000000000111110000000000000000000000000000000000000000000000000000000000000000000000", 1);
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000000011110000000000011111100000000011111110000000001111111000000000011111100000000000111110000000000011111000000000000000000000000000000000000000000000000000000000000000000000", 2);
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000000011110000000000011111100000000011111110000000001111111000000000011111100000000000111100000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 3);
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001100000000000000111110000000000011111100000000001111110000000000111111000000000011111100000000000011110000000000000011000000000000000000000000000000000000000000000000000000000000000000000", 4);
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000011110000000000011111100000000011111111000000001111111100000000011111100000000000111100000000000011100000000000000000000000000000000000000000000000000000000000000000000000", 5);
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001110000000000000111000000000000011100000000000001111110000000000111111100000000011100110000000000111111000000000001111000000000000000000000000000000000000000000000000000000000000000000000", 6);
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001111110000000000111111000000000111111100000000011111111000000001111111100000000111111110000000001111110000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 7);
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000011000000000000111111000000000011111100000000001111110000000000111111000000000011001100000000001111110000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 8);
+	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000001111110000000000111011100000000011111110000000001111111000000000000111100000000000000110000000000000011000000000000000000000000000000000000000000000000000000000000000000000", 9);
+	    
+	    //Achar as coordenadas do OK
+	    int maiorX = 0;
+	    int menorY = 99999;
+	    int rectWidth = 0;
+	    int rectHeight = 0;
+	    for(int i = 0; i < filtrados.size(); i++) {
+            Rect rect = Imgproc.boundingRect(filtrados.get(i));
+
+            Rectangle captureArea2 = new Rectangle(xJanela + rect.x, yJanela + rect.y, rect.width, rect.height);
+            BufferedImage print = robot.createScreenCapture(captureArea2);
+            
+            // Calcular o hash da imagem capturada
+            String hash = calcularHash(print);
+            System.out.println("Hash da imagem " + i + ": " + hash);
+            
+            Integer numero = hashReferencia.get(hash);
+            if (numero != null) {
+                System.out.println("Número identificado: " + numero);
+                pins.set(numero, rect);
+            } else {
+                System.out.println("Número não identificado.");
+            }
+            
+            if (rect.x >= maiorX) {
+            	maiorX = rect.x;
+            }
+            if (rect.y <= menorY) {
+            	menorY = rect.y;
+            }
+            rectWidth = rect.width;
+            rectHeight = rect.height;
+
+            //Salvar imagem
+            /*File outputFile = new File("numero" + i + ".png");
+            try {
+            	ImageIO.write(print, "png", outputFile);
+            } catch (IOException e) {
+            	e.printStackTrace();
+            }*/
+            
+        }
+	    try {
+	        for(int j = 0; j < pin.length(); j++) {
+	        	char c = pin.charAt(j);
+	        	int numeroConvertido = Character.getNumericValue(c);
+	        	
+	        	Rect pinRect = pins.get(numeroConvertido);
+	        	int centerX = xJanela + pinRect.x + pinRect.width / 2;
+	            int centerY = yJanela + pinRect.y + pinRect.height / 2;
+	            moverMouse(centerX, centerY);
+	            Thread.sleep(500);
+	            clicarMouse();
+	            Thread.sleep(500);
+	        }
+	        System.out.println("Colocar o mouse no Ok");
+		    moverMouse(xJanela + maiorX + rectWidth + 67, yJanela + menorY + (2 * rectHeight) + 7);
+		    Thread.sleep(500);
+		    System.out.println("Clicou no Ok");
+	        clicarMouse();
+	    } catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public String calcularHash(BufferedImage image) {
+	    try {
+	        // Redimensionar para 16x16 (resolução intermediária)
+	        BufferedImage resized = new BufferedImage(16, 16, BufferedImage.TYPE_BYTE_GRAY);
+	        Graphics2D g = resized.createGraphics();
+	        g.drawImage(image, 0, 0, 16, 16, null); // Redimensionando para 16x16
+	        g.dispose();
+
+	        // Converter para escala de cinza
+	        Raster raster = resized.getRaster();
+	        int[] pixels = new int[256]; // 16x16 = 256 pixels
+	        raster.getPixels(0, 0, 16, 16, pixels);
+
+	        // Calcular a média dos valores dos pixels
+	        double media = Arrays.stream(pixels).average().orElse(0);
+
+	        // Gerar o hash binário
+	        StringBuilder hash = new StringBuilder();
+	        for (int pixel : pixels) {
+	            hash.append(pixel > media ? "1" : "0");
+	        }
+
+	        return hash.toString();
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        return null;
+	    }
+	}
+
+
+
+
 	
 public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOException {
 	
@@ -801,7 +979,120 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 		return false;
 	}
 
-
+	public void digitarTexto(String texto) {
+	    for (char c : texto.toCharArray()) {
+	        int keyCode = KeyEvent.getExtendedKeyCodeForChar(c);
+	        if (KeyEvent.CHAR_UNDEFINED == keyCode) {
+	            throw new RuntimeException("Tecla não mapeada: " + c);
+	        }
+	        
+	        boolean isUpperCase = Character.isUpperCase(c);
+	        boolean requiresShift = false;
+	        
+	     // Verificar se o caractere especial requer SHIFT
+	        switch (c) {
+	            case '!': keyCode = KeyEvent.VK_1; requiresShift = true; break;
+	            case '@': keyCode = KeyEvent.VK_2; requiresShift = true; break;
+	            case '#': keyCode = KeyEvent.VK_3; requiresShift = true; break;
+	            case '$': keyCode = KeyEvent.VK_4; requiresShift = true; break;
+	            case '%': keyCode = KeyEvent.VK_5; requiresShift = true; break;
+	            case '^': keyCode = KeyEvent.VK_6; requiresShift = true; break;
+	            case '&': keyCode = KeyEvent.VK_7; requiresShift = true; break;
+	            case '*': keyCode = KeyEvent.VK_8; requiresShift = true; break;
+	            case '(': keyCode = KeyEvent.VK_9; requiresShift = true; break;
+	            case ')': keyCode = KeyEvent.VK_0; requiresShift = true; break;
+	            case '?': keyCode = KeyEvent.VK_SLASH; requiresShift = true; break;
+	            case '_': keyCode = KeyEvent.VK_MINUS; requiresShift = true; break;
+	            case '+': keyCode = KeyEvent.VK_EQUALS; requiresShift = true; break;
+	        }
+	        
+	        if (isUpperCase || requiresShift) {
+	            // Pressiona Shift para letras maiúsculas
+	            robot.keyPress(KeyEvent.VK_SHIFT);
+	        }
+	        
+	        robot.keyPress(keyCode);
+	        robot.keyRelease(keyCode);
+	        
+	        if (isUpperCase || requiresShift) {
+	            // Solta Shift após a letra maiúscula
+	            robot.keyRelease(KeyEvent.VK_SHIFT);
+	        }
+	        try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} // Pausa entre as teclas para simular digitação humana
+	    }
+	}
+	
+	public void aceitarContrato() {
+		 try {
+	        System.out.println("Movendo mouse para concordo");
+	        moverMouse(xJanela + 642, yJanela + 519);
+	        Thread.sleep(200);
+	        System.out.println("Clicando");
+	        clicarMouse();
+	        Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void realizarLogin(String usuario, String senha) {
+		try {
+			System.out.println("Realizando login");
+	        System.out.println("Mouse indo para o campo de login");
+	        moverMouse(xJanela + 228, yJanela + 492);
+	        Thread.sleep(200);
+	        apertarTecla(KeyEvent.VK_TAB);
+	        Thread.sleep(500);
+	        System.out.println("Digitando o login");
+	        digitarTexto(usuario);
+	        Thread.sleep(500);
+	        System.out.println("Mouse indo para o campo de senha");
+	        apertarTecla(KeyEvent.VK_TAB);
+	        Thread.sleep(500);
+	        System.out.println("Digitando a senha");
+	        digitarTexto(senha);
+	        Thread.sleep(500);
+	        apertarTecla(KeyEvent.VK_ENTER);
+	        Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void escolherPersonagem(int num) {
+		try {
+			System.out.println("Escolher o personagem");
+	      	int linha = 1;
+	       	int coluna = num;
+	       	
+	       	if (num >= 6 && num <= 10) {
+	       		linha = 2;
+	       		coluna = num - 5;
+	       	}
+	       	if (num >= 11 && num <= 15) {
+	       		linha = 3;
+	       		coluna = num - 10;
+	       	}
+	       	int posX = ((coluna - 1) * 146) + 73 + (coluna - 1) * 10;
+	       	int posY = (linha - 1) * 183 + 92 + (linha - 1) * 12;
+	       	
+	       	moverMouse(xJanela + 30 + posX, yJanela + 98 + posY);
+	       	Thread.sleep(500);
+	       	clicarMouse();
+	       	Thread.sleep(500);
+	       	apertarTecla(KeyEvent.VK_ENTER);
+	       	Thread.sleep(2000);
+	       	moverMouse(xJanela + width / 2, yJanela + height / 2);
+	       	Thread.sleep(500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public int getWidth() {
 		return width;

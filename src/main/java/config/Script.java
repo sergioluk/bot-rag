@@ -1,4 +1,4 @@
-package com.ragnarokbot.model;
+package config;
 
 import java.util.List;
 
