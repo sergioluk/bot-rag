@@ -44,6 +44,7 @@ import org.opencv.imgproc.Imgproc;
 import com.ragnarokbot.main.BotRagnarok;
 import com.ragnarokbot.main.GameController;
 import com.ragnarokbot.model.Coordenadas;
+import com.ragnarokbot.model.MemoryScanner;
 import com.ragnarokbot.model.MonstrosImagem;
 import com.ragnarokbot.model.MyUser32;
 import com.ragnarokbot.model.OcrResult;
@@ -79,8 +80,10 @@ public class Bot {
     
     private int xJanela;
     private int yJanela;
-
     
+    public List<Skill> skills = new ArrayList<>();
+
+    private MemoryScanner memoria = new MemoryScanner();
     
     //Variaveis para coordenadas mini mapa
     public Config configOCR;
@@ -95,6 +98,13 @@ public class Bot {
         getWidthHeight();
         this.coordenadasJogadorTelaX = width / 2;
         this.coordenadasJogadorTelaY = height / 2;
+        
+        Skill cometa = new Skill(KeyEvent.VK_Q,"rosa",0);
+        Skill cristal = new Skill(KeyEvent.VK_E,"azul",7);
+        Skill mistery = new Skill(KeyEvent.VK_R,"azul",5);
+        skills.add(cometa);
+        skills.add(cristal);
+        skills.add(mistery);
 		
 	}
 	
@@ -175,8 +185,13 @@ public class Bot {
 	
 	
 	public String ocrCoordenadas() throws IOException, TesseractException {
-		//return this.ocr( xJanela + xOcrCoordenadas + configOCR.rectangle.x, yJanela + yOcrCoordenadas,widthOcrCoordenadas,heightOcrCoordenadas);
 		return this.ocr( xJanela + configOCR.rectangle.x, yJanela + configOCR.rectangle.y,configOCR.rectangle.width,configOCR.rectangle.height);
+	}
+	
+	public Coordenadas obterCoordenadasMemoria() {
+        Coordenadas atual = memoria.obterCoordenadas(memoria.processId, memoria.addressX, memoria.addressY);
+        //System.out.println("Coordenadas atuais: " + atual);
+        return atual;
 	}
 	
 	public String ocrLetras(int x, int y, int width, int height) throws IOException, TesseractException {
@@ -566,11 +581,11 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	        
 	        
 
-	        //System.out.println("Monstros visíveis para a cor " + color + ": " + adjustedEntities.size());
+	        System.out.println("Monstros visíveis para a cor " + color + ": " + adjustedEntities.size());
 	        //visibleEntities.put(color, visible); // Adicionar ao mapa de monstros visíveis
 	        visibleEntities.put(color, adjustedEntities); // Adicionar ao mapa de monstros visíveis
 	    }
-		
+	    
 	    return visibleEntities;
 	}
 	/*
@@ -679,7 +694,7 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
         		+ Math.pow(yJanela + monstroCentroY - coordenadasJogadorTelaY + yJanela, 2));
     }
 	
-	public void moverPersonagem(Coordenadas atual, Coordenadas destino, Coordenadas ultimaCoordenada) throws Exception {
+	public void moverPersonagem(Coordenadas atual, Coordenadas destino) throws Exception {
 		
 		
 		
@@ -701,11 +716,19 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	
 	    int xMouse = (int) (this.xJanela + this.coordenadasJogadorTelaX + normalizaX * distanciaDesejada);
 	    int yMouse = (int) (this.yJanela + this.coordenadasJogadorTelaY - normalizaY * distanciaDesejada);
-	   
+	    
 		Random random = new Random();
 		int randX = random.nextInt(4);
-		int randY = random.nextInt(4);
+		int randY = random.nextInt(4); 
+		
+		if (compararCoordenadas(atual, destino)) {
+			moverMouse(this.xJanela + this.coordenadasJogadorTelaX, this.yJanela + this.coordenadasJogadorTelaY);
+			return;
+		}
+		
         moverMouse(xMouse + randX, yMouse + randY);
+        System.out.println("Mouse foi para: " + (xMouse + randX) + " " + yMouse + randY);
+        System.out.println("Coordenadas atual: " + atual + "| destino: " + destino);
 		//moverMouse(xMouse, yMouse);
         //Thread.sleep(50);
         //clicarMouse();
@@ -764,6 +787,21 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	    // Simular o clique do mouse
 	    clicarSegurarMouse();*/
     }
+	
+	public void segurarW() {
+		try {
+	        robot.keyPress(KeyEvent.VK_W); // Pressiona e segura a tecla W
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
+	public void soltarW() {
+		try {
+	        robot.keyRelease(KeyEvent.VK_W); // Solta a tecla W
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
+	}
 	
 	public void atacarMonstro(MatOfPoint monstro, int tecla) throws Exception {
         Rect rect = Imgproc.boundingRect(monstro);
@@ -1093,6 +1131,16 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 			e.printStackTrace();
 		}
 	}
+	
+	public double calcularDistanciaDaReta(Coordenadas inicioReta, Coordenadas fimReta, Coordenadas atual) {
+	    // Fórmula para distância de um ponto a uma linha: |Ax + By + C| / sqrt(A^2 + B^2)
+	    double A = fimReta.y - inicioReta.y;
+	    double B = inicioReta.x - fimReta.x;
+	    double C = fimReta.x * inicioReta.y - inicioReta.x * fimReta.y;
+
+	    return Math.abs(A * atual.x + B * atual.y + C) / Math.sqrt(A * A + B * B);
+	}
+
 
 	public int getWidth() {
 		return width;

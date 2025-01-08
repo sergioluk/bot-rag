@@ -1,0 +1,551 @@
+{
+    "rotas": [
+      {
+        "descricao": "cima meio",
+        "passos": [
+            { "coordenadas": [135, 238] },
+            { "coordenadas": [137, 226] },
+            { "coordenadas": [140, 210] },
+            { "coordenadas": [139, 201] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [139, 201],
+          "elseAcoes": [
+            { "coordenadas": [139, 201] }
+          ]
+        }
+      },
+      {
+        "descricao": "cima esquerda",
+        "passos": [
+            { "coordenadas": [127, 203] },
+            { "coordenadas": [113, 198] },
+            { "coordenadas": [99, 199] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [99, 199],
+          "elseAcoes": [
+            { "coordenadas": [99, 199] }
+          ]
+        }
+      },
+      {
+        "descricao": "voltando cima meio",
+        "passos": [
+            { "coordenadas": [121, 200] },
+            { "coordenadas": [130, 204] },
+            { "coordenadas": [140, 204] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [140, 204],
+          "elseAcoes": [
+            { "coordenadas": [140, 204] }
+          ]
+        }
+      },
+      {
+        "descricao": "cima direita",
+        "passos": [
+            { "coordenadas": [153, 204] },
+            { "coordenadas": [164, 199] },
+            { "coordenadas": [179, 199] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [179, 199],
+          "elseAcoes": [
+            { "coordenadas": [179, 199] }
+          ]
+        }
+      },
+      {
+        "descricao": "voltando cima meio",
+        "passos": [
+            { "coordenadas": [161, 199] },
+            { "coordenadas": [148, 205] },
+            { "coordenadas": [139, 204] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [139, 204],
+          "elseAcoes": [
+            { "coordenadas": [139, 204] }
+          ]
+        }
+      },
+      {
+        "descricao": "meio baixo",
+        "passos": [
+            { "coordenadas": [140, 191] },
+            { "coordenadas": [139, 177] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [139, 177],
+          "elseAcoes": [
+            { "coordenadas": [139, 177] }
+          ]
+        }
+      },
+      {
+        "descricao": "indo pra esquerda ponto 7",
+        "passos": [
+            { "coordenadas": [125, 177] },
+            { "coordenadas": [113, 178] },
+            { "coordenadas": [103, 176] },
+            { "coordenadas": [85, 176] },
+            { "coordenadas": [75, 176] },
+            { "coordenadas": [51, 176] },
+            { "coordenadas": [38, 176] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [38, 176],
+          "elseAcoes": [
+            { "coordenadas": [38, 176] }
+          ]
+        }
+      },
+      {
+        "descricao": "subindo ponto 7",
+        "passos": [
+            { "coordenadas": [40, 193] },
+            { "coordenadas": [39, 208] },
+            { "coordenadas": [38, 223] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [38, 223],
+          "elseAcoes": [
+            { "coordenadas": [38, 223] }
+          ]
+        }
+      },
+      {
+        "descricao": "descendo ponto 7",
+        "passos": [
+            { "coordenadas": [39, 200] },
+            { "coordenadas": [40, 174] },
+            { "coordenadas": [57, 176] },
+            { "coordenadas": [77, 175] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [77, 175],
+          "elseAcoes": [
+            { "coordenadas": [77, 175] }
+          ]
+        }
+      },
+      {
+        "descricao": "indo para entrada ponto 4",
+        "passos": [
+            { "coordenadas": [80, 157] },
+            { "coordenadas": [81, 141] },
+            { "coordenadas": [65, 133] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [65, 133],
+          "elseAcoes": [
+            { "coordenadas": [65, 133] }
+          ]
+        }
+      },
+      {
+        "descricao": "entrando ponto 4",
+        "passos": [
+            { "coordenadas": [53, 133] },
+            { "coordenadas": [44, 141] },
+            { "coordenadas": [29, 140] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [29, 140],
+          "elseAcoes": [
+            { "coordenadas": [29, 140] }
+          ]
+        }
+      },
+      {
+        "descricao": "voltando entrada ponto 4",
+        "passos": [
+            { "coordenadas": [43, 140] },
+            { "coordenadas": [55, 134] },
+            { "coordenadas": [64, 134] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [64, 134],
+          "elseAcoes": [
+            { "coordenadas": [64, 134] }
+          ]
+        }
+      },
+      {
+        "descricao": "indo para entrada ponto 1",
+        "passos": [
+            { "coordenadas": [72, 132] },
+            { "coordenadas": [83, 132] },
+            { "coordenadas": [81, 116] },
+            { "coordenadas": [67, 118] },
+            { "coordenadas": [80, 117] },
+            { "coordenadas": [77, 103] },
+            { "coordenadas": [67, 104] },
+            { "coordenadas": [79, 101] },
+            { "coordenadas": [89, 101] },
+            { "coordenadas": [95, 98] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [95, 98],
+          "elseAcoes": [
+            { "coordenadas": [95, 98] }
+          ]
+        }
+      },
+      {
+        "descricao": "entrando ponto 1",
+        "passos": [
+            { "coordenadas": [86, 83] },
+            { "coordenadas": [85, 76] },
+            { "coordenadas": [72, 75] },
+            { "coordenadas": [63, 70] },
+            { "coordenadas": [56, 64] },
+            { "coordenadas": [46, 65] },
+            { "coordenadas": [44, 54] },
+            { "coordenadas": [43, 78] },
+            { "coordenadas": [32, 77] },
+            { "coordenadas": [34, 62] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [34, 62],
+          "elseAcoes": [
+            { "coordenadas": [34, 62] }
+          ]
+        }
+      },
+      {
+        "descricao": "voltando para entrada ponto 1",
+        "passos": [
+            { "coordenadas": [35, 79] },
+            { "coordenadas": [45, 74] },
+            { "coordenadas": [45, 63] },
+            { "coordenadas": [60, 66] },
+            { "coordenadas": [69, 75] },
+            { "coordenadas": [78, 77] },
+            { "coordenadas": [88, 77] },
+            { "coordenadas": [87, 87] },
+            { "coordenadas": [97, 86] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [97, 86],
+          "elseAcoes": [
+            { "coordenadas": [97, 86] }
+          ]
+        }
+      },
+      {
+        "descricao": "indo para entrada ponto 2",
+        "passos": [
+            { "coordenadas": [107, 78] },
+            { "coordenadas": [115, 78] },
+            { "coordenadas": [114, 91] },
+            { "coordenadas": [114, 100] },
+            { "coordenadas": [131, 101] },
+            { "coordenadas": [140, 100] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [140, 100],
+          "elseAcoes": [
+            { "coordenadas": [140, 100] }
+          ]
+        }
+      },
+      {
+        "descricao": "entrando ponto 2",
+        "passos": [
+            { "coordenadas": [141, 84] },
+            { "coordenadas": [139, 67] },
+            { "coordenadas": [140, 49] },
+            { "coordenadas": [139, 29] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [139, 29],
+          "elseAcoes": [
+            { "coordenadas": [139, 29] }
+          ]
+        }
+      },
+      {
+        "descricao": "voltando entrada ponto 2",
+        "passos": [
+            { "coordenadas": [139, 42] },
+            { "coordenadas": [140, 57] },
+            { "coordenadas": [139, 75] },
+            { "coordenadas": [140, 100] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [140, 100],
+          "elseAcoes": [
+            { "coordenadas": [140, 100] }
+          ]
+        }
+      },
+      {
+        "descricao": "indo para entrada ponto 3",
+        "passos": [
+            { "coordenadas": [158, 100] },
+            { "coordenadas": [167, 93] },
+            { "coordenadas": [167, 76] },
+            { "coordenadas": [177, 80] },
+            { "coordenadas": [189, 89] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [189, 89],
+          "elseAcoes": [
+            { "coordenadas": [189, 89] }
+          ]
+        }
+      },
+      {
+        "descricao": "entrando ponto 3",
+        "passos": [
+            { "coordenadas": [203, 80] },
+            { "coordenadas": [215, 66] },
+            { "coordenadas": [230, 66] },
+            { "coordenadas": [242, 56] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [242, 56],
+          "elseAcoes": [
+            { "coordenadas": [242, 56] }
+          ]
+        }
+      },
+      {
+        "descricao": "voltando entrada ponto 3",
+        "passos": [
+            { "coordenadas": [234, 65] },
+            { "coordenadas": [214, 66] },
+            { "coordenadas": [202, 83] },
+            { "coordenadas": [184, 86] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [184, 86],
+          "elseAcoes": [
+            { "coordenadas": [184, 86] }
+          ]
+        }
+      },
+      {
+        "descricao": "indo entrada ponto 6",
+        "passos": [
+            { "coordenadas": [185, 102] },
+            { "coordenadas": [203, 101] },
+            { "coordenadas": [212, 110] },
+            { "coordenadas": [201, 101] },
+            { "coordenadas": [198, 118] },
+            { "coordenadas": [213, 118] },
+            { "coordenadas": [196, 117] },
+            { "coordenadas": [198, 139] },
+            { "coordenadas": [214, 132] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [214, 132],
+          "elseAcoes": [
+            { "coordenadas": [214, 132] }
+          ]
+        }
+      },
+      {
+        "descricao": "entrando ponto 6",
+        "passos": [
+            { "coordenadas": [230, 134] },
+            { "coordenadas": [240, 141] },
+            { "coordenadas": [252, 140] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [252, 140],
+          "elseAcoes": [
+            { "coordenadas": [252, 140] }
+          ]
+        }
+      },
+      {
+        "descricao": "voltando entrada ponto 6",
+        "passos": [
+            { "coordenadas": [234, 140] },
+            { "coordenadas": [224, 146] },
+            { "coordenadas": [210, 145] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [210, 145],
+          "elseAcoes": [
+            { "coordenadas": [210, 145] }
+          ]
+        }
+      },
+      {
+        "descricao": "indo pra entrada ponto 9",
+        "passos": [
+            { "coordenadas": [197, 141] },
+            { "coordenadas": [198, 156] },
+            { "coordenadas": [201, 168] },
+            { "coordenadas": [202, 178] },
+            { "coordenadas": [224, 174] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [224, 174],
+          "elseAcoes": [
+            { "coordenadas": [224, 174] }
+          ]
+        }
+      },
+      {
+        "descricao": "entrando ponto 9",
+        "passos": [
+            { "coordenadas": [235, 175] },
+            { "coordenadas": [241, 185] },
+            { "coordenadas": [240, 199] },
+            { "coordenadas": [245, 210] },
+            { "coordenadas": [244, 222] },
+            { "coordenadas": [233, 220] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [233, 220],
+          "elseAcoes": [
+            { "coordenadas": [233, 220] }
+          ]
+        }
+      },
+      {
+        "descricao": "voltando entrada ponto 9",
+        "passos": [
+            { "coordenadas": [235, 207] },
+            { "coordenadas": [241, 196] },
+            { "coordenadas": [241, 183] },
+            { "coordenadas": [233, 174] },
+            { "coordenadas": [217, 175] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [217, 175],
+          "elseAcoes": [
+            { "coordenadas": [217, 175] }
+          ]
+        }
+      },
+      {
+        "descricao": "Indo para entrada ponto 8",
+        "passos": [
+            { "coordenadas": [199, 176] },
+            { "coordenadas": [180, 177] },
+            { "coordenadas": [159, 178] },
+            { "coordenadas": [137, 177] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [137, 177],
+          "elseAcoes": [
+            { "coordenadas": [137, 177] }
+          ]
+        }
+      },
+      {
+        "descricao": "entrando poonto 8",
+        "passos": [
+            { "coordenadas": [140, 187] },
+            { "coordenadas": [140, 205] },
+            { "coordenadas": [139, 220] },
+            { "coordenadas": [133, 229] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [133, 229],
+          "elseAcoes": [
+            { "coordenadas": [133, 229] }
+          ]
+        }
+      }
+    ],
+    "finalizacao": {
+      "descricao": "Reiniciando Bio",
+      "coordenadas": [193, 90]
+    },
+    "coordenadasAlt": [
+      { "links": [129, 238, 131, 227] },
+      { "links": [150, 238, 148, 228] },
+      { "links": [124, 210, 136, 210] },
+      { "links": [157, 210, 144, 210] },
+      { "links": [110, 207, 124, 205] },
+      { "links": [172, 207, 158, 205] },
+      { "links": [121, 191, 125, 180] },
+      { "links": [112, 189, 104, 185] },
+      { "links": [104, 185, 104, 178] },
+      { "links": [111, 162, 110, 175] },
+      { "links": [77, 192, 76, 178] },
+      { "links": [67, 166, 76, 165] },
+      { "links": [65, 151, 72, 141] },
+      { "links": [66, 125, 76, 133] },
+      { "links": [48, 122, 48, 134] },
+      { "links": [49, 157, 49, 144] },
+      { "links": [68, 118, 79, 117] },
+      { "links": [68, 92, 79, 93] },
+      { "links": [79, 93, 77, 103] },
+      { "links": [60, 100, 61, 111] },
+      { "links": [61, 111, 71, 107] },
+      { "links": [94, 97, 110, 97] },
+      { "links": [104, 72, 102, 79] },
+      { "links": [27, 63, 36, 63] },
+      { "links": [36, 63, 35, 77] },
+      { "links": [123, 97, 124, 80] },
+      { "links": [124, 80, 125, 71] },
+      { "links": [125, 71, 140, 70] },
+      { "links": [126, 62, 138, 63] },
+      { "links": [156, 62, 142, 63] },
+      { "links": [134, 39, 134, 30] },
+      { "links": [134, 30, 139, 31] },
+      { "links": [145, 40, 145, 31] },
+      { "links": [145, 31, 140, 30] },
+      { "links": [142, 70, 155, 71] },
+      { "links": [157, 84, 156, 98] },
+      { "links": [155, 71, 157, 84] },
+      { "links": [166, 68, 167, 78] },
+      { "links": [172, 96, 184, 96] },
+      { "links": [193, 85, 192, 75] },
+      { "links": [233, 79, 235, 72] },
+      { "links": [201, 91, 202, 102] },
+      { "links": [219, 99, 215, 110] },
+      { "links": [193, 118, 193, 108] },
+      { "links": [219, 118, 201, 117] },
+      { "links": [190, 123, 192, 136] },
+      { "links": [209, 124, 208, 137] },
+      { "links": [207, 152, 207, 142] },
+      { "links": [232, 123, 230, 137] },
+      { "links": [230, 155, 230, 144] },
+      { "links": [191, 153, 191, 143] },
+      { "links": [216, 165, 202, 165] },
+      { "links": [200, 190, 204, 177] },
+      { "links": [183, 192, 181, 180] },
+      { "links": [172, 192, 176, 179] },
+      { "links": [168, 163, 168, 175] },
+      { "links": [160, 190, 154, 179] }
+    ]
+}

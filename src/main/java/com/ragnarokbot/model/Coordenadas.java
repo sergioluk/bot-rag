@@ -2,6 +2,7 @@ package com.ragnarokbot.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Random;
 
 import org.opencv.core.Core;
@@ -23,12 +24,16 @@ public class Coordenadas {
 	}
 	
 	public Coordenadas(String coordenada) {
-		System.out.println("veio isso doocr novo: " + coordenada);
 		// Usar expressão regular para capturar apenas números
+		System.out.println("Leio assim: " + coordenada);
 	    String[] substrings = coordenada.split(" ");
 	    if (substrings.length == 1) {
 	    	System.out.println("Orc size = 1, coordenadas orc mudadas para ultima coordenadas");
-	    	usarUltimaCoordenada();
+	    	MemoryScanner memoria = new MemoryScanner();
+	    	Coordenadas coord = memoria.obterCoordenadas(memoria.processId, memoria.addressX, memoria.addressY);
+	    	this.x = coord.x;
+	    	this.y = coord.y;
+	    	//usarUltimaCoordenada();
 	        return;
 	    }
 	    //System.out.println("Ocr: " + coordenada + "Tamanho: " + substrings.length + "/2");
@@ -123,6 +128,19 @@ public class Coordenadas {
             System.out.println("Usando última coordenada válida: " + ultima);
         }
         //fallbackUltimaCoordenda();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Coordenadas coordenada = (Coordenadas) o;
+        return x == coordenada.x && y == coordenada.y;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(x, y);
     }
 	
 }

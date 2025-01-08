@@ -5,7 +5,14 @@ import java.util.List;
 public class Script {
 	private List<Rota> rotas;
 	private Finalizacao finalizacao;
+	private List<Links> coordenadasAlt;
 	
+	public List<Links> getCoordenadasAlt() {
+		return coordenadasAlt;
+	}
+	public void setCoordenadasAlt(List<Links> coordenadasAlt) {
+		this.coordenadasAlt = coordenadasAlt;
+	}
 	public List<Rota> getRotas() {
 		return rotas;
 	}
@@ -19,6 +26,17 @@ public class Script {
 		this.finalizacao = finalizacao;
 	}
 	
+	public static class Links {
+		private List<Integer> links;
+
+		public List<Integer> getLinks() {
+			return links;
+		}
+
+		public void setLinks(List<Integer> links) {
+			this.links = links;
+		}
+	}
 	
 	public static class Rota {
 	    private String descricao;

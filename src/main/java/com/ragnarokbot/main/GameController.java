@@ -8,8 +8,11 @@ import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import com.ragnarokbot.bot.Bot;
+import com.ragnarokbot.bot.Skill;
 import com.ragnarokbot.bot.Tela;
+import com.ragnarokbot.model.AStar;
 import com.ragnarokbot.model.Coordenadas;
+import com.ragnarokbot.model.GrafoMapa;
 import com.ragnarokbot.model.enums.Estado;
 
 import config.ContasConfig;
@@ -18,6 +21,7 @@ import config.ContasConfig.Personagem;
 import config.Script;
 import config.ScriptLoader;
 import config.Script.Acao;
+import config.Script.Links;
 import config.Script.Passo;
 import config.Script.Rota;
 import net.sourceforge.tess4j.TesseractException;
@@ -27,9 +31,11 @@ import java.awt.Event;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,14 +60,24 @@ public class GameController implements NativeKeyListener {
     private boolean interagindoComNpc = false;
     
     private long ultimoMovimento = System.currentTimeMillis(); // Timestamp do último movimento
-    private Coordenadas ultimaCoordenada;
-    private Coordenadas atual;
+    private Coordenadas ultimaCoordenada = new Coordenadas(0,0);;
+    private Coordenadas atual = new Coordenadas(0,0);
     private boolean personagemParado = false;
     
     boolean falarComNpc = true;
     
     public static StateMachine stateMachine = new StateMachine(Estado.ANDANDO);
     
+    private List<Coordenadas> caminhoAlternativo = new ArrayList<>();
+    private int passoAlternativo = 0;
+    
+    private int parImpar = 0;
+    private Coordenadas ultimaCoordenadaOcr = new Coordenadas(0,0);
+    
+    private GrafoMapa grafo = new GrafoMapa();
+    
+    
+    private boolean modoMemoria = true;
     
     
     public GameController(Bot bot, Tela tela) {
@@ -77,20 +93,29 @@ public class GameController implements NativeKeyListener {
         }
         
         try {
-			atual = new Coordenadas(bot.ocrCoordenadas());
-			ultimaCoordenada = atual;
+        	if (modoMemoria) {
+        		atual =  bot.obterCoordenadasMemoria();
+        	} else {
+        		String coordenadaXY = bot.ocrCoordenadas();
+                atual = new Coordenadas(coordenadaXY);
+        	}
+        	ultimaCoordenada = atual;
 		} catch (IOException | TesseractException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+        
+        
+       
     }
     
     public void run() throws Exception {
     	
-    	Script script = inicializarCaminho("teste_de_json");
+    	//Script script = inicializarCaminho("teste_de_json");
         //Script script = inicializarCaminho("sussurro_sombrio");
     	//Script script = inicializarCaminho("teste_formigueiro");
-    	//apresentacao(script);
+    	Script script = inicializarCaminho("bio");
+    	apresentacao(script);
 
         Thread.sleep(1000);
         
@@ -113,16 +138,30 @@ public class GameController implements NativeKeyListener {
             }
         }
     	
+    	//GrafoMapa grafo = new GrafoMapa();
+    	grafo = gerarGrafoDeMapa(carregarMapa("bio.png"));
+
         
+        /*
+        if (script.getCoordenadasAlt() != null) {
+	        for(Links links : script.getCoordenadasAlt()) {
+	        	Coordenadas c1 = new Coordenadas(links.getLinks().get(0), links.getLinks().get(1));
+	        	Coordenadas c2 = new Coordenadas(links.getLinks().get(2), links.getLinks().get(3));
+	    		grafo.addConexao(c1, c2);
+	    	}
+        }*/
+       
+
+        /*
         bot.aceitarContrato();
         
         System.out.println("Apertando enter na selecao de servidor");
         bot.apertarTecla(KeyEvent.VK_ENTER);
         Thread.sleep(500);
       
-        String usuario = "";
-        String senha = "";
-        String pin = "";
+        String usuario = "zeperiquito";
+        String senha = "Kaioben10";
+        String pin = "2010";
         bot.realizarLogin(usuario,senha);
         
         System.out.println("Apertando enter na escolha do canal 1");
@@ -135,7 +174,8 @@ public class GameController implements NativeKeyListener {
         
         bot.escolherPersonagem(1);
         
-        ligarBot = false;
+        ligarBot = false;*/
+    	
         while (ligarBot) {
             long startTime = System.currentTimeMillis();
             Thread.sleep(100);
@@ -166,11 +206,15 @@ public class GameController implements NativeKeyListener {
 
             switch (stateMachine.getEstadoAtual()) {
                 case ANDANDO:
-                	String coordenadaXY = bot.ocrCoordenadas();
-                    atual = new Coordenadas(coordenadaXY);
-                    
-                    if (bot.compararCoordenadas(atual, ultimaCoordenada)) {
-                    	if (System.currentTimeMillis() - ultimoMovimento >= 3000) {
+                	if (modoMemoria) {
+                		atual =  bot.obterCoordenadasMemoria();
+                	} else {
+                		String coordenadaXY = bot.ocrCoordenadas();
+                        atual = new Coordenadas(coordenadaXY);
+                	}
+
+                    if (bot.compararCoordenadas(atual, ultimaCoordenadaOcr)) {
+                    	if (System.currentTimeMillis() - ultimoMovimento >= 1500) {
                     		personagemParado = true;
                     		System.out.println("Personagem está parado.");
                     	}
@@ -178,26 +222,48 @@ public class GameController implements NativeKeyListener {
                     	personagemParado = false;
                     	ultimoMovimento = System.currentTimeMillis();
                     }
+                    ultimaCoordenadaOcr = atual;
                    
                     //verificar se tem falha no ocr pra nao dar coordenadas muito longe
+                    //as vezes o ocr erra a leitura e o personagem fica indo para direções estranhas
                     if (Math.abs(ultimaCoordenada.x - atual.x) > 20 || Math.abs(ultimaCoordenada.y - atual.y) > 20 ) {
-                   		int diminuirPasso = passo - 1;
+                   		/*int diminuirPasso = passo - 1;
                    		if (diminuirPasso <= 0) {
                    			diminuirPasso = 0;
                    		}
                        	int x = script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().get(0);
                        	int y = script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().get(1);
                        	atual = new Coordenadas(x,y);
+                       	*/
                        	System.out.println("****************#########################");
-                       	System.out.println("****************#########################");
-                       	System.out.println("****************#########################");
+                       	System.out.println("****************######################### " + atual);
+                       	System.out.println("****************#########################" + ultimaCoordenada);
+                    	Coordenadas atualMemoria = bot.obterCoordenadasMemoria();
+                    	atual = atualMemoria;
+                    	
+                    }
+                    
+                    int diminuirPasso = passo - 1;
+               		if (diminuirPasso <= 0) {
+               			diminuirPasso = 0;
+               		}
+               		int xInicio = script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().get(0);
+                   	int yInicio = script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().get(1);
+                   	int xFim = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(0);
+                   	int yFim = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(1);
+                   	
+                   	double distanciaDaReta = bot.calcularDistanciaDaReta(new Coordenadas(xInicio,yInicio), new Coordenadas(xFim,yFim), atual);
+                   
+                   	if (distanciaDaReta > 10) {
+                    	AStar aStar = new AStar();
+                    	//caminhoAlternativo = aStar.calcularCaminhoComExpansao(atual, new Coordenadas(xFim,yFim), grafo);
                     }
                     
                     ultimaCoordenada = atual;
                    
                     // Lógica de andar
                     if (personagemParado) {
-                        moverParaDirecaoOposta(atual); // Força o movimento do personagem
+                    	moverParaDirecaoOposta(atual); // Força o movimento do personagem
                         personagemParado = false; // Reseta o estado após o movimento forçado
                     } else {
                         andar(script);
@@ -205,13 +271,18 @@ public class GameController implements NativeKeyListener {
                     break;
 
                 case ATACANDO:
-                    if (!monstros.isEmpty()) {
+                	bot.soltarMouse();
+                	 if (!monstros.get("rosa").isEmpty() || !monstros.get("azul").isEmpty()) {
+                         //stateMachine.mudarEstado(Estado.ATACANDO);
+                     //}
+                    //if (!monstros.isEmpty()) {
                         atacar(monstros);
                         stateMachine.mudarEstado(Estado.ANDANDO);
                     }
                     break;
 
                 case NPC:
+                	bot.soltarMouse();
                 	if (tentandoFalarComNpc) {
                 		System.out.println("Tentando falar com o npc...");
                 		falarComNpc();
@@ -235,6 +306,13 @@ public class GameController implements NativeKeyListener {
 
         System.out.println("Bot parado com sucesso.");
         GlobalScreen.unregisterNativeHook();
+    }
+    
+    private void calcularCaminhoAlternativo(Script script, GrafoMapa grafo) {
+        int xDestino = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(0);
+        int yDestino = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(1);
+         AStar aStar = new AStar();
+         caminhoAlternativo = aStar.calcularCaminhoComExpansao(atual, new Coordenadas(xDestino,yDestino), grafo);
     }
     
     private void moverParaDirecaoOposta(Coordenadas atual) throws Exception {
@@ -319,90 +397,192 @@ public class GameController implements NativeKeyListener {
     	System.out.println("descricao: " + script.getFinalizacao().getDescricao());
     	System.out.println("coordenadas: " + script.getFinalizacao().getCoordenadas());
     	
+    	if (script.getCoordenadasAlt() != null) {
+	    	System.out.println("CoordenadasAlt");
+	    	for(Links links : script.getCoordenadasAlt()) {
+	    		System.out.println("links: [" + links.getLinks().get(0) + ", " + links.getLinks().get(1) + ", " + links.getLinks().get(2) + ", " + links.getLinks().get(3) + "]");
+	    	}
+    	}
     	System.out.println("-------------------------------------------------------------------------------------");
     }
     
+    
+    
     private void andar(Script script) throws Exception {
-        // Verificar se chegou ao destino atual
-        int distanciaMinima = 5; // Defina a distância mínima aceitável
-        //Coordenadas destino = caminho.get(passo);
-        
-        int destinoX = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(0);
-        int destinoY = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(1);
-        Coordenadas destino = new Coordenadas(destinoX, destinoY);
-        
-        System.out.println(script.getRotas().get(rota).getDescricao());
-        
-        String verificacao = script.getRotas().get(rota).getVerificacao().getTipo();
-        switch (verificacao) {
-    	case "teleport":
-    		int verificarX = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(0);
-        	int verificarY = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(1);
-        	if (bot.calcularDistancia(atual, new Coordenadas(verificarX, verificarY)) <= distanciaMinima) {
-        		rota++;
-        		elseAcoes = 0;
-        		passo = 0;
-        		if (rota >= script.getRotas().size()) {
-        			rota = 0; //reiniciar tudo ou ir pro finalização
-        			int finalizarX = script.getFinalizacao().getCoordenadas().get(0);
-        			int finalizarY = script.getFinalizacao().getCoordenadas().get(1);
-        			if (bot.calcularDistancia(atual, new Coordenadas(finalizarX, finalizarY)) <= distanciaMinima) {
-        				System.out.println("Finalizou a rota: " + script.getFinalizacao().getDescricao());
-        			}
-        		}
-        	} 
-        	/* Implementar o else de alguma forma
-        	if (passo == script.getRotas().get(rota).getPassos().size() - 1){
-        		//Parte dos elseAcoes
-        		int elseX = script.getRotas().get(rota).getVerificacao().getElseAcoes().get(elseAcoes).getCoordenadas().get(0);
-        		int elseY = script.getRotas().get(rota).getVerificacao().getElseAcoes().get(elseAcoes).getCoordenadas().get(1);
-        		bot.moverPersonagem(atual, new Coordenadas(elseX, elseY));
-        		elseAcoes++;
-        		if (elseAcoes >= script.getRotas().get(rota).getVerificacao().getElseAcoes().size()) {
-        			elseAcoes = 0;
-        		}
-        	}*/
-        	break;
-        
-    	case "loop":
-    		rota = 0;
-        	passo = 0;
-    		elseAcoes = 0;
-    		break;
-    		
-    	case "npc":
-    		
-    		//fazer o personagem parar de andar usando primeiros socorros
-    		bot.soltarMouse();
-    		bot.apertarTecla(KeyEvent.VK_A);
-    		passo = 0;
-        	stateMachine.mudarEstado(Estado.NPC);
-    		tentandoFalarComNpc = true;
-    		break;
-    }
+    	int distanciaMinima = 5; // Defina a distância mínima aceitável 
+    	
+    	boolean doido = true;
+    	if (doido) {
+    		// Processar verificação específica da rota
+            processarVerificacao(script, distanciaMinima);
+            
+    		Coordenadas destino = obterDestinoAtual(script);
+    		AStar aStar = new AStar();
+        	//caminhoAlternativo = aStar.calcularCaminhoComExpansao10(atual, destino, grafo);
+    		caminhoAlternativo = aStar.encontrarCaminho(grafo, atual, destino);
+        	if (passoAlternativo < caminhoAlternativo.size()) {
+                int altX = caminhoAlternativo.get(passoAlternativo).x;
+                int altY = caminhoAlternativo.get(passoAlternativo).y;
+                Coordenadas destinoAlt = new Coordenadas(altX, altY);
 
+                bot.moverPersonagem(atual, destinoAlt);
+
+                if (bot.calcularDistancia(atual, destinoAlt) <= distanciaMinima) {
+                    passoAlternativo++;
+                    System.out.println("Rota alternativa aumentada");
+
+                    if (passoAlternativo >= caminhoAlternativo.size()) {
+                        passoAlternativo = 0;
+                        caminhoAlternativo.clear();
+                        
+                        passo++;
+                        System.out.println("Destino alcançado, mudando para a próxima rota.");
+                        if (passo >= script.getRotas().get(rota).getPassos().size()) {
+                            passo = 0;
+                        }
+                        
+                        System.out.println("Final alternativo");
+                    }
+                }
+            } else {
+                // Caso inesperado
+                System.out.println("Erro: passoAlternativo fora do intervalo.");
+                caminhoAlternativo.clear();
+                passoAlternativo = 0;
+            }
+        	
+        	return;
+    	}
+    	
+    	// Obter coordenadas do destino atual
+        Coordenadas destino = obterDestinoAtual(script);
+        System.out.println("Atual: " + atual + " | destino: " + destino);
+        
+
+    	// Verificar se há um caminho alternativo
+        if (!caminhoAlternativo.isEmpty()) {
+            processarCaminhoAlternativo(distanciaMinima);
+            return;
+        }
+        
+        
+        
+        // Processar verificação específica da rota
+        processarVerificacao(script, distanciaMinima);
+        
+        // Verificar se o destino foi alcançado
         if (bot.calcularDistancia(atual, destino) <= distanciaMinima) {
             passo++;
             System.out.println("Destino alcançado, mudando para a próxima rota.");
 
-            if (passo >= script.getRotas().get(rota).getPassos().size()) { //Se terminou todos os passos
-            	passo = 0;
+            if (passo >= script.getRotas().get(rota).getPassos().size()) {
+                passo = 0;
             }
-            
         } else {
             // Mover o personagem em direção ao destino
-        	
-        	//Pegando a ultima coordenada para limite o angulo de movimento do mouse
-        	Coordenadas ultimaCoordenada = null;
-        	int ultimoPasso = passo - 1;
-        	if (ultimoPasso > 0) {
-        		int ultimaCoordenadaX = script.getRotas().get(rota).getPassos().get(ultimoPasso).getCoordenadas().get(0);
-                int ultimaCoordenadaY = script.getRotas().get(rota).getPassos().get(ultimoPasso).getCoordenadas().get(1);
-                ultimaCoordenada = new Coordenadas(ultimaCoordenadaX, ultimaCoordenadaY);
-        	}
-
-            bot.moverPersonagem(atual, destino, ultimaCoordenada);
+            bot.moverPersonagem(atual, destino);
         }
+    	
+    }
+    
+    private void processarCaminhoAlternativo(int distanciaMinima) throws Exception {
+    	System.out.println("Entrou no caminho alternativo");
+        for (Coordenadas nodo : caminhoAlternativo) {
+            System.out.println(nodo.x + " " + nodo.y);
+        }
+
+        if (passoAlternativo < caminhoAlternativo.size()) {
+            int altX = caminhoAlternativo.get(passoAlternativo).x;
+            int altY = caminhoAlternativo.get(passoAlternativo).y;
+            Coordenadas destinoAlt = new Coordenadas(altX, altY);
+
+            bot.moverPersonagem(atual, destinoAlt);
+
+            if (bot.calcularDistancia(atual, destinoAlt) <= distanciaMinima) {
+                passoAlternativo++;
+                System.out.println("Rota alternativa aumentada");
+
+                if (passoAlternativo >= caminhoAlternativo.size()) {
+                    passoAlternativo = 0;
+                    caminhoAlternativo.clear();
+                    System.out.println("Final alternativo");
+                }
+            }
+        } else {
+            // Caso inesperado
+            System.out.println("Erro: passoAlternativo fora do intervalo.");
+            caminhoAlternativo.clear();
+            passoAlternativo = 0;
+        }
+    }
+    
+    private Coordenadas obterDestinoAtual(Script script) {
+        int destinoX = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(0);
+        int destinoY = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(1);
+        return new Coordenadas(destinoX, destinoY);
+    }
+    
+    private void processarVerificacao(Script script, int distanciaMinima) throws Exception {
+        String verificacao = script.getRotas().get(rota).getVerificacao().getTipo();
+        switch (verificacao) {
+            case "teleport":
+                processarVerificacaoTeleport(script, distanciaMinima);
+                break;
+            case "loop":
+                reiniciarRota();
+                break;
+            case "npc":
+            	mudarEstadoParaNpc();
+                break;
+            default:
+                System.out.println("Tipo de verificação desconhecido: " + verificacao);
+        }
+    }
+    
+    private void processarVerificacaoTeleport(Script script, int distanciaMinima) throws Exception {
+        int verificarX = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(0);
+        int verificarY = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(1);
+        Coordenadas verificarCoordenadas = new Coordenadas(verificarX, verificarY);
+
+        if (bot.calcularDistancia(atual, verificarCoordenadas) <= distanciaMinima) {
+            rota++;
+            elseAcoes = 0;
+            passo = 0;
+            passoAlternativo = 0;
+
+            if (rota >= script.getRotas().size()) {
+                finalizarRota(script, distanciaMinima);
+            }
+        }
+    }
+    
+    private void finalizarRota(Script script, int distanciaMinima) throws Exception {
+    	//reiniciar tudo ou ir pro finalização
+        rota = 0;
+        int finalizarX = script.getFinalizacao().getCoordenadas().get(0);
+        int finalizarY = script.getFinalizacao().getCoordenadas().get(1);
+        Coordenadas finalizacao = new Coordenadas(finalizarX, finalizarY);
+
+        if (bot.calcularDistancia(atual, finalizacao) <= distanciaMinima) {
+            System.out.println("Finalizou a rota: " + script.getFinalizacao().getDescricao());
+        }
+    }
+    
+    private void reiniciarRota() {
+        rota = 0;
+        passo = 0;
+        elseAcoes = 0;
+    }
+    private void mudarEstadoParaNpc() {
+        bot.soltarMouse();
+        try {
+			bot.apertarTecla(KeyEvent.VK_A);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+        passo = 0;
+        stateMachine.mudarEstado(Estado.NPC);
+        tentandoFalarComNpc = true;
     }
     
     /*
@@ -417,7 +597,7 @@ public class GameController implements NativeKeyListener {
     }*/
     
     private void atacar(Map<String, List<MatOfPoint>> monstros) throws Exception {
-    	
+    	/*
     	List<MatOfPoint> monstrosRosa = monstros.get("rosa");
     	List<MatOfPoint> monstrosAzul = monstros.get("azul");
     	
@@ -426,6 +606,7 @@ public class GameController implements NativeKeyListener {
     		monstrosAzul.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
     		//monstrosAzul.reversed();
     		for (MatOfPoint monstro : monstrosAzul) {
+    			
                 bot.atacarMonstro(monstro, KeyEvent.VK_E);
                 break; // Ataca um monstro e sai
             }
@@ -437,7 +618,54 @@ public class GameController implements NativeKeyListener {
         for (MatOfPoint monstro : monstrosRosa) {
             bot.atacarMonstro(monstro, KeyEvent.VK_Q);
             break; // Ataca um monstro e sai
+        }*/
+    	
+    	// Prioridade: monstros azuis
+        List<MatOfPoint> monstrosAzul = monstros.get("azul");
+        if (!monstrosAzul.isEmpty()) {
+            monstrosAzul.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
+            for (MatOfPoint monstro : monstrosAzul) {
+                Skill skillDisponivel = getAvailableSkill("azul");
+                if (skillDisponivel != null) {
+                    bot.atacarMonstro(monstro, skillDisponivel.getTecla());
+                    skillDisponivel.use(); // Marca a skill como usada
+                    break; // Ataca um monstro e sai
+                }
+            }
+            return;
         }
+
+        // Monstros rosas
+        List<MatOfPoint> monstrosRosa = monstros.get("rosa");
+        if (!monstrosRosa.isEmpty()) {
+            monstrosRosa.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
+            for (MatOfPoint monstro : monstrosRosa) {
+                Skill skillDisponivel = getAvailableSkill("rosa");
+                if (skillDisponivel != null) {
+                    bot.atacarMonstro(monstro, skillDisponivel.getTecla());
+                    skillDisponivel.use(); // Marca a skill como usada
+                    break; // Ataca um monstro e sai
+                }
+            }
+        }
+    	
+    }
+    
+ // Método auxiliar para obter a próxima habilidade disponível para uma cor
+    private Skill getAvailableSkill(String cor) {
+    	Skill skill = null;
+    	for (Skill sk : bot.skills) {
+    		System.out.println("Skill: " + sk.getTecla() + " pronta: " + sk.isReady());
+    		if (sk.getCor().equals(cor) && sk.isReady()) {
+    			skill = sk;
+    			break;
+    		}
+    	}
+    	return skill;
+        /*return bot.skills.stream()
+                .filter(skill -> skill.getCor().equals(cor) && skill.isReady())
+                .findFirst()
+                .orElse(null);*/
     }
     
     public void inicarBotPeloLocalAtualDoPlayer(Script script) {
@@ -471,6 +699,53 @@ public class GameController implements NativeKeyListener {
     	this.rota = rotaCalculada;
     	this.passo = passoCalculada;
     	
+    }
+    
+    public GrafoMapa gerarGrafoDeMapa(Map<Coordenadas, Boolean> mapaCoordenadas) {
+	    GrafoMapa grafo = new GrafoMapa();
+
+	    for (Map.Entry<Coordenadas, Boolean> entrada : mapaCoordenadas.entrySet()) {
+	        Coordenadas atual = entrada.getKey();
+	        if (entrada.getValue()) { // Se pode andar na coordenada
+	            // Verificar vizinhos (4 direções: cima, baixo, esquerda, direita)
+	            Coordenadas[] vizinhos = {
+	                new Coordenadas(atual.x, atual.y + 1),
+	                new Coordenadas(atual.x, atual.y - 1),
+	                new Coordenadas(atual.x + 1, atual.y),
+	                new Coordenadas(atual.x - 1, atual.y)
+	            };
+
+	            for (Coordenadas vizinho : vizinhos) {
+	                if (mapaCoordenadas.getOrDefault(vizinho, false)) {
+	                    grafo.addConexao(atual, vizinho);
+	                }
+	            }
+	        }
+	    }
+
+	    return grafo;
+	}
+	
+    public Map<Coordenadas, Boolean> carregarMapa(String caminhoImagem) throws IOException {
+        BufferedImage mapa = ImageIO.read(new File(caminhoImagem));
+        Map<Coordenadas, Boolean> mapaCoordenadas = new HashMap<>();
+
+        int largura = mapa.getWidth();
+        int altura = mapa.getHeight();
+
+        for (int y = 0; y < altura; y++) {
+            for (int x = 0; x < largura; x++) {
+                int rgb = mapa.getRGB(x, y);
+                // Determina se é branco (caminhável) ou preto (obstáculo)
+                boolean podeAndar = (rgb & 0xFFFFFF) == 0xFFFFFF; // Branco
+                // Converter pixel para coordenada no Ragnarok
+                int coordX = x;
+                int coordY = altura - y - 1; // Inverter Y (base no canto inferior esquerdo)
+                mapaCoordenadas.put(new Coordenadas(coordX, coordY), podeAndar);
+            }
+        }
+
+        return mapaCoordenadas;
     }
     
     public void pausarBot() {
