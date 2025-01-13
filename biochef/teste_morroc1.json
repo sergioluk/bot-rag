@@ -1,0 +1,73 @@
+{
+    "mapa": "moroc.png",
+    "rotas": [
+      {
+        "descricao": "indo pra baixo",
+        "passos": [
+            { "coordenadas": [161, 84] },
+            { "coordenadas": [167, 68] },
+            { "coordenadas": [181, 65] },
+            { "coordenadas": [186, 49] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [186, 49],
+          "elseAcoes": [
+            { "coordenadas": [186, 49] }
+          ]
+        }
+      },
+      {
+        "descricao": "indo pra direita",
+        "passos": [
+            { "coordenadas": [201, 49] },
+            { "coordenadas": [219, 36] },
+            { "coordenadas": [234, 48] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [234, 48],
+          "elseAcoes": [
+            { "coordenadas": [234, 48] }
+          ]
+        }
+      },
+      {
+        "descricao": "subindo pra cima",
+        "passos": [
+            { "coordenadas": [235, 63] },
+            { "coordenadas": [228, 84] },
+            { "coordenadas": [217, 95] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [217, 95],
+          "elseAcoes": [
+            { "coordenadas": [217, 95] }
+          ]
+        }
+      },
+      {
+        "descricao": "voltando meio",
+        "passos": [
+            { "coordenadas": [207, 104] },
+            { "coordenadas": [196, 101] },
+            { "coordenadas": [190, 88] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [190, 88],
+          "elseAcoes": [
+            { "coordenadas": [190, 88] }
+          ]
+        }
+      }
+    ],
+    "finalizacao": {
+      "descricao": "Terminado moroc 1",
+      "coordenadas": [190, 88]
+    },
+    "coordenadasAlt": [
+      { "links": [160, 190, 154, 179] }
+    ]
+}

@@ -5,6 +5,7 @@ import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import com.ragnarokbot.bot.Bot;
@@ -14,6 +15,7 @@ import com.ragnarokbot.model.AStar;
 import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.GrafoMapa;
 import com.ragnarokbot.model.enums.Estado;
+import com.ragnarokbot.telas.JanelaPrincipal;
 
 import config.ContasConfig;
 import config.ContasConfig.Conta;
@@ -40,10 +42,11 @@ import java.util.List;
 import java.util.Map;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 
 
-public class GameController implements NativeKeyListener {
+public class GameController implements NativeKeyListener, Runnable {
 	
 	private final Bot bot;
 	private final Tela tela;
@@ -55,6 +58,7 @@ public class GameController implements NativeKeyListener {
     private int rota = 0;
     private int acoesNpc = 0;
     private int elseAcoes = 0;
+    private int farm = 0;
     
     private boolean tentandoFalarComNpc = false;
     private boolean interagindoComNpc = false;
@@ -68,19 +72,24 @@ public class GameController implements NativeKeyListener {
     
     public static StateMachine stateMachine = new StateMachine(Estado.ANDANDO);
     
-    private List<Coordenadas> caminhoAlternativo = new ArrayList<>();
+    private List<Coordenadas> caminhoCalculado = new ArrayList<>();
     private int passoAlternativo = 0;
     
     private int parImpar = 0;
     private Coordenadas ultimaCoordenadaOcr = new Coordenadas(0,0);
     
     private GrafoMapa grafo = new GrafoMapa();
-    
+    AStar aStar = new AStar();
     
     private boolean modoMemoria = true;
     
+    private Script script = new Script();
     
-    public GameController(Bot bot, Tela tela) {
+    public List<String> listaDeFarmBioChef = new ArrayList<>();
+    
+    public static long tempoExecucao = 0;
+    
+	public GameController(Bot bot, Tela tela) {
         this.bot = bot;
         this.tela = tela;
         
@@ -92,38 +101,35 @@ public class GameController implements NativeKeyListener {
         	e.printStackTrace();
         }
         
-        try {
-        	if (modoMemoria) {
-        		atual =  bot.obterCoordenadasMemoria();
-        	} else {
-        		String coordenadaXY = bot.ocrCoordenadas();
-                atual = new Coordenadas(coordenadaXY);
-        	}
-        	ultimaCoordenada = atual;
-		} catch (IOException | TesseractException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-        
-        
        
+        if (modoMemoria) {
+        	atual =  bot.obterCoordenadasMemoria();
+        } else {
+        	String coordenadaXY = bot.ocrCoordenadas();
+            atual = new Coordenadas(coordenadaXY);
+        }
+        ultimaCoordenada = atual;
+
     }
     
-    public void run() throws Exception {
+	@Override
+    public void run() {
     	
-    	//Script script = inicializarCaminho("teste_de_json");
-        //Script script = inicializarCaminho("sussurro_sombrio");
-    	//Script script = inicializarCaminho("teste_formigueiro");
-    	Script script = inicializarCaminho("bio");
+    	ScriptLoader scriptLoader = new ScriptLoader();
+    	
+    	//script = scriptLoader.carregarScriptdoJson("teste_de_json.json");
+        //script = scriptLoader.carregarScriptdoJson("sussurro_sombrio.json");
+    	//script = scriptLoader.carregarScriptdoJson("teste_formigueiro.json");
+    	//script = scriptLoader.carregarScriptdoJson("bio.json");
     	apresentacao(script);
 
-        Thread.sleep(1000);
+        bot.sleep(1000);
         
         bot.zoomOut();
         
        // inicarBotPeloLocalAtualDoPlayer(script);
         
-        ScriptLoader scriptLoader = new ScriptLoader();
+        
     	ContasConfig scriptContas = scriptLoader.carregarContas("teste_login_instancias" + ".json");
     	
     	for (Conta conta : scriptContas.getContas()) {
@@ -139,7 +145,8 @@ public class GameController implements NativeKeyListener {
         }
     	
     	//GrafoMapa grafo = new GrafoMapa();
-    	grafo = gerarGrafoDeMapa(carregarMapa("bio.png"));
+    	String mapa = script.getMapa();
+    	grafo = gerarGrafoDeMapa(carregarMapa("mapas/" + mapa));
 
         
         /*
@@ -178,8 +185,19 @@ public class GameController implements NativeKeyListener {
     	
         while (ligarBot) {
             long startTime = System.currentTimeMillis();
-            Thread.sleep(100);
-
+            bot.sleep(100);
+            synchronized (this) {
+	            while (pausarBot) {
+	                try {
+	                	System.out.println("ta no wait");
+	                    wait(); // Aguarda até que `pausado` seja false
+	                } catch (InterruptedException e) {
+	                	Thread.currentThread().interrupt();
+	                    e.printStackTrace();
+	                }
+	            }
+            }
+            
             if (pausarBot) {
                 System.out.println("Bot pausado");
                 continue;
@@ -226,23 +244,23 @@ public class GameController implements NativeKeyListener {
                    
                     //verificar se tem falha no ocr pra nao dar coordenadas muito longe
                     //as vezes o ocr erra a leitura e o personagem fica indo para direções estranhas
-                    if (Math.abs(ultimaCoordenada.x - atual.x) > 20 || Math.abs(ultimaCoordenada.y - atual.y) > 20 ) {
-                   		/*int diminuirPasso = passo - 1;
+                    /* if (Math.abs(ultimaCoordenada.x - atual.x) > 20 || Math.abs(ultimaCoordenada.y - atual.y) > 20 ) {
+                   		int diminuirPasso = passo - 1;
                    		if (diminuirPasso <= 0) {
                    			diminuirPasso = 0;
                    		}
                        	int x = script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().get(0);
                        	int y = script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().get(1);
                        	atual = new Coordenadas(x,y);
-                       	*/
+                       	
                        	System.out.println("****************#########################");
                        	System.out.println("****************######################### " + atual);
                        	System.out.println("****************#########################" + ultimaCoordenada);
                     	Coordenadas atualMemoria = bot.obterCoordenadasMemoria();
                     	atual = atualMemoria;
                     	
-                    }
-                    
+                    }*/
+                    /*
                     int diminuirPasso = passo - 1;
                		if (diminuirPasso <= 0) {
                			diminuirPasso = 0;
@@ -257,7 +275,7 @@ public class GameController implements NativeKeyListener {
                    	if (distanciaDaReta > 10) {
                     	AStar aStar = new AStar();
                     	//caminhoAlternativo = aStar.calcularCaminhoComExpansao(atual, new Coordenadas(xFim,yFim), grafo);
-                    }
+                    }*/
                     
                     ultimaCoordenada = atual;
                    
@@ -301,21 +319,27 @@ public class GameController implements NativeKeyListener {
             }
 
             long endTime = System.currentTimeMillis();
-            System.out.println("Bloco executado em " + (endTime - startTime) + " ms.");
+            tempoExecucao = endTime - startTime;
+            JanelaPrincipal.updateTempoLabel(tempoExecucao);
+            //System.out.println("Bloco executado em " + tempoExecucao + " ms.");
         }
 
         System.out.println("Bot parado com sucesso.");
-        GlobalScreen.unregisterNativeHook();
+        try {
+			GlobalScreen.unregisterNativeHook();
+		} catch (NativeHookException e) {
+			e.printStackTrace();
+		}
     }
     
     private void calcularCaminhoAlternativo(Script script, GrafoMapa grafo) {
         int xDestino = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(0);
         int yDestino = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(1);
          AStar aStar = new AStar();
-         caminhoAlternativo = aStar.calcularCaminhoComExpansao(atual, new Coordenadas(xDestino,yDestino), grafo);
+         caminhoCalculado = aStar.calcularCaminhoComExpansao(atual, new Coordenadas(xDestino,yDestino), grafo);
     }
     
-    private void moverParaDirecaoOposta(Coordenadas atual) throws Exception {
+    private void moverParaDirecaoOposta(Coordenadas atual) {
         int novaX = atual.x + (Math.random() > 0.5 ? -10 : 10); // Movimento aleatório para frente ou trás
         int novaY = atual.y + (Math.random() > 0.5 ? -10 : 10);
 
@@ -324,7 +348,7 @@ public class GameController implements NativeKeyListener {
         System.out.println("Movimento forçado para evitar inatividade.");
     }
     
-    private void falarComNpc() throws Exception {
+    private void falarComNpc() {
         List<MatOfPoint> npcs = bot.listaNpcs();
         if (!npcs.isEmpty()) {
             MatOfPoint npcEncontrado = npcs.get(0);
@@ -332,7 +356,7 @@ public class GameController implements NativeKeyListener {
             int centerX = bot.getxJanela() + rect.x + rect.width / 2;
             int centerY = bot.getyJanela() + rect.y + rect.height / 2;
             bot.moverMouse(centerX, centerY);
-            Thread.sleep(50);
+            bot.sleep(50);
             bot.clicarMouse();
             
             List<MatOfPoint> balao = bot.verificarBalaoNpc();
@@ -343,7 +367,7 @@ public class GameController implements NativeKeyListener {
         }
     }
     
-    private void interagirComNpc(Script script) throws Exception {
+    private void interagirComNpc(Script script) {
         List<MatOfPoint> balao = bot.verificarBalaoNpc();
         System.out.println("tamanho balao " + balao.size());
         
@@ -367,11 +391,7 @@ public class GameController implements NativeKeyListener {
         }
     }
     
-    private Script inicializarCaminho(String arquivo) {
-    	ScriptLoader scriptLoader = new ScriptLoader();
-    	Script script = scriptLoader.carregarScriptdoJson(arquivo + ".json");
-    	return script;
-    }
+    
     
     private void apresentacao(Script script) {
     	for(Rota rota : script.getRotas()) {
@@ -403,57 +423,60 @@ public class GameController implements NativeKeyListener {
 	    		System.out.println("links: [" + links.getLinks().get(0) + ", " + links.getLinks().get(1) + ", " + links.getLinks().get(2) + ", " + links.getLinks().get(3) + "]");
 	    	}
     	}
+    	System.out.println("Mapa: " + script.getMapa());
     	System.out.println("-------------------------------------------------------------------------------------");
     }
     
     
     
-    private void andar(Script script) throws Exception {
+    private void andar(Script script) {
     	int distanciaMinima = 5; // Defina a distância mínima aceitável 
     	
-    	boolean doido = true;
-    	if (doido) {
-    		// Processar verificação específica da rota
-            processarVerificacao(script, distanciaMinima);
+    	//System.out.println("farm: " + farm + " | tamanho da lista: " + this.listaDeFarmBioChef.size());
+    	//System.out.println("descricao do script: " + script.getFinalizacao().getDescricao());
+
+    	// Processar verificação específica da rota
+        processarVerificacao(script, distanciaMinima);
             
-    		Coordenadas destino = obterDestinoAtual(script);
-    		AStar aStar = new AStar();
-        	//caminhoAlternativo = aStar.calcularCaminhoComExpansao10(atual, destino, grafo);
-    		caminhoAlternativo = aStar.encontrarCaminho(grafo, atual, destino);
-        	if (passoAlternativo < caminhoAlternativo.size()) {
-                int altX = caminhoAlternativo.get(passoAlternativo).x;
-                int altY = caminhoAlternativo.get(passoAlternativo).y;
-                Coordenadas destinoAlt = new Coordenadas(altX, altY);
-
-                bot.moverPersonagem(atual, destinoAlt);
-
-                if (bot.calcularDistancia(atual, destinoAlt) <= distanciaMinima) {
-                    passoAlternativo++;
-                    System.out.println("Rota alternativa aumentada");
-
-                    if (passoAlternativo >= caminhoAlternativo.size()) {
-                        passoAlternativo = 0;
-                        caminhoAlternativo.clear();
-                        
-                        passo++;
-                        System.out.println("Destino alcançado, mudando para a próxima rota.");
-                        if (passo >= script.getRotas().get(rota).getPassos().size()) {
-                            passo = 0;
-                        }
-                        
-                        System.out.println("Final alternativo");
-                    }
-                }
-            } else {
-                // Caso inesperado
-                System.out.println("Erro: passoAlternativo fora do intervalo.");
-                caminhoAlternativo.clear();
-                passoAlternativo = 0;
-            }
-        	
-        	return;
-    	}
+    	Coordenadas destino = obterDestinoAtual(script);
+    	//System.out.println("Atual: " + atual + " | destino: " + destino);
     	
+        //caminhoAlternativo = aStar.calcularCaminhoComExpansao10(atual, destino, grafo);
+    	caminhoCalculado = aStar.encontrarCaminho(grafo, atual, destino);
+    	
+        if (passoAlternativo < caminhoCalculado.size()) {
+               int altX = caminhoCalculado.get(passoAlternativo).x;
+               int altY = caminhoCalculado.get(passoAlternativo).y;
+               Coordenadas destinoAlt = new Coordenadas(altX, altY);
+
+               bot.moverPersonagem(atual, destinoAlt);
+
+               if (bot.calcularDistancia(atual, destinoAlt) <= distanciaMinima) {
+                   passoAlternativo++;
+                   System.out.println("Rota alternativa aumentada");
+
+                   if (passoAlternativo >= caminhoCalculado.size()) {
+                       passoAlternativo = 0;
+                       caminhoCalculado.clear();
+                        
+                       passo++;
+                       System.out.println("Destino alcançado, mudando para a próxima rota.");
+                       if (passo >= script.getRotas().get(rota).getPassos().size()) {
+                           passo = 0;
+                       }
+                        
+                       System.out.println("Final alternativo");
+                   }
+               }
+           } else {
+               // Caso inesperado
+               System.out.println("Erro: passoAlternativo fora do intervalo.");
+               caminhoCalculado.clear();
+               passoAlternativo = 0;
+           }
+        	
+    	
+    	/*
     	// Obter coordenadas do destino atual
         Coordenadas destino = obterDestinoAtual(script);
         System.out.println("Atual: " + atual + " | destino: " + destino);
@@ -481,19 +504,19 @@ public class GameController implements NativeKeyListener {
         } else {
             // Mover o personagem em direção ao destino
             bot.moverPersonagem(atual, destino);
-        }
+        }*/
     	
     }
     
     private void processarCaminhoAlternativo(int distanciaMinima) throws Exception {
     	System.out.println("Entrou no caminho alternativo");
-        for (Coordenadas nodo : caminhoAlternativo) {
+        for (Coordenadas nodo : caminhoCalculado) {
             System.out.println(nodo.x + " " + nodo.y);
         }
 
-        if (passoAlternativo < caminhoAlternativo.size()) {
-            int altX = caminhoAlternativo.get(passoAlternativo).x;
-            int altY = caminhoAlternativo.get(passoAlternativo).y;
+        if (passoAlternativo < caminhoCalculado.size()) {
+            int altX = caminhoCalculado.get(passoAlternativo).x;
+            int altY = caminhoCalculado.get(passoAlternativo).y;
             Coordenadas destinoAlt = new Coordenadas(altX, altY);
 
             bot.moverPersonagem(atual, destinoAlt);
@@ -502,16 +525,16 @@ public class GameController implements NativeKeyListener {
                 passoAlternativo++;
                 System.out.println("Rota alternativa aumentada");
 
-                if (passoAlternativo >= caminhoAlternativo.size()) {
+                if (passoAlternativo >= caminhoCalculado.size()) {
                     passoAlternativo = 0;
-                    caminhoAlternativo.clear();
+                    caminhoCalculado.clear();
                     System.out.println("Final alternativo");
                 }
             }
         } else {
             // Caso inesperado
             System.out.println("Erro: passoAlternativo fora do intervalo.");
-            caminhoAlternativo.clear();
+            caminhoCalculado.clear();
             passoAlternativo = 0;
         }
     }
@@ -522,7 +545,7 @@ public class GameController implements NativeKeyListener {
         return new Coordenadas(destinoX, destinoY);
     }
     
-    private void processarVerificacao(Script script, int distanciaMinima) throws Exception {
+    private void processarVerificacao(Script script, int distanciaMinima) {
         String verificacao = script.getRotas().get(rota).getVerificacao().getTipo();
         switch (verificacao) {
             case "teleport":
@@ -539,7 +562,7 @@ public class GameController implements NativeKeyListener {
         }
     }
     
-    private void processarVerificacaoTeleport(Script script, int distanciaMinima) throws Exception {
+    private void processarVerificacaoTeleport(Script script, int distanciaMinima) {
         int verificarX = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(0);
         int verificarY = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(1);
         Coordenadas verificarCoordenadas = new Coordenadas(verificarX, verificarY);
@@ -551,12 +574,13 @@ public class GameController implements NativeKeyListener {
             passoAlternativo = 0;
 
             if (rota >= script.getRotas().size()) {
+            	//System.out.println("Caiu na ultima rota: " + rota + " | rota.size():" + script.getRotas().size());
                 finalizarRota(script, distanciaMinima);
             }
         }
     }
     
-    private void finalizarRota(Script script, int distanciaMinima) throws Exception {
+    private void finalizarRota(Script script, int distanciaMinima) {
     	//reiniciar tudo ou ir pro finalização
         rota = 0;
         int finalizarX = script.getFinalizacao().getCoordenadas().get(0);
@@ -565,6 +589,24 @@ public class GameController implements NativeKeyListener {
 
         if (bot.calcularDistancia(atual, finalizacao) <= distanciaMinima) {
             System.out.println("Finalizou a rota: " + script.getFinalizacao().getDescricao());
+            if (JanelaPrincipal.instanciaRadioButton.isSelected()) {
+            	//fazer as logicas pra iniciar as instancias
+            	System.out.println("Caiu em rota de instancia?");
+            	return;
+            }
+            //System.out.println("Ta caindo no na logica do farme mesmo?");
+            //Bloco para o player fazer as outras rotas se tiver
+            farm++;
+            if (farm > listaDeFarmBioChef.size() - 1) {
+            	farm = 0;
+            }
+            ScriptLoader scriptLoader = new ScriptLoader();
+            String modoFarm = listaDeFarmBioChef.get(farm);
+            System.out.println("Proximo script é o :" + modoFarm);
+            //script = scriptLoader.carregarScriptdoJson("biochef/" + modoFarm);
+            setScript(scriptLoader.carregarScriptdoJson("biochef/" + modoFarm));
+            //System.out.println("descricao do script: " + script.getFinalizacao().getDescricao());
+            bot.sleep(300);
         }
     }
     
@@ -575,11 +617,8 @@ public class GameController implements NativeKeyListener {
     }
     private void mudarEstadoParaNpc() {
         bot.soltarMouse();
-        try {
-			bot.apertarTecla(KeyEvent.VK_A);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+        bot.apertarTecla(KeyEvent.VK_A);
+		
         passo = 0;
         stateMachine.mudarEstado(Estado.NPC);
         tentandoFalarComNpc = true;
@@ -596,7 +635,7 @@ public class GameController implements NativeKeyListener {
         }
     }*/
     
-    private void atacar(Map<String, List<MatOfPoint>> monstros) throws Exception {
+    private void atacar(Map<String, List<MatOfPoint>> monstros) {
     	/*
     	List<MatOfPoint> monstrosRosa = monstros.get("rosa");
     	List<MatOfPoint> monstrosAzul = monstros.get("azul");
@@ -670,12 +709,8 @@ public class GameController implements NativeKeyListener {
     
     public void inicarBotPeloLocalAtualDoPlayer(Script script) {
     	String coordenadaXY = "";
-		try {
-			coordenadaXY = bot.ocrCoordenadas();
-		} catch (IOException | TesseractException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		coordenadaXY = bot.ocrCoordenadas();
+		
         Coordenadas atual = new Coordenadas(coordenadaXY);
         
         int menorDistancia = 99999;
@@ -726,42 +761,52 @@ public class GameController implements NativeKeyListener {
 	    return grafo;
 	}
 	
-    public Map<Coordenadas, Boolean> carregarMapa(String caminhoImagem) throws IOException {
-        BufferedImage mapa = ImageIO.read(new File(caminhoImagem));
-        Map<Coordenadas, Boolean> mapaCoordenadas = new HashMap<>();
+    public Map<Coordenadas, Boolean> carregarMapa(String caminhoImagem) {
+    	Map<Coordenadas, Boolean> mapaCoordenadas = new HashMap<>();
+		try {
+			BufferedImage mapa;
+			mapa = ImageIO.read(new File(caminhoImagem));
+		
+	        
+	
+	        int largura = mapa.getWidth();
+	        int altura = mapa.getHeight();
+	
+	        for (int y = 0; y < altura; y++) {
+	            for (int x = 0; x < largura; x++) {
+	                int rgb = mapa.getRGB(x, y);
+	                // Determina se é branco (caminhável) ou preto (obstáculo)
+	                boolean podeAndar = (rgb & 0xFFFFFF) == 0xFFFFFF; // Branco
+	                // Converter pixel para coordenada no Ragnarok
+	                int coordX = x;
+	                int coordY = altura - y - 1; // Inverter Y (base no canto inferior esquerdo)
+	                mapaCoordenadas.put(new Coordenadas(coordX, coordY), podeAndar);
+	            }
+	        }
 
-        int largura = mapa.getWidth();
-        int altura = mapa.getHeight();
-
-        for (int y = 0; y < altura; y++) {
-            for (int x = 0; x < largura; x++) {
-                int rgb = mapa.getRGB(x, y);
-                // Determina se é branco (caminhável) ou preto (obstáculo)
-                boolean podeAndar = (rgb & 0xFFFFFF) == 0xFFFFFF; // Branco
-                // Converter pixel para coordenada no Ragnarok
-                int coordX = x;
-                int coordY = altura - y - 1; // Inverter Y (base no canto inferior esquerdo)
-                mapaCoordenadas.put(new Coordenadas(coordX, coordY), podeAndar);
-            }
-        }
-
-        return mapaCoordenadas;
+	        
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return mapaCoordenadas;
     }
     
-    public void pausarBot() {
+    public synchronized void pausarBot() {
+    	if (script.getMapa() == null) {
+    		return;
+    	}
+    	
+    	System.out.println("pausarBot: " + pausarBot);
     	pausarBot = !pausarBot;
     	if (pausarBot) {
     		System.out.println("Pausando o bot...");
     	} else {
     		System.out.println("Resumindo o bot...");
     	}
-    	try {
-			bot.clicarMouse();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		bot.clicarMouse();
+		
     	//bot.soltarMouse();
+    	notify();
     }
     
     public void fecharBot() {
@@ -770,24 +815,35 @@ public class GameController implements NativeKeyListener {
     		tela.dispose();
     	}
         System.out.println("Tecla 'F' pressionada. Parando o bot...");
-        try {
-			bot.clicarMouse();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+        
+		bot.clicarMouse();
+		
         //bot.soltarMouse();
+        try {
+			GlobalScreen.unregisterNativeHook();
+		} catch (NativeHookException e) {
+		}
+        System.exit(0);
     }
     
     @Override
     public void nativeKeyPressed(NativeKeyEvent e) {
-        if (e.getKeyCode() == NativeKeyEvent.VC_F) {
+        // Verifica se as teclas CTRL e SHIFT estão pressionadas
+        boolean isCtrlPressed = (e.getModifiers() & NativeKeyEvent.CTRL_MASK) != 0;
+        boolean isShiftPressed = (e.getModifiers() & NativeKeyEvent.SHIFT_MASK) != 0;
+
+        // Ctrl + Shift + F
+        if (isCtrlPressed && isShiftPressed && e.getKeyCode() == NativeKeyEvent.VC_F) {
             fecharBot();
         }
-        if (e.getKeyCode() == NativeKeyEvent.VC_P) {
+
+        // Ctrl + Shift + P
+        if (isCtrlPressed && isShiftPressed && e.getKeyCode() == NativeKeyEvent.VC_P) {
             pausarBot();
         }
+        
     }
+
 
     @Override
     public void nativeKeyReleased(NativeKeyEvent e) {
@@ -798,5 +854,64 @@ public class GameController implements NativeKeyListener {
     public void nativeKeyTyped(NativeKeyEvent e) {
         // Não usado
     }
+    
+    public Script getScript() {
+		return script;
+	}
+
+	public void setScript(Script script) {
+		this.script = script;
+	}
+
+	public boolean isLigarBot() {
+		return ligarBot;
+	}
+
+	public void setLigarBot(boolean ligarBot) {
+		this.ligarBot = ligarBot;
+	}
+
+	public int getPasso() {
+		return passo;
+	}
+
+	public void setPasso(int passo) {
+		this.passo = passo;
+	}
+
+	public int getRota() {
+		return rota;
+	}
+
+	public void setRota(int rota) {
+		this.rota = rota;
+	}
+
+	public int getAcoesNpc() {
+		return acoesNpc;
+	}
+
+	public void setAcoesNpc(int acoesNpc) {
+		this.acoesNpc = acoesNpc;
+	}
+
+	public int getElseAcoes() {
+		return elseAcoes;
+	}
+
+	public void setElseAcoes(int elseAcoes) {
+		this.elseAcoes = elseAcoes;
+	}
+
+	public int getFarm() {
+		return farm;
+	}
+
+	public void setFarm(int farm) {
+		this.farm = farm;
+	}
+	
+	
+	
 
 }

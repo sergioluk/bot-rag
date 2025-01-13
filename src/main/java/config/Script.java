@@ -3,10 +3,17 @@ package config;
 import java.util.List;
 
 public class Script {
+	private String mapa;
 	private List<Rota> rotas;
 	private Finalizacao finalizacao;
 	private List<Links> coordenadasAlt;
 	
+	public String getMapa() {
+		return mapa;
+	}
+	public void setMapa(String mapa) {
+		this.mapa = mapa;
+	}
 	public List<Links> getCoordenadasAlt() {
 		return coordenadasAlt;
 	}

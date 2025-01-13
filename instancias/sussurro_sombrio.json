@@ -1,0 +1,99 @@
+{
+  "rotas": [
+    {
+      "descricao": "Procurar por mob, matar o boss",
+      "passos": [
+        { "coordenadas": [53, 67] },
+        { "coordenadas": [67, 66] },
+        { "coordenadas": [73, 71] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [73, 84],
+        "elseAcoes": [
+          { "coordenadas": [53, 67] },
+          { "coordenadas": [67, 66] },
+          { "coordenadas": [73, 71] }
+        ]
+      }
+    },
+    {
+      "descricao": "Navegar após o primeiro teleporte",
+      "passos": [
+        { "coordenadas": [55, 86] },
+        { "coordenadas": [36, 80] },
+        { "coordenadas": [37, 61] },
+        { "coordenadas": [37, 48] },
+        { "coordenadas": [62, 50] },
+        { "coordenadas": [85, 51] },
+        { "coordenadas": [85, 80] },
+        { "coordenadas": [80, 97] },
+        { "coordenadas": [54, 96] },
+        { "coordenadas": [25, 94] },
+        { "coordenadas": [27, 62] },
+        { "coordenadas": [30, 37] },
+        { "coordenadas": [61, 39] },
+        { "coordenadas": [94, 41] },
+        { "coordenadas": [93, 65] },
+        { "coordenadas": [93, 75] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [210, 96],
+        "elseAcoes": [
+          { "coordenadas": [93, 75] }
+        ]
+      }
+    },
+    {
+      "descricao": "Navegar após o segundo teleporte",
+      "passos": [
+        { "coordenadas": [210, 64] },
+        { "coordenadas": [209, 36] },
+        { "coordenadas": [163, 36] },
+        { "coordenadas": [142, 39] },
+        { "coordenadas": [142, 76] },
+        { "coordenadas": [145, 96] },
+        { "coordenadas": [179, 94] },
+        { "coordenadas": [202, 91] },
+        { "coordenadas": [199, 66] },
+        { "coordenadas": [199, 45] },
+        { "coordenadas": [172, 46] },
+        { "coordenadas": [151, 48] },
+        { "coordenadas": [153, 65] },
+        { "coordenadas": [156, 85] },
+        { "coordenadas": [190, 84] },
+        { "coordenadas": [190, 64] }
+      ],
+      "verificacao": {
+      "tipo": "teleport",
+      "coordenadas": [103, 71],
+      "elseAcoes": [
+          { "coordenadas": [190, 64] }
+        ]
+      }
+    },
+    {
+      "descricao": "Matar o boss e falar com o NPC",
+      "passos": [
+        { "coordenadas": [96, 71] },
+        { "coordenadas": [102, 90] },
+        { "coordenadas": [102, 104] },
+        { "coordenadas": [103, 110] },
+        { "coordenadas": [103, 100] }
+      ],
+      "verificacao": {
+        "tipo": "npc",
+        "coordenadas": [104, 96],
+        "acoes": [
+          {"balaoUnico": true, "opcao": 2 },
+          {"balaoUnico": false, "opcao": 3 }
+        ]
+      }
+    }
+  ],
+  "finalizacao": {
+    "descricao": "Encerrar instância",
+    "coordenadas": [244, 81]
+  }
+}

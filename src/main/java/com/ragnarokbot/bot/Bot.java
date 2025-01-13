@@ -125,7 +125,7 @@ public class Bot {
 		return ocr;
 	}*/
 	
-	public String ocr(int x, int y, int width, int height) throws IOException, TesseractException {
+	public String ocr(int x, int y, int width, int height) {
 		Rectangle area = new Rectangle(x, y, width, height);
         BufferedImage areaCapturada = robot.createScreenCapture(area);
         
@@ -141,7 +141,12 @@ public class Bot {
         BufferedImage bufferedGrayImage = matToBufferedImage(grayImage);
         
         // Executa o OCR na imagem capturada
-        String ocr = tesseract.doOCR(bufferedGrayImage);
+        String ocr = "";
+		try {
+			ocr = tesseract.doOCR(bufferedGrayImage);
+		} catch (TesseractException e) {
+			e.printStackTrace();
+		}
         
         System.out.println("ocr: " + ocr);
 		
@@ -184,7 +189,7 @@ public class Bot {
     }
 	
 	
-	public String ocrCoordenadas() throws IOException, TesseractException {
+	public String ocrCoordenadas() {
 		return this.ocr( xJanela + configOCR.rectangle.x, yJanela + configOCR.rectangle.y,configOCR.rectangle.width,configOCR.rectangle.height);
 	}
 	
@@ -204,13 +209,13 @@ public class Bot {
 		return ocr;
 	}
 	
-	public void selecionarOpcao(int opcaoEscolhida) throws InterruptedException {
+	public void selecionarOpcao(int opcaoEscolhida) {
 		if (opcaoEscolhida == 1) {
    		 apertarTecla(KeyEvent.VK_ENTER);
 	   	} else {
 	   		for (int i = 0; i < opcaoEscolhida - 1; i++) {
 	       		apertarTecla(KeyEvent.VK_DOWN);
-	       		Thread.sleep(200);
+	       		sleep(200);
 	       	}
 	   		apertarTecla(KeyEvent.VK_ENTER);
 	   	 }
@@ -453,7 +458,7 @@ public class Bot {
 
 
 	
-public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOException {
+public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
 	
 		// Definir a área onde os monstros aparecem na tela capturada
 	    int areaX = 233;  // Coordenada x da área de interesse
@@ -530,7 +535,7 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	    return filtrarMonstrosVisiveisRaycast(monstrosFiltrados, analise.screen);
 	}*/
 
-	public Map<String, List<MatOfPoint>> listaMonstros() throws IOException {
+	public Map<String, List<MatOfPoint>> listaMonstros() {
 		
 		// Definir a área onde os monstros aparecem na tela capturada
 	    int areaX = 233;  // Coordenada x da área de interesse
@@ -581,7 +586,7 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	        
 	        
 
-	        System.out.println("Monstros visíveis para a cor " + color + ": " + adjustedEntities.size());
+	        //System.out.println("Monstros visíveis para a cor " + color + ": " + adjustedEntities.size());
 	        //visibleEntities.put(color, visible); // Adicionar ao mapa de monstros visíveis
 	        visibleEntities.put(color, adjustedEntities); // Adicionar ao mapa de monstros visíveis
 	    }
@@ -610,7 +615,7 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 		    return npcsFiltrados;   
 	}*/
 	
-	public List<MatOfPoint> listaNpcs() throws IOException {
+	public List<MatOfPoint> listaNpcs() {
 		// Definir os limites de cor
 	    Scalar lowerColor = new Scalar(0, 151, 215);  // Limite inferior (laranja)
 	    Scalar upperColor = new Scalar(20, 231, 255);  // Limite superior (laranja)
@@ -634,7 +639,7 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	}
 	
 	
-	public List<MatOfPoint> verificarBalaoNpc() throws IOException {
+	public List<MatOfPoint> verificarBalaoNpc() {
 		// Definir os limites de cor
 	    Scalar lowerColor = new Scalar(0, 0, 207);  // Limite inferior (branco)
 	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
@@ -694,7 +699,7 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
         		+ Math.pow(yJanela + monstroCentroY - coordenadasJogadorTelaY + yJanela, 2));
     }
 	
-	public void moverPersonagem(Coordenadas atual, Coordenadas destino) throws Exception {
+	public void moverPersonagem(Coordenadas atual, Coordenadas destino) {
 		
 		
 		
@@ -722,13 +727,13 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 		int randY = random.nextInt(4); 
 		
 		if (compararCoordenadas(atual, destino)) {
-			moverMouse(this.xJanela + this.coordenadasJogadorTelaX, this.yJanela + this.coordenadasJogadorTelaY);
+			//moverMouse(this.xJanela + this.coordenadasJogadorTelaX, this.yJanela + this.coordenadasJogadorTelaY);
 			return;
 		}
 		
         moverMouse(xMouse + randX, yMouse + randY);
-        System.out.println("Mouse foi para: " + (xMouse + randX) + " " + yMouse + randY);
-        System.out.println("Coordenadas atual: " + atual + "| destino: " + destino);
+        //System.out.println("Mouse foi para: " + (xMouse + randX) + " " + yMouse + randY);
+        //System.out.println("Coordenadas atual: " + atual + "| destino: " + destino);
 		//moverMouse(xMouse, yMouse);
         //Thread.sleep(50);
         //clicarMouse();
@@ -803,21 +808,21 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	    }
 	}
 	
-	public void atacarMonstro(MatOfPoint monstro, int tecla) throws Exception {
+	public void atacarMonstro(MatOfPoint monstro, int tecla) {
         Rect rect = Imgproc.boundingRect(monstro);
         int centerX = xJanela + rect.x + rect.width / 2;
         int centerY = yJanela + rect.y + rect.height / 2;
 
         moverMouse(centerX, centerY + 10);
-        Thread.sleep(50);
+        sleep(50);
         apertarTecla(tecla);
-        Thread.sleep(50);
+        sleep(50);
         clicarMouse();
     }
 	
-	public void clicarMouse() throws InterruptedException {
+	public void clicarMouse() {
 		robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Pressionar o botão esquerdo
-        Thread.sleep(50);
+        sleep(50);
         robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Liberar o botão esquerdo
 	}
 	
@@ -832,9 +837,9 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 		 robot.mouseMove(x, y);
 	}
 	
-	public void apertarTecla(int tecla) throws InterruptedException {
+	public void apertarTecla(int tecla) {
 		 robot.keyPress(tecla); // Pressionar a tecla
-		 Thread.sleep(50);
+		 sleep(50);
          robot.keyRelease(tecla); // Liberar a tecla
 	}
 	
@@ -856,7 +861,7 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	}
 
 	
-	public void moverPersonagemComClick(Coordenadas atual, Coordenadas destino) throws Exception {
+	public void moverPersonagemComClick(Coordenadas atual, Coordenadas destino) {
 		
 		double dx = destino.x - atual.x;
 		double dy = destino.y - atual.y;
@@ -881,7 +886,7 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 		int randX = random.nextInt(4); //0 a 5
 		int randY = random.nextInt(4);
         moverMouse(xMouse + randX, yMouse + randY);
-        Thread.sleep(50);
+        sleep(50);
         clicarMouse();
     }
 	
@@ -1141,6 +1146,13 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) throws IOE
 	    return Math.abs(A * atual.x + B * atual.y + C) / Math.sqrt(A * A + B * B);
 	}
 
+	public void sleep(int time) {
+		try {
+			Thread.sleep(time);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public int getWidth() {
 		return width;

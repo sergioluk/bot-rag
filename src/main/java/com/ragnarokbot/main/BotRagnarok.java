@@ -50,6 +50,7 @@ import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.GrafoMapa;
 import com.ragnarokbot.model.MemoryScanner;
 import com.ragnarokbot.model.MemoryScanner.Kernel32;
+import com.ragnarokbot.telas.JanelaPrincipal;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.platform.win32.WinUser;
@@ -60,6 +61,8 @@ import config.ConfigManager.Config;
 
 public class BotRagnarok {
 
+	public static JanelaPrincipal janelaPrincipal;
+	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		
@@ -150,8 +153,11 @@ public class BotRagnarok {
                         //SwingUtilities.invokeLater( () -> new Tela(bot));
                         
                         GameController gameController = new GameController(bot, tela);
-						gameController.run();
+						//gameController.run();
                         
+                        
+                        janelaPrincipal = new JanelaPrincipal(gameController);
+                        janelaPrincipal.setVisible(true);
                         
                         
                         /*GrafoMapa mapa = gerarGrafoDeMapa(carregarMapa("bio.png"));

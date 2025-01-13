@@ -1,0 +1,54 @@
+{
+    "rotas": [
+      {
+        "descricao": "Formigueiro",
+        "passos": [
+          { "coordenadas": [38, 257] },
+          { "coordenadas": [49, 243] },
+          { "coordenadas": [68, 223] },
+          { "coordenadas": [79, 210] },
+          { "coordenadas": [97, 210] },
+          { "coordenadas": [106, 192] },
+          { "coordenadas": [114, 175] },
+          { "coordenadas": [108, 142] },
+          { "coordenadas": [106, 114] },
+          { "coordenadas": [75, 84] },
+          { "coordenadas": [62, 64] },
+          { "coordenadas": [75, 38] },
+          { "coordenadas": [105, 54] },
+          { "coordenadas": [132, 34] },
+          { "coordenadas": [152, 28] },
+          { "coordenadas": [174, 37] },
+          { "coordenadas": [190, 53] },
+          { "coordenadas": [190, 70] },
+          { "coordenadas": [176, 86] },
+          { "coordenadas": [186, 114] },
+          { "coordenadas": [185, 140] },
+          { "coordenadas": [182, 167] },
+          { "coordenadas": [208, 188] },
+          { "coordenadas": [206, 221] },
+          { "coordenadas": [178, 218] },
+          { "coordenadas": [166, 214] },
+          { "coordenadas": [145, 206] },
+          { "coordenadas": [123, 182] },
+          { "coordenadas": [103, 195] },
+          { "coordenadas": [87, 222] },
+          { "coordenadas": [68, 221] },
+          { "coordenadas": [49, 244] },
+          { "coordenadas": [37, 256] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [160, 46],
+          "elseAcoes": [
+            { "coordenadas": [160, 46] }
+          ]
+        }
+      }
+    ],
+    "finalizacao": {
+      "descricao": "Encerrar rota",
+      "coordenadas": [193, 90]
+    }
+  }
+  

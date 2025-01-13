@@ -1,0 +1,42 @@
+{
+    "contas": [
+        { 
+            "usuario" : "login",
+            "senha" : "senha",
+            "pin" : "2134",
+            "personagens" : [
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 1,
+                    "passarItens" : false,
+                    "instancias" : ["Vila dos porings", "sussurro_sombrio"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 3,
+                    "passarItens" : false,
+                    "instancias" : ["sussurro_sombrio"]
+                }
+            ]
+        },
+        {
+            "usuario" : "login2",
+            "senha" : "senha2",
+            "pin" : "1111",
+            "personagens" : [
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 5,
+                    "passarItens" : false,
+                    "instancias" : ["Vila dos porings", "sussurro_sombrio"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 1,
+                    "passarItens" : false,
+                    "instancias" : ["sussurro_sombrio"]
+                }
+            ]
+        }
+    ]
+}

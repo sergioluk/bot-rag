@@ -18,6 +18,7 @@ public class ProcessSelector extends JFrame {
         setSize(400, 300);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+        setLocationRelativeTo(null);
 
         // Obter lista de processos
         List<ProcessHandle> processes = ProcessHandle.allProcesses()
