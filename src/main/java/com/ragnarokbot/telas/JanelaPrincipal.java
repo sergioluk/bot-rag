@@ -33,6 +33,7 @@ import com.ragnarokbot.bot.Bot;
 import com.ragnarokbot.main.GameController;
 import com.sun.jna.platform.win32.User32;
 
+import config.ContasConfig;
 import config.Script;
 import config.ScriptLoader;
 
@@ -87,6 +88,7 @@ public class JanelaPrincipal extends JFrame {
             background.add(sequenciaLabel, BorderLayout.SOUTH);
             
             createFolderIfNotExists("mapas");
+            createFolderIfNotExists("contas");
 
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Erro ao carregar a imagem de fundo: " + e.getMessage(), "Erro", JOptionPane.ERROR_MESSAGE);
@@ -270,6 +272,7 @@ public class JanelaPrincipal extends JFrame {
             
             ScriptLoader scriptLoader = new ScriptLoader();
             Script script = null;
+            ContasConfig conta = null;
             
             if (instanciaRadioButton.isSelected()) {//instancia
             	System.out.println("Modo Instância selecionado");
@@ -282,7 +285,10 @@ public class JanelaPrincipal extends JFrame {
             		return;
             	}
             	
-                script = scriptLoader.carregarScriptdoJson("instancias/" + instancia);
+            	conta = scriptLoader.carregarContas("contas/" + instancia);
+            	this.gameController.setScriptContas(conta);
+            	
+                //script = scriptLoader.carregarScriptdoJson("instancias/" + instancia);
                 
             } else if (farmRadioButton.isSelected()) {
             	System.out.println("Modo Bio/Chef selecionado");
@@ -293,12 +299,12 @@ public class JanelaPrincipal extends JFrame {
             	gameController.listaDeFarmBioChef = sequenciaBioChef;
             	String rota = gameController.listaDeFarmBioChef.get(0);
             	script = scriptLoader.carregarScriptdoJson("biochef/" + rota);
+            	this.gameController.setScript(script);
             }
         	
             //Focar no ragnarok
             User32.INSTANCE.SetForegroundWindow(Bot.hwnd);
             
-            this.gameController.setScript(script);
             if (botThread == null || !botThread.isAlive()) {
             	 botThread = new Thread(gameController); // Cria a thread para o GameController
             	 gameController.setLigarBot(true);

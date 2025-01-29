@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GrafoMapa {
-	Map<Coordenadas, List<Coordenadas>> adjacencias = new HashMap<>();
+	public Map<Coordenadas, List<Coordenadas>> adjacencias = new HashMap<>();
 
     public void addConexao(Coordenadas a, Coordenadas b) {
         adjacencias.putIfAbsent(a, new ArrayList<>());

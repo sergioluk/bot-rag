@@ -1,11 +1,13 @@
 package com.ragnarokbot.bot;
 
+import java.awt.AWTException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
@@ -44,6 +46,7 @@ import org.opencv.imgproc.Imgproc;
 import com.ragnarokbot.main.BotRagnarok;
 import com.ragnarokbot.main.GameController;
 import com.ragnarokbot.model.Coordenadas;
+import com.ragnarokbot.model.GrafoMapa;
 import com.ragnarokbot.model.MemoryScanner;
 import com.ragnarokbot.model.MonstrosImagem;
 import com.ragnarokbot.model.MyUser32;
@@ -85,6 +88,9 @@ public class Bot {
 
     private MemoryScanner memoria = new MemoryScanner();
     
+    //notebook
+  	long tempoExecucao = System.currentTimeMillis();
+    
     //Variaveis para coordenadas mini mapa
     public Config configOCR;
 
@@ -98,13 +104,6 @@ public class Bot {
         getWidthHeight();
         this.coordenadasJogadorTelaX = width / 2;
         this.coordenadasJogadorTelaY = height / 2;
-        
-        Skill cometa = new Skill(KeyEvent.VK_Q,"rosa",0);
-        Skill cristal = new Skill(KeyEvent.VK_E,"azul",7);
-        Skill mistery = new Skill(KeyEvent.VK_R,"azul",5);
-        skills.add(cometa);
-        skills.add(cristal);
-        skills.add(mistery);
 		
 	}
 	
@@ -234,6 +233,7 @@ public class Bot {
 			e.printStackTrace();
 		}
         
+        System.out.println("Printado");
         return print;
 	}
 	
@@ -458,58 +458,57 @@ public class Bot {
 
 
 	
-public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
-	
+	// notebook
+	public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
+
 		// Definir a área onde os monstros aparecem na tela capturada
-	    int areaX = 233;  // Coordenada x da área de interesse
-	    int areaY = 192;  // Coordenada y da área de interesse
-	    int areaWidth = 560;  // Largura da área de interesse
-	    int areaHeight = 403; // Altura da área de interesse
-		
-	    
+		int areaX = 235; // Coordenada x da área de interesse 233
+		int areaY = 106; // Coordenada y da área de interesse 192
+		int areaWidth = 555; // Largura da área de interesse 560
+		int areaHeight = 555; // Altura da área de interesse 403
+	
 		// Capturar a tela da área definida
-	    Rectangle captureArea = null;
-	    if (GameController.stateMachine.getEstadoAtual().equals(Estado.ANDANDO)
-	    		|| GameController.stateMachine.getEstadoAtual().equals(Estado.ATACANDO)) {
-	    	captureArea = new Rectangle(xJanela + areaX, yJanela + areaY, areaWidth, areaHeight);
-	    } else {
-	    	captureArea = new Rectangle(xJanela, yJanela, width, height);
-	    }
-	    BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
-
-	    // Converter BufferedImage para Mat diretamente
-	    Mat screen = bufferedImageToMat(screenFullImage);
-	    if (screen.empty()) {
-	        System.out.println("Erro ao carregar a imagem.");
-	        return null;
-	    }
-
-	    // Converter a imagem para o espaço de cores HSV
-	    Mat hsvImage = new Mat();
-	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
-
-	    // Mapear os resultados
-	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
-	    
-	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
-	        String colorName = entry.getKey();
-	        Scalar lowerColor = entry.getValue()[0];
-	        Scalar upperColor = entry.getValue()[1];
-
-	        // Criar máscara para identificar a cor dentro do intervalo
-	        Mat mask = new Mat();
-	        Core.inRange(hsvImage, lowerColor, upperColor, mask);
-
-	        // Encontrar contornos na máscara
-	        List<MatOfPoint> entidades = new ArrayList<>();
-	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-	        
-	        // Armazenar os contornos filtrados associados à cor
-	        detectedEntities.put(colorName, entidades);
-	    }
-
-
-	    return new MonstrosImagem(detectedEntities, screen);
+		Rectangle captureArea = null;
+		if (GameController.stateMachine.getEstadoAtual().equals(Estado.ANDANDO)
+				|| GameController.stateMachine.getEstadoAtual().equals(Estado.ATACANDO)) {
+			captureArea = new Rectangle(xJanela + areaX, yJanela + areaY, areaWidth, areaHeight);
+		} else {
+			captureArea = new Rectangle(xJanela, yJanela, width, height);
+		}
+		BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
+	
+		// Converter BufferedImage para Mat diretamente
+		Mat screen = bufferedImageToMat(screenFullImage);
+		if (screen.empty()) {
+			System.out.println("Erro ao carregar a imagem.");
+			return null;
+		}
+	
+		// Converter a imagem para o espaço de cores HSV
+		Mat hsvImage = new Mat();
+		Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+	
+		// Mapear os resultados
+		Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	
+		for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+			String colorName = entry.getKey();
+			Scalar lowerColor = entry.getValue()[0];
+			Scalar upperColor = entry.getValue()[1];
+	
+			// Criar máscara para identificar a cor dentro do intervalo
+			Mat mask = new Mat();
+			Core.inRange(hsvImage, lowerColor, upperColor, mask);
+	
+			// Encontrar contornos na máscara
+			List<MatOfPoint> entidades = new ArrayList<>();
+			Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	
+			// Armazenar os contornos filtrados associados à cor
+			detectedEntities.put(colorName, entidades);
+		}
+	
+		return new MonstrosImagem(detectedEntities, screen);
 	}
 
 /*
@@ -535,64 +534,109 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
 	    return filtrarMonstrosVisiveisRaycast(monstrosFiltrados, analise.screen);
 	}*/
 
-	public Map<String, List<MatOfPoint>> listaMonstros() {
+	// notebook
+		public Map<String, List<MatOfPoint>> listaMonstros() {
+
+			// Definir a área onde os monstros aparecem na tela capturada
+			int areaX = 235; // Coordenada x da área de interesse
+			int areaY = 106; // Coordenada y da área de interesse
+
+			// Definir os intervalos de cores
+			Map<String, Scalar[]> colorRanges = new HashMap<>();
+			colorRanges.put("rosa", new Scalar[] { new Scalar(148, 200, 200), new Scalar(154, 255, 255) });
+			colorRanges.put("azul", new Scalar[] { new Scalar(108, 215, 204), new Scalar(128, 255, 255) }); // Azul
+
+			MonstrosImagem analise = analisarTela(colorRanges);
+
+			// Analisar a tela para as cores definidas
+			Map<String, List<MatOfPoint>> detectedEntities = analise.listaEntidades;
+
+			// Map para armazenar as listas filtradas e visíveis
+			Map<String, List<MatOfPoint>> visibleEntities = new HashMap<>();
+
+			// Processar cada cor
+			for (Map.Entry<String, List<MatOfPoint>> entry : detectedEntities.entrySet()) {
+				String color = entry.getKey();
+				List<MatOfPoint> entities = entry.getValue();
+
+				// Filtrar monstros com altura >= 16
+				List<MatOfPoint> filtered = entities.stream().filter(monstro -> Imgproc.boundingRect(monstro).height >= 16)
+						.toList();
+
+				// Filtrar por visibilidade usando raycast
+				List<MatOfPoint> visible = filtrarMonstrosVisiveisRaycast(filtered, analise.screen);
+
+				// Ajustar as coordenadas para serem globais
+				List<MatOfPoint> adjustedEntities = new ArrayList<>();
+				for (MatOfPoint entidade : visible) {
+					List<org.opencv.core.Point> adjustedPoints = new ArrayList<>();
+					for (org.opencv.core.Point p : entidade.toList()) {
+						adjustedPoints.add(new org.opencv.core.Point(p.x + areaX, p.y + areaY)); // Ajusta as coordenadas
+					}
+					MatOfPoint adjustedEntidade = new MatOfPoint();
+					adjustedEntidade.fromList(adjustedPoints); // Constrói o MatOfPoint ajustado
+					adjustedEntities.add(adjustedEntidade);
+				}
+
+				// System.out.println("Tamanho da lista da imagem pequena " +
+				// adjustedEntities.size());
+
+				// System.out.println("Monstros visíveis para a cor " + color + ": " +
+				// adjustedEntities.size());
+				// visibleEntities.put(color, visible); // Adicionar ao mapa de monstros
+				// visíveis
+				visibleEntities.put(color, adjustedEntities); // Adicionar ao mapa de monstros visíveis
+			}
+
+			return visibleEntities;
+		}
 		
-		// Definir a área onde os monstros aparecem na tela capturada
-	    int areaX = 233;  // Coordenada x da área de interesse
-	    int areaY = 192;  // Coordenada y da área de interesse
-	    
-		// Definir os intervalos de cores
-	    Map<String, Scalar[]> colorRanges = new HashMap<>();
-	    colorRanges.put("rosa", new Scalar[]{new Scalar(148, 200, 200), new Scalar(154, 255, 255)});
-	    colorRanges.put("azul", new Scalar[]{new Scalar(108, 215, 204), new Scalar(128, 255, 255)}); // Azul
-	    
-		MonstrosImagem analise = analisarTela(colorRanges);
-		
-		// Analisar a tela para as cores definidas
-	    Map<String, List<MatOfPoint>> detectedEntities = analise.listaEntidades;
-	    
-	    // Map para armazenar as listas filtradas e visíveis
-	    Map<String, List<MatOfPoint>> visibleEntities = new HashMap<>();
-	    
-	    // Processar cada cor
-	    for (Map.Entry<String, List<MatOfPoint>> entry : detectedEntities.entrySet()) {
-	        String color = entry.getKey();
-	        List<MatOfPoint> entities = entry.getValue();
+		// notebook
+				public Map<String, List<MatOfPoint>> listaMonstrosInstancias() {
 
-	        // Filtrar monstros com altura >= 20
-	        List<MatOfPoint> filtered = entities.stream()
-	            .filter(monstro -> Imgproc.boundingRect(monstro).height >= 20)
-	            .toList();
-	        
+					// Definir a área onde os monstros aparecem na tela capturada
+					int areaX = 235; // Coordenada x da área de interesse
+					int areaY = 106; // Coordenada y da área de interesse
 
-	        // Filtrar por visibilidade usando raycast
-	        List<MatOfPoint> visible = filtrarMonstrosVisiveisRaycast(filtered, analise.screen);
-	        
-	        
-	        
-	        // Ajustar as coordenadas para serem globais
-	        List<MatOfPoint> adjustedEntities = new ArrayList<>();
-	        for (MatOfPoint entidade : visible) {
-	            List<org.opencv.core.Point> adjustedPoints = new ArrayList<>();
-	            for (org.opencv.core.Point p : entidade.toList()) {
-	                adjustedPoints.add(new org.opencv.core.Point(p.x + areaX, p.y + areaY)); // Ajusta as coordenadas
-	            }
-	            MatOfPoint adjustedEntidade = new MatOfPoint();
-	            adjustedEntidade.fromList(adjustedPoints); // Constrói o MatOfPoint ajustado
-	            adjustedEntities.add(adjustedEntidade);
-	        }
+					// Definir os intervalos de cores
+					Map<String, Scalar[]> colorRanges = new HashMap<>();
+					colorRanges.put("rosa", new Scalar[] { new Scalar(148, 200, 200), new Scalar(154, 255, 255) });
+					//colorRanges.put("azul", new Scalar[] { new Scalar(108, 215, 204), new Scalar(128, 255, 255) }); // Azul
 
-	        //System.out.println("Tamanho da lista da imagem pequena " + adjustedEntities.size());
-	        
-	        
+					MonstrosImagem analise = analisarTela(colorRanges);
 
-	        //System.out.println("Monstros visíveis para a cor " + color + ": " + adjustedEntities.size());
-	        //visibleEntities.put(color, visible); // Adicionar ao mapa de monstros visíveis
-	        visibleEntities.put(color, adjustedEntities); // Adicionar ao mapa de monstros visíveis
-	    }
-	    
-	    return visibleEntities;
-	}
+					// Analisar a tela para as cores definidas
+					Map<String, List<MatOfPoint>> detectedEntities = analise.listaEntidades;
+
+					// Map para armazenar as listas filtradas e visíveis
+					Map<String, List<MatOfPoint>> visibleEntities = new HashMap<>();
+
+					// Processar cada cor
+					for (Map.Entry<String, List<MatOfPoint>> entry : detectedEntities.entrySet()) {
+						String color = entry.getKey();
+						List<MatOfPoint> entities = entry.getValue();
+
+						// Filtrar monstros com altura >= 16
+						List<MatOfPoint> filtered = entities.stream().filter(monstro -> Imgproc.boundingRect(monstro).height >= 16)
+								.toList();
+
+						// Ajustar as coordenadas para serem globais
+						List<MatOfPoint> adjustedEntities = new ArrayList<>();
+						for (MatOfPoint entidade : filtered) {
+							List<org.opencv.core.Point> adjustedPoints = new ArrayList<>();
+							for (org.opencv.core.Point p : entidade.toList()) {
+								adjustedPoints.add(new org.opencv.core.Point(p.x + areaX, p.y + areaY)); // Ajusta as coordenadas
+							}
+							MatOfPoint adjustedEntidade = new MatOfPoint();
+							adjustedEntidade.fromList(adjustedPoints); // Constrói o MatOfPoint ajustado
+							adjustedEntities.add(adjustedEntidade);
+						}
+
+						visibleEntities.put(color, adjustedEntities); // Adicionar ao mapa de monstros visíveis
+					}
+
+					return visibleEntities;
+				}
 	/*
 	public List<MatOfPoint> listaNpcs() throws IOException {
 		// Definir os limites de cor
@@ -615,28 +659,28 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
 		    return npcsFiltrados;   
 	}*/
 	
-	public List<MatOfPoint> listaNpcs() {
-		// Definir os limites de cor
-	    Scalar lowerColor = new Scalar(0, 151, 215);  // Limite inferior (laranja)
-	    Scalar upperColor = new Scalar(20, 231, 255);  // Limite superior (laranja)
-	    
-	    MonstrosImagem analise = analisarTela(Map.of("npcs", new Scalar[]{lowerColor, upperColor}));
-	    
-	    // Obter a lista de NPCs usando a chave "npcs"
-	    List<MatOfPoint> npcs = analise.listaEntidades.getOrDefault("npcs", new ArrayList<>());
-	
-			
-	    if (npcs.isEmpty()) {
-	    	return npcs;
-	    }
-	        
-		// Filtrar monstros com altura maior que 20 pixels
-		List<MatOfPoint> npcsFiltrados = npcs.stream()
-				.filter(monstro -> Imgproc.boundingRect(monstro).height >= 40)
-				.toList();
-	
-		return npcsFiltrados;   
-	}
+				// notebook
+				public List<MatOfPoint> listaNpcs() {
+					// Definir os limites de cor
+					Scalar lowerColor = new Scalar(0, 215, 215); // Limite inferior (laranja)
+					Scalar upperColor = new Scalar(17, 255, 255); // Limite superior (laranja)
+
+					MonstrosImagem analise = analisarTela(Map.of("npcs", new Scalar[] { lowerColor, upperColor }));
+
+					// Obter a lista de NPCs usando a chave "npcs"
+					List<MatOfPoint> npcs = analise.listaEntidades.getOrDefault("npcs", new ArrayList<>());
+
+					if (npcs.isEmpty()) {
+						return npcs;
+					}
+
+					// Filtrar monstros com altura maior que 16 pixels
+					List<MatOfPoint> npcsFiltrados = npcs.stream().filter(
+							monstro -> Imgproc.boundingRect(monstro).height >= 16 && Imgproc.boundingRect(monstro).width >= 16)
+							.toList();
+
+					return npcsFiltrados;
+				}
 	
 	
 	public List<MatOfPoint> verificarBalaoNpc() {
@@ -684,114 +728,116 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
 		    return npcsFiltrados;   
 	}
 	
+	public MonstrosImagem analisarTelaBalao(Map<String, Scalar[]> colorRanges) {
+	    
+		// Capturar a tela da área definida
+	    Rectangle captureArea = null;
+	    captureArea = new Rectangle(xJanela, yJanela, width, height);
+	    BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(screenFullImage);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Mapear os resultados
+	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	    
+	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+	        String colorName = entry.getKey();
+	        Scalar lowerColor = entry.getValue()[0];
+	        Scalar upperColor = entry.getValue()[1];
+
+	        // Criar máscara para identificar a cor dentro do intervalo
+	        Mat mask = new Mat();
+	        Core.inRange(hsvImage, lowerColor, upperColor, mask);
+
+	        // Encontrar contornos na máscara
+	        List<MatOfPoint> entidades = new ArrayList<>();
+	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	        
+	        // Armazenar os contornos filtrados associados à cor
+	        detectedEntities.put(colorName, entidades);
+	    }
+
+
+	    return new MonstrosImagem(detectedEntities, screen);
+	}
+	
+	public List<MatOfPoint> verificarJanelaInstancia() {
+		// Definir os limites de cor
+	    //Scalar lowerColor = new Scalar(12, 177, 182);  // Limite inferior (branco)
+	    //Scalar upperColor = new Scalar(32, 255, 255);  // Limite superior (bracno)
+		Scalar lowerColor = new Scalar(0, 0, 215);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+
+	    MonstrosImagem analise = analisarTelaBalao(Map.of("baloesNpc", new Scalar[]{lowerColor, upperColor}));
+	   
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> npcs = analise.listaEntidades.getOrDefault("baloesNpc", new ArrayList<>());
+	
+			if (npcs.isEmpty()) {
+	        	return npcs;
+	        }
+	        
+		    // Filtrar NPCs por tamanho e posição
+		    List<MatOfPoint> npcsFiltrados = npcs.stream()
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            return boundingBox.width >= 250 && boundingBox.height >= 250;
+		            //351 335
+		        })
+		        .toList();
+		    
+		    /*
+		    // Desenhar contornos na imagem original
+		    Mat contouredImage = bufferedImageToMat(printarTela());;
+		    Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(contouredImage, npcsFiltrados, -1, greenColor, 2);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, contouredImage);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		    
+	
+		    return npcsFiltrados;   
+	}
+	
 	public int calcularDistancia(Coordenadas atual, Coordenadas destino) {
 	    return (int) Math.sqrt(Math.pow(destino.x - atual.x, 2) + Math.pow(destino.y - atual.y, 2));
 	}
 	
-	public double calcularDistanciaCentro(MatOfPoint monstro) {
-        Rect boundingRect = Imgproc.boundingRect(monstro);
-        
-        // Calcula o centro do monstro
-        int monstroCentroX = boundingRect.x + boundingRect.width / 2;
-        int monstroCentroY = boundingRect.y + boundingRect.height / 2;
-        
-        return Math.sqrt(Math.pow(xJanela + monstroCentroX - coordenadasJogadorTelaX + xJanela, 2) 
-        		+ Math.pow(yJanela + monstroCentroY - coordenadasJogadorTelaY + yJanela, 2));
-    }
-	
-	public void moverPersonagem(Coordenadas atual, Coordenadas destino) {
-		
-		
-		
-		double dx = destino.x - atual.x;
-		double dy = destino.y - atual.y;
+	//notebook
+		public double calcularDistanciaCentro(MatOfPoint monstro) {
+			Rect boundingRect = Imgproc.boundingRect(monstro);
 			
-		// Calcular o ângulo em radianos
-	    double angulo = Math.atan2(dy, dx);
-			
-	    // Calcular a distância original entre os pontos
-	    double distanciaOriginal = Math.sqrt(dx * dx + dy * dy);
- 
-	    //double distanciaDesejada = 200.0;
-	    double distanciaDesejada = width * 17 / 100;
-	    
-	    // Calcular a normalização do vetor (vetor unitário)   
-	    double normalizaX = dx / distanciaOriginal;    
-	    double normalizaY = dy / distanciaOriginal;
-	
-	    int xMouse = (int) (this.xJanela + this.coordenadasJogadorTelaX + normalizaX * distanciaDesejada);
-	    int yMouse = (int) (this.yJanela + this.coordenadasJogadorTelaY - normalizaY * distanciaDesejada);
-	    
-		Random random = new Random();
-		int randX = random.nextInt(4);
-		int randY = random.nextInt(4); 
-		
-		if (compararCoordenadas(atual, destino)) {
-			//moverMouse(this.xJanela + this.coordenadasJogadorTelaX, this.yJanela + this.coordenadasJogadorTelaY);
-			return;
+			System.out.println("Monstro em coordenadas: " + boundingRect.x + " " + boundingRect.y);
+
+			// Calcula o centro do monstro
+			int monstroCentroX = boundingRect.x + boundingRect.width / 2;
+			int monstroCentroY = boundingRect.y + boundingRect.height / 2;
+
+			return Math.sqrt(Math.pow(monstroCentroX - coordenadasJogadorTelaX, 2) + Math.pow(monstroCentroY - coordenadasJogadorTelaY, 2));
 		}
-		
-        moverMouse(xMouse + randX, yMouse + randY);
-        //System.out.println("Mouse foi para: " + (xMouse + randX) + " " + yMouse + randY);
-        //System.out.println("Coordenadas atual: " + atual + "| destino: " + destino);
-		//moverMouse(xMouse, yMouse);
-        //Thread.sleep(50);
-        //clicarMouse();
-        clicarSegurarMouse();
-		/*
-		double dx = destino.x - atual.x;
-	    double dy = destino.y - atual.y;
+	
+		// notebook
+		public void moverPersonagem(Coordenadas atual, Coordenadas destino, Map<Coordenadas, Boolean> mapaCarregado) {
 
-	    // Calcular o ângulo entre atual e destino em radianos
-	    double anguloAtual = Math.atan2(dy, dx);
+			if (compararCoordenadas(atual, destino)) {
+				return;
+			}
+			
+			setarMouseEmCoordenadaTela(atual, destino);
+			sleep(10);
+			clicarSegurarMouse();
 
-	    // Definir variáveis para os limites de ângulo em radianos
-	    double limiteInferior = Double.NEGATIVE_INFINITY; // Sem limite por padrão
-	    double limiteSuperior = Double.POSITIVE_INFINITY;
-
-	    if (ultimaCoordenada != null) {
-	        // Calcular o ângulo entre ultimaCoordenada e destino
-	        double dxRef = destino.x - ultimaCoordenada.x;
-	        double dyRef = destino.y - ultimaCoordenada.y;
-	        double anguloReferencia = Math.atan2(dyRef, dxRef);
-
-	        // Definir os limites de ângulo em radianos
-	        double margem = Math.toRadians(15); // Convertendo 15 graus para radianos
-	        limiteInferior = anguloReferencia - margem;
-	        limiteSuperior = anguloReferencia + margem;
-
-	        // Ajustar o ânguloAtual para ficar dentro dos limites
-	        if (anguloAtual < limiteInferior) {
-	            anguloAtual = limiteInferior;
-	        } else if (anguloAtual > limiteSuperior) {
-	            anguloAtual = limiteSuperior;
-	        }
-	       
-	    }
-
-	    // Calcular a distância original entre os pontos
-	    double distanciaOriginal = Math.sqrt(dx * dx + dy * dy);
-
-	    // Distância desejada do mouse em relação ao jogador
-	    double distanciaDesejada = width * 17 / 100;
-
-	    // Calcular a nova direção normalizada com base no ângulo ajustado
-	    double normalizaX = Math.cos(anguloAtual);
-	    double normalizaY = Math.sin(anguloAtual);
-
-	    // Calcular as novas coordenadas do mouse
-	    int xMouse = (int) (this.xJanela + this.coordenadasJogadorTelaX + normalizaX * distanciaDesejada);
-	    int yMouse = (int) (this.yJanela + this.coordenadasJogadorTelaY - normalizaY * distanciaDesejada);
-
-	    // Adicionar um desvio aleatório para simular movimentos mais naturais
-	    Random random = new Random();
-	    int randX = random.nextInt(4);
-	    int randY = random.nextInt(4);
-	    moverMouse(xMouse + randX, yMouse + randY);
-
-	    // Simular o clique do mouse
-	    clicarSegurarMouse();*/
-    }
+		}
 	
 	public void segurarW() {
 		try {
@@ -854,9 +900,19 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
 		}
 	}
 	
-	public void zoomOut() {
-		for(int i = 0; i < 28; i++) {
-        	scrollMouse(-1);	
+	public void zoom(int num) {
+		boolean isPositivo = true;
+		if (num < 0) {
+			isPositivo = false;
+		}
+		num = Math.abs(num);
+		for(int i = 0; i < num; i++) {
+			if (isPositivo) {
+				scrollMouse(1);
+			} else {
+				scrollMouse(-1);	
+			}
+        	sleep(10);
         }
 	}
 
@@ -1107,8 +1163,22 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
 		}
 	}
 	
-	public void escolherPersonagem(int num) {
+	public void escolherPersonagem(int num, int pagina) {
 		try {
+			if (pagina == 1) {
+				Thread.sleep(50);
+				moverMouse(xJanela + 850, yJanela + 642);
+		       	Thread.sleep(500);
+		       	clicarMouse();
+		       	Thread.sleep(500);
+			}
+			if (pagina == 2) {
+				Thread.sleep(50);
+				moverMouse(xJanela + 966, yJanela + 642);
+		       	Thread.sleep(500);
+		       	clicarMouse();
+		       	Thread.sleep(500);
+			}
 			System.out.println("Escolher o personagem");
 	      	int linha = 1;
 	       	int coluna = num;
@@ -1145,7 +1215,147 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
 
 	    return Math.abs(A * atual.x + B * atual.y + C) / Math.sqrt(A * A + B * B);
 	}
+	
+	// notebook
+		public Coordenadas getCoordenadasTelaPeloMouse(Coordenadas atual, int mouseX, int mouseY) {
+			// Obter a posição atual do mouse
+			// java.awt.Point mousePos = java.awt.MouseInfo.getPointerInfo().getLocation();
+			// int mx = (int) mousePos.getX() - xJanela;
+			// int my = (int) mousePos.getY() - yJanela;
+			int mx = mouseX - xJanela;
+			int my = mouseY - yJanela;
 
+			int x = Math.abs((mx - 505) / 18);
+			if (mx > 505) {
+				x += atual.x;
+			} else {
+				x -= atual.x - 1;
+			}
+			int y = Math.abs((my - 376) / 18);
+			if (my < 376) {
+				y += atual.y + 1;
+			} else {
+				y -= atual.y;
+			}
+			x = Math.abs(x);
+			y = Math.abs(y);
+			// System.out.println("Coordenadas pela tela: x: " + x + " y: " + y);
+			return new Coordenadas(x, y);
+		}
+		
+		// notebook
+		public void setarMouseEmCoordenadaTela(Coordenadas atual, Coordenadas destino) {
+			// Calcular o deslocamento entre a coordenada atual e a de destino
+			int dx = destino.x - atual.x;
+			int dy = destino.y - atual.y;
+
+			// Calcular a posição do mouse na tela com base no deslocamento
+			int mouseX = xJanela + 505 + dx * 18 + 9;
+			int mouseY = yJanela + 376 - dy * 18 + 9;
+
+			// Mover o mouse para a posição calculada
+			moverMouse(mouseX, mouseY);
+
+		}
+		
+		// notebook
+		public Coordenadas escolherProximaCoordenada(List<Coordenadas> caminhoCalculado, Coordenadas atual) {
+			if (caminhoCalculado.isEmpty() || caminhoCalculado.size() <= 1) {
+				System.out.println("Caiu aqui #####################################");
+				return atual;
+			}
+			// Ângulo máximo permitido (em radianos: 45 graus)
+			double anguloMaximo = Math.toRadians(80);// 60
+
+			// Direção inicial
+			Coordenadas inicial = caminhoCalculado.get(1);
+			int direcaoInicialX = inicial.x - atual.x;
+			int direcaoInicialY = inicial.y - atual.y;
+
+			Coordenadas candidata = atual;
+
+			for (int i = 1; i < caminhoCalculado.size() && i <= 14; i++) {
+				Coordenadas proxima = caminhoCalculado.get(i);
+
+				// Direção para a próxima coordenada
+				int direcaoProximaX = proxima.x - atual.x;
+				int direcaoProximaY = proxima.y - atual.y;
+
+				// Calcular o produto escalar
+				int produtoEscalar = direcaoInicialX * direcaoProximaX + direcaoInicialY * direcaoProximaY;
+
+				// Calcular as magnitudes dos vetores
+				double magnitudeInicial = Math.sqrt(direcaoInicialX * direcaoInicialX + direcaoInicialY * direcaoInicialY);
+				double magnitudeProxima = Math.sqrt(direcaoProximaX * direcaoProximaX + direcaoProximaY * direcaoProximaY);
+
+				// Calcular o cosseno do ângulo
+				double cosTheta = produtoEscalar / (magnitudeInicial * magnitudeProxima);
+
+				// Calcular o ângulo em radianos
+				double angulo = Math.acos(cosTheta);
+
+				// Verificar se o ângulo excede o limite
+				if (angulo > anguloMaximo) {
+					return candidata; // Retornar última coordenada válida antes da curva acentuada
+				}
+
+				// Atualizar a candidata se o ângulo estiver dentro do limite
+				candidata = proxima;
+			}
+
+			// Retornar a última coordenada válida dentro do limite de 10
+			return candidata;
+		}
+	
+	public void voltarMoroc(int numero) {
+	    if (numero < 0 || numero > 9) {
+	        throw new IllegalArgumentException("O número deve estar entre 0 e 9.");
+	    }
+
+	    // Pressionar Alt
+	    robot.keyPress(KeyEvent.VK_ALT);
+
+	    // Obter a tecla correspondente ao número
+	    int keyCode = KeyEvent.VK_0 + numero;
+
+	    // Pressionar o número
+	    robot.keyPress(keyCode);
+	    robot.keyRelease(keyCode);
+	    sleep(100);
+	    // Soltar Alt
+	    robot.keyRelease(KeyEvent.VK_ALT);
+
+	}
+	
+	//notebook
+	public void visaoDeCima() {
+		// Pressionar Ctrl e Shift
+				robot.keyPress(KeyEvent.VK_CONTROL);
+				robot.keyPress(KeyEvent.VK_SHIFT);
+
+				// Pressionar o botão direito do mouse
+				robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
+
+				moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY);
+				sleep(20);
+
+				// Obter a posição atual do mouse
+				java.awt.Point mousePos = java.awt.MouseInfo.getPointerInfo().getLocation();
+				int currentX = (int) mousePos.getX();
+				int currentY = (int) mousePos.getY();
+
+				sleep(20);
+				// Mover o mouse 300 pixels para baixo
+				robot.mouseMove(currentX, currentY + 250);
+				sleep(100);
+				// Soltar o botão direito do mouse
+				robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
+
+				// Soltar Ctrl e Shift
+				robot.keyRelease(KeyEvent.VK_SHIFT);
+				robot.keyRelease(KeyEvent.VK_CONTROL);
+	}
+	
 	public void sleep(int time) {
 		try {
 			Thread.sleep(time);
@@ -1153,6 +1363,49 @@ public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
 			e.printStackTrace();
 		}
 	}
+	
+	//notebook
+		public boolean tempoPassou(long time) {
+			long tempoAtual = System.currentTimeMillis();
+			if (tempoAtual - tempoExecucao >= time) {
+				tempoExecucao = tempoAtual;
+				return true;
+			}
+			return false;
+		}
+	
+		//notebook
+		public int getHpAtual() {
+			return memoria.obterHP(memoria.processId, memoria.addressHp);
+		}
+		
+		//notebook
+		/**
+	     * Simula o pressionamento de Alt + um número de 0 a 9 no teclado.
+	     *
+	     * @param numero O número (0-9) que será pressionado junto com Alt.
+	     */
+	    public void atalhoAltM(int numero) {
+	        if (numero < 0 || numero > 9) {
+	            throw new IllegalArgumentException("Número deve estar entre 0 e 9.");
+	        }
+
+	        // Pressiona a tecla Alt
+	        robot.keyPress(KeyEvent.VK_ALT);
+
+	        // Determina a tecla correspondente ao número
+	        int keyCode = KeyEvent.VK_0 + numero;
+
+	        // Pressiona e solta a tecla do número
+	        robot.keyPress(keyCode);
+	        sleep(100);
+	        robot.keyRelease(keyCode);
+
+	        // Solta a tecla Alt
+	        robot.keyRelease(KeyEvent.VK_ALT);
+
+
+	    }
 
 	public int getWidth() {
 		return width;

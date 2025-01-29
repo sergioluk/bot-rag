@@ -1,0 +1,33 @@
+{
+  "refresh": 1,
+  "gomoroc": 2,
+  "labirintovalk": 5,
+  
+  "classes": [
+      {
+        "classe": "mago",
+        "skills" : [
+          {
+            "atalho": "Q",
+            "cd" : 0,
+            "cor" : "rosa",
+            "range": 14
+          },
+          {
+            "atalho": "E",
+            "cd" : 7,
+            "cor" : "azul",
+            "range": 9
+          },
+          {
+            "atalho": "R",
+            "cd" : 5,
+            "cor" : "azul",
+            "range": 10
+          }
+        ]
+      }
+  ]
+      
+}
+  

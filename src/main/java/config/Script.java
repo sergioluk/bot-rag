@@ -76,6 +76,14 @@ public class Script {
 	    private List<Integer> coordenadas;
 	    private List<Passo> elseAcoes;
 	    private List<Acao> acoes;
+	    private boolean boss;
+	    
+		public boolean isBoss() {
+			return boss;
+		}
+		public void setBoss(boolean boss) {
+			this.boss = boss;
+		}
 	    
 		public String getTipo() {
 			return tipo;

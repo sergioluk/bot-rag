@@ -5,12 +5,15 @@ public class Skill {
 	private String cor;
 	private int cd;
 	private int cdCounter;
-	 private long lastUsedTime; // Timestamp do último uso
+	//notebook
+	private int range;
+	private long lastUsedTime; // Timestamp do último uso
 	
-	public Skill(int tecla, String cor, int cd) {
+	public Skill(int tecla, String cor, int cd, int range) {
 		this.tecla = tecla;
 		this.cor = cor;
 		this.cd = cd;
+		this.range = range;
 		this.lastUsedTime = 0;
 	}
 	

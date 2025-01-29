@@ -25,4 +25,15 @@ public class ScriptLoader {
             return null;
         }
     }
+	
+	//notebook
+		public SkillsConfig carregarSkills(String caminhoArquivo) {
+			try {
+		        ObjectMapper mapper = new ObjectMapper();
+		        return mapper.readValue(new File(caminhoArquivo), SkillsConfig.class);
+			} catch (Exception e) {
+	            e.printStackTrace();
+	            return null;
+	        }
+	    }
 }

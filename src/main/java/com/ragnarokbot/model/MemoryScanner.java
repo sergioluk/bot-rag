@@ -1,5 +1,6 @@
 package com.ragnarokbot.model;
 
+import com.ragnarokbot.model.MemoryScanner.Kernel32;
 import com.sun.jna.*;
 import com.sun.jna.ptr.IntByReference; // Classe para manipular valores inteiros por referência.
 import com.sun.jna.ptr.PointerByReference; // Se necessário para ponteiros.
@@ -11,6 +12,8 @@ public class MemoryScanner {
 	public long addressX = 0x1557FBC;
 	//public long addressY = 0x19D46C; 
 	public long addressY = 0x1557FC0;
+	//notebook
+	public long addressHp = 0x156F798;
 	
     public interface Kernel32 extends Library {
         Kernel32 INSTANCE = Native.load("kernel32", Kernel32.class);
@@ -74,6 +77,44 @@ public class MemoryScanner {
 
         } finally {
             // Feche o handle do processo
+            Kernel32.INSTANCE.CloseHandle(processHandle);
+        }
+    }
+    
+  //notebook
+    public int obterHP(int processId, long addressHP) {
+        Pointer processHandle = Kernel32.INSTANCE.OpenProcess(
+                Kernel32.PROCESS_VM_READ | Kernel32.PROCESS_QUERY_INFORMATION,
+                false,
+                processId
+        );
+
+        if (processHandle == null) {
+            System.err.println("Não foi possível abrir o processo.");
+            return -1; // Retorna -1 para indicar erro
+        }
+
+        byte[] bufferHP = new byte[4]; // Buffer para o valor de HP (4 bytes para um int)
+        IntByReference bytesRead = new IntByReference();
+
+        try {
+            boolean successHP = Kernel32.INSTANCE.ReadProcessMemory(
+                    processHandle,
+                    new Pointer(addressHP),
+                    bufferHP,
+                    bufferHP.length,
+                    bytesRead
+            );
+
+            if (successHP && bytesRead.getValue() == 4) {
+                // Converte o buffer para um inteiro
+                return java.nio.ByteBuffer.wrap(bufferHP).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+            } else {
+                System.err.println("Erro ao ler memória para HP.");
+                return -1;
+            }
+
+        } finally {
             Kernel32.INSTANCE.CloseHandle(processHandle);
         }
     }
