@@ -3,6 +3,8 @@ package com.ragnarokbot.bot;
 import java.awt.AWTException;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -43,6 +45,8 @@ import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import com.github.kwhat.jnativehook.GlobalScreen;
+import com.github.kwhat.jnativehook.mouse.NativeMouseEvent;
 import com.ragnarokbot.main.BotRagnarok;
 import com.ragnarokbot.main.GameController;
 import com.ragnarokbot.model.Coordenadas;
@@ -63,6 +67,7 @@ import com.sun.jna.platform.win32.WinUser;
 
 import config.ConfigManager;
 import config.ConfigManager.Config;
+import config.ContasConfig;
 
 import com.sun.jna.platform.win32.WinDef.HWND;
 import com.sun.jna.platform.win32.WinDef.RECT;
@@ -543,7 +548,8 @@ public class Bot {
 
 			// Definir os intervalos de cores
 			Map<String, Scalar[]> colorRanges = new HashMap<>();
-			colorRanges.put("rosa", new Scalar[] { new Scalar(148, 200, 200), new Scalar(154, 255, 255) });
+			//colorRanges.put("rosa", new Scalar[] { new Scalar(148, 200, 200), new Scalar(154, 255, 255) });
+			colorRanges.put("rosa", new Scalar[] { new Scalar(148, 100, 100), new Scalar(154, 255, 255) });
 			colorRanges.put("azul", new Scalar[] { new Scalar(108, 215, 204), new Scalar(128, 255, 255) }); // Azul
 
 			MonstrosImagem analise = analisarTela(colorRanges);
@@ -858,7 +864,7 @@ public class Bot {
         Rect rect = Imgproc.boundingRect(monstro);
         int centerX = xJanela + rect.x + rect.width / 2;
         int centerY = yJanela + rect.y + rect.height / 2;
-
+        
         moverMouse(centerX, centerY + 10);
         sleep(50);
         apertarTecla(tecla);
@@ -869,7 +875,7 @@ public class Bot {
 	public void clicarMouse() {
 		robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Pressionar o botão esquerdo
         sleep(50);
-        robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Liberar o botão esquerdo
+        robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Liberar o botão esquerdo*/
 	}
 	
 	public void clicarSegurarMouse() {
@@ -880,6 +886,11 @@ public class Bot {
 	}
 	
 	public void moverMouse(int x, int y) {
+		if (x >= getxJanela() + getWidth() || y >= getyJanela() + getHeight() ) {
+			robot.mouseMove(coordenadasJogadorTelaX, coordenadasJogadorTelaY);
+			System.out.println("Mouse ia sair do limite da tela do ragnarok!!!");
+			return;
+		}
 		 robot.mouseMove(x, y);
 	}
 	
@@ -1406,6 +1417,116 @@ public class Bot {
 
 
 	    }
+	    
+	    
+	public void executarInstancia(ContasConfig scriptContas) {
+		moverMouse(getxJanela() + 65, getyJanela() + 150);
+		sleep(300);
+		clicarMouse();
+		// Selecionar de fato a instancia
+		sleep(300);
+		
+		int x = 0;
+		int y = 0;
+		List<MatOfPoint> janelaInstancia = verificarJanelaInstancia();
+		if (!janelaInstancia.isEmpty()) {
+			Rect janela = Imgproc.boundingRect(janelaInstancia.get(0));
+			x = janela.x;
+			y = janela.y;
+		}
+
+		sleep(1000);
+		moverMouse(getxJanela() + x + 70, getyJanela() + y + 140);
+		// int dg = 43; //tomb
+		String instancia = scriptContas.getContas().get(0).getPersonagens().get(0).getInstancias().get(0);
+		int dg = getNumeroInstancia(instancia);
+		//int dg = 33; // old gh
+		int counter = dg / 16;
+		if (dg == 16) {
+			counter = 0;
+		}
+		if (dg == 32) {
+			counter = 1;
+		}
+		if (dg == 48) {
+			counter = 2;
+		}
+		if (dg == 64) {
+			counter = 3;
+		}
+
+		for (int i = 0; i < counter; i++) {
+			zoom(5);
+			moverMouse(getxJanela() + x + 133, getyJanela() + y + 283);
+			sleep(200);
+			clicarMouse();
+			sleep(200);
+		}
+
+		int pos = dg % 16;
+		if (pos == 0) {
+			pos = 16;
+		}
+		int selecionar = pos * 16 - 8;
+
+		moverMouse(getxJanela() + x + 70, getyJanela() + y + 23 + selecionar);
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+		// Clicar em Criar
+		moverMouse(getxJanela() + x + 141, getyJanela() + y + 304 + 17);
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+		// Clicar em Ok
+		moverMouse(getxJanela() + 586, getyJanela() + 429);
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+		// Apertar enter que apareceu um balao de npc
+		apertarTecla(KeyEvent.VK_ENTER);
+		sleep(300);
+		// Repetir pra criar a instancia de old gh
+		// Clicar em Criar
+		moverMouse(getxJanela() + x + 141, getyJanela() + y + 304 + 17);
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+		// Clicar em Ok
+		moverMouse(getxJanela() + 586, getyJanela() + 429);
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+		// Apertar enter que apareceu um balao de npc
+		apertarTecla(KeyEvent.VK_ENTER);
+		sleep(300);
+		//Clicar em Entrar
+		moverMouse(getxJanela() + x + 48, getyJanela() + y + 304 + 17);
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+		// Clicar em Ok
+		moverMouse(getxJanela() + 586, getyJanela() + 429);
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+	}
+	
+	private int getNumeroInstancia(String instancia) {
+		int dg = 0;
+		switch (instancia) {
+			case "Old Glast Heim":
+				dg = 33;
+				break;
+			case "Tomb of Remorse":
+				dg = 43;
+				break;
+	
+			default:
+				break;
+		}
+		return dg;
+	}
 
 	public int getWidth() {
 		return width;

@@ -62,7 +62,7 @@ import javax.swing.SwingUtilities;
 public class GameController implements NativeKeyListener, Runnable {
 
 	private final Bot bot;
-	private final Tela tela;
+	//private final Tela tela;
 	private volatile boolean ligarBot = true;
 	private volatile boolean pausarBot = false;
 	// private Estado estado = Estado.ANDANDO;
@@ -105,13 +105,15 @@ public class GameController implements NativeKeyListener, Runnable {
 	
 	public Map<Coordenadas, Boolean> mapaCarregado = null;
 	
+	private long ultimoUpdateTela = 0;
+	
 	//notebook
     public List<String> coordenadasModoSalvar = new ArrayList<>();
     public SkillsConfig skillsConfig;
 
-	public GameController(Bot bot, Tela tela) {
+	public GameController(Bot bot) {
 		this.bot = bot;
-		this.tela = tela;
+		//this.tela = tela;
 
 		try {
 			// Registrar o hook do teclado
@@ -157,96 +159,12 @@ public class GameController implements NativeKeyListener, Runnable {
 		// apresentacao(script);
 
 		bot.printarTela();
-		/*
-		int x = 0;
-		int y = 0;
-		List<MatOfPoint> janelaInstancia = bot.verificarJanelaInstancia();
-		if (!janelaInstancia.isEmpty()) {
-			Rect janela = Imgproc.boundingRect(janelaInstancia.get(0));
-			x = janela.x;
-			y = janela.y;
-		}
-
 		bot.sleep(3000);
-		bot.moverMouse(bot.getxJanela() + x + 70, bot.getyJanela() + y + 140);
-		// int dg = 43; //tomb
-		int dg = 33; // old gh
-		int counter = dg / 16;
-		if (dg == 16) {
-			counter = 0;
-		}
-		if (dg == 32) {
-			counter = 1;
-		}
-		if (dg == 48) {
-			counter = 2;
-		}
-		if (dg == 64) {
-			counter = 3;
-		}
-
-		for (int i = 0; i < counter; i++) {
-			bot.zoom(5);
-			bot.moverMouse(bot.getxJanela() + x + 133, bot.getyJanela() + y + 283);
-			bot.sleep(200);
-			bot.clicarMouse();
-			bot.sleep(200);
-		}
-
-		int pos = dg % 16;
-		if (pos == 0) {
-			pos = 16;
-		}
-		int selecionar = pos * 16 - 8;
-
-		bot.moverMouse(bot.getxJanela() + x + 70, bot.getyJanela() + y + 23 + selecionar);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Clicar em Criar
-		bot.moverMouse(bot.getxJanela() + x + 141, bot.getyJanela() + y + 304 + 17);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Clicar em Ok
-		bot.moverMouse(bot.getxJanela() + 586, bot.getyJanela() + 429);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Apertar enter que apareceu um balao de npc
-		bot.apertarTecla(KeyEvent.VK_ENTER);
-		bot.sleep(300);
-		// Repetir pra criar a instancia de old gh
-		// Clicar em Criar
-		bot.moverMouse(bot.getxJanela() + x + 141, bot.getyJanela() + y + 304 + 17);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Clicar em Ok
-		bot.moverMouse(bot.getxJanela() + 586, bot.getyJanela() + 429);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Apertar enter que apareceu um balao de npc
-		bot.apertarTecla(KeyEvent.VK_ENTER);
-		bot.sleep(300);
-		//Clicar em Entrar
-		bot.moverMouse(bot.getxJanela() + x + 48, bot.getyJanela() + y + 304 + 17);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Clicar em Ok
-		bot.moverMouse(bot.getxJanela() + 586, bot.getyJanela() + 429);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-
-		bot.sleep(50000);*/
 		bot.visaoDeCima();
 		bot.sleep(100);
 		bot.zoom(-28);
 
-		// inicarBotPeloLocalAtualDoPlayer(script);
+		
 
 		// Modo instancia
 		if (scriptContas != null) {
@@ -401,8 +319,19 @@ public class GameController implements NativeKeyListener, Runnable {
 
 				// Lógica de andar
 				if (personagemParado) {
-					moverParaDirecaoOposta(atual); // Força o movimento do personagem
-					personagemParado = false; // Reseta o estado após o movimento forçado
+					if (System.currentTimeMillis() - ultimoUpdateTela >= 5000) {
+						int refresh = skillsConfig.getRefresh();
+				    	bot.atalhoAltM(refresh);
+			            ultimoUpdateTela = System.currentTimeMillis(); // Atualiza o tempo da última chamada
+			            andar(script);
+			        } else {
+			            // Se a tela já foi atualizada recentemente, força o movimento
+			            moverParaDirecaoOposta(atual);
+			            personagemParado = false;
+			        }
+					
+					//moverParaDirecaoOposta(atual); // Força o movimento do personagem
+					//personagemParado = false; // Reseta o estado após o movimento forçado
 				} else {
 					andar(script);
 				}
@@ -914,113 +843,10 @@ public class GameController implements NativeKeyListener, Runnable {
 
 		// Selecionar Instancias
 		// Abrir Janela de instancias
-		bot.moverMouse(bot.getxJanela() + 65, bot.getyJanela() + 150);
-		bot.sleep(300);
-		bot.clicarMouse();
-		// Selecionar de fato a instancia
-		bot.sleep(300);
-		
-		int x = 0;
-		int y = 0;
-		List<MatOfPoint> janelaInstancia = bot.verificarJanelaInstancia();
-		if (!janelaInstancia.isEmpty()) {
-			Rect janela = Imgproc.boundingRect(janelaInstancia.get(0));
-			x = janela.x;
-			y = janela.y;
-		}
-
-		bot.sleep(1000);
-		bot.moverMouse(bot.getxJanela() + x + 70, bot.getyJanela() + y + 140);
-		// int dg = 43; //tomb
-		String instancia = this.scriptContas.getContas().get(0).getPersonagens().get(0).getInstancias().get(0);
-		int dg = getNumeroInstancia(instancia);
-		//int dg = 33; // old gh
-		int counter = dg / 16;
-		if (dg == 16) {
-			counter = 0;
-		}
-		if (dg == 32) {
-			counter = 1;
-		}
-		if (dg == 48) {
-			counter = 2;
-		}
-		if (dg == 64) {
-			counter = 3;
-		}
-
-		for (int i = 0; i < counter; i++) {
-			bot.zoom(5);
-			bot.moverMouse(bot.getxJanela() + x + 133, bot.getyJanela() + y + 283);
-			bot.sleep(200);
-			bot.clicarMouse();
-			bot.sleep(200);
-		}
-
-		int pos = dg % 16;
-		if (pos == 0) {
-			pos = 16;
-		}
-		int selecionar = pos * 16 - 8;
-
-		bot.moverMouse(bot.getxJanela() + x + 70, bot.getyJanela() + y + 23 + selecionar);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Clicar em Criar
-		bot.moverMouse(bot.getxJanela() + x + 141, bot.getyJanela() + y + 304 + 17);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Clicar em Ok
-		bot.moverMouse(bot.getxJanela() + 586, bot.getyJanela() + 429);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Apertar enter que apareceu um balao de npc
-		bot.apertarTecla(KeyEvent.VK_ENTER);
-		bot.sleep(300);
-		// Repetir pra criar a instancia de old gh
-		// Clicar em Criar
-		bot.moverMouse(bot.getxJanela() + x + 141, bot.getyJanela() + y + 304 + 17);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Clicar em Ok
-		bot.moverMouse(bot.getxJanela() + 586, bot.getyJanela() + 429);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Apertar enter que apareceu um balao de npc
-		bot.apertarTecla(KeyEvent.VK_ENTER);
-		bot.sleep(300);
-		//Clicar em Entrar
-		bot.moverMouse(bot.getxJanela() + x + 48, bot.getyJanela() + y + 304 + 17);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
-		// Clicar em Ok
-		bot.moverMouse(bot.getxJanela() + 586, bot.getyJanela() + 429);
-		bot.sleep(300);
-		bot.clicarMouse();
-		bot.sleep(300);
+		bot.executarInstancia(scriptContas);
 	}
 
-	public int getNumeroInstancia(String instancia) {
-		int dg = 0;
-		switch (instancia) {
-		case "Old Glast Heim":
-			dg = 33;
-			break;
-		case "Tomb of Remorse":
-			dg = 43;
-			break;
-
-		default:
-			break;
-		}
-		return dg;
-	}
+	
 	
 	
 	
@@ -1044,9 +870,9 @@ public class GameController implements NativeKeyListener, Runnable {
 
 	public void fecharBot() {
 		ligarBot = false; // Interrompe o loop
-		if (tela != null) {
-			tela.dispose();
-		}
+		//if (tela != null) {
+		//	tela.dispose();
+		//}
 		System.out.println("Tecla 'F' pressionada. Parando o bot...");
 
 		bot.clicarMouse();
@@ -1149,7 +975,7 @@ public class GameController implements NativeKeyListener, Runnable {
     	bot.clicarMouse();
     	bot.sleep(80);
     	bot.clicarMouse();
-    	bot.sleep(100);
+    	bot.sleep(4000);
     	bot.selecionarOpcao(20);
     	bot.sleep(2000);
     	bot.selecionarOpcao(1);

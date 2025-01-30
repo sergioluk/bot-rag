@@ -161,11 +161,12 @@ public class BotRagnarok {
                         Robot robot = new Robot();
                         Bot bot = new Bot(tesseract, robot, tesseractLetras);
 
-                        Tela tela = new Tela(bot);
-                        SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
+                        //Tela tela = new Tela(bot);
+                        //SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
                         //SwingUtilities.invokeLater( () -> new Tela(bot));
                         
-                        GameController gameController = new GameController(bot, tela);
+                        //GameController gameController = new GameController(bot, tela);
+                        GameController gameController = new GameController(bot);
 						//gameController.run();
                         
                         

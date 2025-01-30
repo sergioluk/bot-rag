@@ -180,7 +180,7 @@ public class JanelaPrincipal extends JFrame {
 
         // Carrega os arquivos da pasta "instancias"
         createFolderIfNotExists("instancias");
-        loadFilesToModel(instanceListModel, "instancias");
+        loadFilesToModel(instanceListModel, "contas");
 
         return leftPanel;
     }
@@ -268,7 +268,6 @@ public class JanelaPrincipal extends JFrame {
     private void play() {
         System.out.println("Clicou no botão Play");
         try {
-        	
             
             ScriptLoader scriptLoader = new ScriptLoader();
             Script script = null;
