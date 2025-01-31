@@ -1,0 +1,43 @@
+{
+    "mapa": "moroc.png",
+    "rotas": [
+      {
+        "descricao": "indo pra esquerda",
+        "passos": [
+            { "coordenadas": [150, 87] },
+            { "coordenadas": [136, 95] },
+            { "coordenadas": [122, 94] },
+            { "coordenadas": [115, 84] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [115, 84],
+          "elseAcoes": [
+            { "coordenadas": [115, 84] }
+          ]
+        }
+      },
+      {
+        "descricao": "indo baixo",
+        "passos": [
+            { "coordenadas": [107, 72] },
+            { "coordenadas": [107, 54] },
+            { "coordenadas": [112, 34] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [112, 34],
+          "elseAcoes": [
+            { "coordenadas": [112, 34] }
+          ]
+        }
+      }
+    ],
+    "finalizacao": {
+      "descricao": "Terminado moroc 2",
+      "coordenadas": [112, 34]
+    },
+    "coordenadasAlt": [
+      { "links": [160, 190, 154, 179] }
+    ]
+}

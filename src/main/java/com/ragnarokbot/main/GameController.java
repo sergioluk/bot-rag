@@ -107,9 +107,19 @@ public class GameController implements NativeKeyListener, Runnable {
 	
 	private long ultimoUpdateTela = 0;
 	
+	public Map<String, List<MatOfPoint>> monstros = new HashMap<>();
+	
 	//notebook
     public List<String> coordenadasModoSalvar = new ArrayList<>();
     public SkillsConfig skillsConfig;
+    
+    long startTimeBoss = System.currentTimeMillis(); // Marca o tempo inicial
+    long maxSearchTime = 5000; // 5 segundos de busca mínima
+    boolean foundBoss = false;
+    
+    public int indexConta = 0;
+    public int indexPersonagem = 0;
+    public int indexInstancia = 0;
 
 	public GameController(Bot bot) {
 		this.bot = bot;
@@ -152,24 +162,12 @@ public class GameController implements NativeKeyListener, Runnable {
     		}
     	}
 
-		// script = scriptLoader.carregarScriptdoJson("teste_de_json.json");
-		// script = scriptLoader.carregarScriptdoJson("sussurro_sombrio.json");
-		// script = scriptLoader.carregarScriptdoJson("teste_formigueiro.json");
-		// script = scriptLoader.carregarScriptdoJson("bio.json");
-		// apresentacao(script);
-
 		bot.printarTela();
 		bot.sleep(3000);
-		bot.visaoDeCima();
-		bot.sleep(100);
-		bot.zoom(-28);
-
-		
 
 		// Modo instancia
 		if (scriptContas != null) {
-			// scriptContas = scriptLoader.carregarContas("teste_login_instancias" +
-			// ".json");
+			System.out.println("Scriptcontas não é null");
 
 			for (Conta conta : scriptContas.getContas()) {
 				System.out.println("Usuário: " + conta.getUsuario());
@@ -179,11 +177,15 @@ public class GameController implements NativeKeyListener, Runnable {
 					System.out.println(" - Página: " + personagem.getPagina());
 					System.out.println(" - Index: " + personagem.getIndexPersonagem());
 					System.out.println(" - Passar Itens: " + personagem.isPassarItens());
+					System.out.println(" - Classe: " + personagem.getClasse());
 					System.out.println(" - Instâncias: " + personagem.getInstancias());
 				}
 			}
-			String instancia = scriptContas.getContas().get(0).getPersonagens().get(0).getInstancias().get(0) + ".json";
+			String instancia = scriptContas.getContas().get(indexConta)
+					.getPersonagens().get(indexPersonagem)
+					.getInstancias().get(indexInstancia) + ".json";
 			Script scriptTemp = scriptLoader.carregarScriptdoJson("instancias/" + instancia);
+			System.out.println("instancia do script escolhida: " + instancia);
 			setScript(scriptTemp);
 
 			logarNaPrimeiraVez();
@@ -191,21 +193,13 @@ public class GameController implements NativeKeyListener, Runnable {
 			System.out.println("###################################################################");
 		}
 
-		// GrafoMapa grafo = new GrafoMapa();
-		//notebook
-    	String mapa = script.getMapa();
-    	mapaCarregado = carregarMapa("mapas/" + mapa);
-    	grafo = gerarGrafoDeMapa(mapaCarregado);
-
-		/*
-		 * if (script.getCoordenadasAlt() != null) { for(Links links :
-		 * script.getCoordenadasAlt()) { Coordenadas c1 = new
-		 * Coordenadas(links.getLinks().get(0), links.getLinks().get(1)); Coordenadas c2
-		 * = new Coordenadas(links.getLinks().get(2), links.getLinks().get(3));
-		 * grafo.addConexao(c1, c2); } }
-		 */
+    	carregarMapa();
 
 		/* ligarBot = false; */
+    	
+    	bot.visaoDeCima();
+		bot.sleep(100);
+		bot.zoom(-28);
 
 		while (ligarBot) {
 			long startTime = System.currentTimeMillis();
@@ -244,19 +238,21 @@ public class GameController implements NativeKeyListener, Runnable {
 
 			// Verificar monstros antes de andar
             //notebook
-            Map<String, List<MatOfPoint>> monstros;
-            if (verificarModoInstanciaProcura()) {
+            if (script.getRotas().get(rota).getVerificacao().isBoss()) { // Boss encontrado
+               processarLogicaMatarBoss();
+            } else if (verificarModoInstanciaProcura()) {
             	monstros = bot.listaMonstrosInstancias();
             } else {
             	 monstros = bot.listaMonstros();
             }
 
 			// Verificar se existem monstros visíveis
-			if (!monstros.get("rosa").isEmpty() || !monstros.get("azul").isEmpty()) {
-				stateMachine.mudarEstado(Estado.ATACANDO);
-			}
+            if (!monstros.getOrDefault("rosa", List.of()).isEmpty() ||
+            	    !monstros.getOrDefault("azul", List.of()).isEmpty() ||
+            	    !monstros.getOrDefault("amarelo", List.of()).isEmpty()) {
+            	    stateMachine.mudarEstado(Estado.ATACANDO);
+            }
 			
-
 			switch (stateMachine.getEstadoAtual()) {
 			case ANDANDO:
 				if (modoMemoria) {
@@ -339,15 +335,13 @@ public class GameController implements NativeKeyListener, Runnable {
 
 			case ATACANDO:
 				bot.soltarMouse();
-				if (!monstros.get("rosa").isEmpty() || !monstros.get("azul").isEmpty()) {
-					// stateMachine.mudarEstado(Estado.ATACANDO);
-					// }
-					// if (!monstros.isEmpty()) {
+				if (!monstros.getOrDefault("rosa", List.of()).isEmpty() ||
+	            	    !monstros.getOrDefault("azul", List.of()).isEmpty() ||
+	            	    !monstros.getOrDefault("amarelo", List.of()).isEmpty()) {
 					atacar(monstros);
 					stateMachine.mudarEstado(Estado.ANDANDO);
-				}
-				break;
-
+	            }
+				
 			case NPC:
 				bot.soltarMouse();
 				if (tentandoFalarComNpc) {
@@ -379,6 +373,47 @@ public class GameController implements NativeKeyListener, Runnable {
 		} catch (NativeHookException e) {
 			e.printStackTrace();
 		}
+	}
+
+	private void carregarMapa() {
+		String mapa = script.getMapa();
+    	mapaCarregado = carregarMapa("mapas/" + mapa);
+    	grafo = gerarGrafoDeMapa(mapaCarregado);
+	}
+
+	private void processarLogicaMatarBoss() {
+		 System.out.println("BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS");
+
+         do {
+             monstros = bot.procurarBoss();
+
+             if (!monstros.getOrDefault("amarelo", List.of()).isEmpty()) {
+                 foundBoss = true;
+                 startTimeBoss = System.currentTimeMillis(); // Reseta o timer sempre que encontrar um boss
+                 atacar(monstros);
+					stateMachine.mudarEstado(Estado.ANDANDO);
+             } else {
+                 foundBoss = false;
+             }
+
+             bot.sleep(100);
+
+         } while ((System.currentTimeMillis() - startTimeBoss) < maxSearchTime || foundBoss);
+
+         // Se saiu do loop, significa que não achou boss por 5 segundos
+         if (script.getRotas().get(rota).getVerificacao().isTerminaNoBoss()) {
+             finalizarRota(script, 5);
+             stateMachine.mudarEstado(Estado.ANDANDO);
+         } else {
+             rota++;
+             elseAcoes = 0;
+             passo = 0;
+             passoAlternativo = 0;
+
+             if (rota >= script.getRotas().size()) {
+                 finalizarRota(script, 5);
+             }
+         }
 	}
 
 	private void calcularCaminhoAlternativo(Script script, GrafoMapa grafo) {
@@ -500,7 +535,7 @@ public class GameController implements NativeKeyListener, Runnable {
     	int distanciaMinima = 5; // Defina a distância mínima aceitável 
     	
     	//System.out.println("farm: " + farm + " | tamanho da lista: " + this.listaDeFarmBioChef.size());
-    	//System.out.println("descricao do script: " + script.getFinalizacao().getDescricao());
+    	System.out.println("descricao do script: " + script.getFinalizacao().getDescricao());
 
     	// Processar verificação específica da rota
         processarVerificacao(script, distanciaMinima);
@@ -528,37 +563,6 @@ public class GameController implements NativeKeyListener, Runnable {
     	
     }
 
-    private void processarCaminhoAlternativo(int distanciaMinima) throws Exception {
-    	System.out.println("Entrou no caminho alternativo");
-        for (Coordenadas nodo : caminhoCalculado) {
-            System.out.println(nodo.x + " " + nodo.y);
-        }
-
-        if (passoAlternativo < caminhoCalculado.size()) {
-            int altX = caminhoCalculado.get(passoAlternativo).x;
-            int altY = caminhoCalculado.get(passoAlternativo).y;
-            Coordenadas destinoAlt = new Coordenadas(altX, altY);
-
-            bot.moverPersonagem(atual, destinoAlt, mapaCarregado);
-
-            if (bot.calcularDistancia(atual, destinoAlt) <= distanciaMinima) {
-                passoAlternativo++;
-                System.out.println("Rota alternativa aumentada");
-
-                if (passoAlternativo >= caminhoCalculado.size()) {
-                    passoAlternativo = 0;
-                    caminhoCalculado.clear();
-                    System.out.println("Final alternativo");
-                }
-            }
-        } else {
-            // Caso inesperado
-            System.out.println("Erro: passoAlternativo fora do intervalo.");
-            caminhoCalculado.clear();
-            passoAlternativo = 0;
-        }
-    }
-
 	private Coordenadas obterDestinoAtual(Script script) {
 		int destinoX = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(0);
 		int destinoY = script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(1);
@@ -577,8 +581,25 @@ public class GameController implements NativeKeyListener, Runnable {
 		case "npc":
 			mudarEstadoParaNpc();
 			break;
+		case "sleep":
+			delayProBoss();
+			break;
 		default:
 			System.out.println("Tipo de verificação desconhecido: " + verificacao);
+		}
+	}
+	
+	
+	private void delayProBoss() {
+		System.out.println("Mimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindo");
+		bot.sleep(2000);
+		System.out.println("Rota aumentada !");
+		rota++;
+		elseAcoes = 0;
+		passo = 0;
+		passoAlternativo = 0;
+		if (rota >= script.getRotas().size()) {
+			finalizarRota(script, 5);
 		}
 	}
 
@@ -606,28 +627,126 @@ public class GameController implements NativeKeyListener, Runnable {
 	private void finalizarRota(Script script, int distanciaMinima) {
 		// reiniciar tudo ou ir pro finalização
 		rota = 0;
+		
+		if (JanelaPrincipal.instanciaRadioButton.isSelected()) {
+			// fazer as logicas pra iniciar ou finalizar as instancias
+			elseAcoes = 0;
+			passo = 0;
+			passoAlternativo = 0;
+			
+			System.out.println("Caiu em rota de instancia?");
+			/*int voltarMoroc = skillsConfig.getGomoroc();
+			bot.atalhoAltM(voltarMoroc);
+			bot.sleep(5000);
+			//Encerrar instancia
+			bot.encerrarInstancia();
+			*/
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			
+			int ultimoIndexConta = indexConta;
+			indexInstancia++;
+			if (indexInstancia > scriptContas.getContas().get(indexConta)
+					.getPersonagens().get(indexPersonagem).getInstancias().size() - 1) {
+				indexInstancia = 0;
+				
+				indexPersonagem++;
+				if (indexPersonagem > scriptContas.getContas().get(indexConta)
+						.getPersonagens().size() - 1) {
+					indexPersonagem = 0;
+					
+					indexConta++;
+					if (indexConta > scriptContas.getContas().size() - 1) {
+						indexConta = 0;
+						ligarBot = false;
+						fecharBot();
+						return;
+					}
+					
+				}
+				System.out.println("Deslogando personagem");
+				bot.deslogarPersonagem();
+				
+				if (ultimoIndexConta != indexConta) { //indexConta aumentou
+					System.out.println("Indo tela login");
+					bot.sleep(3000);
+					bot.voltarTelaLogin();
+					
+					System.out.println("Logando");
+					String usuario = scriptContas.getContas().get(indexConta).getUsuario();
+					String senha = scriptContas.getContas().get(indexConta).getSenha();
+					String pin = scriptContas.getContas().get(indexConta).getPin();
+					bot.realizarLogin(usuario, senha);
+
+					System.out.println("Apertando enter na escolha do canal 1");
+					bot.apertarTecla(KeyEvent.VK_ENTER);
+					bot.sleep(5000);
+
+					System.out.println("Chega na parte do pin...");
+					bot.inserirPin(pin);
+					bot.sleep(1000);
+				}
+				
+				int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getIndexPersonagem();
+				int pagina = scriptContas.getContas().get(0).getPersonagens().get(0).getPagina();
+				bot.escolherPersonagem(indexPersonagem, pagina);
+
+				// Fechar Logue e Ganhe
+				bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
+				bot.sleep(300);
+				bot.clicarMouse();
+				bot.sleep(300);
+				
+				//Fechar chat de npc
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+				bot.sleep(300);
+				//Fechar chat de npc
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+				bot.sleep(300);
+				
+				bot.visaoDeCima();
+				bot.sleep(100);
+				bot.zoom(-28);
+				
+				
+			}
+			String instanciaScript = scriptContas.getContas().get(indexConta)
+					.getPersonagens().get(indexPersonagem)
+					.getInstancias().get(indexInstancia) + ".json";
+			ScriptLoader scriptLoader = new ScriptLoader();
+			Script scriptTemp = scriptLoader.carregarScriptdoJson("instancias/" + instanciaScript);
+			setScript(scriptTemp);
+			carregarMapa();
+			
+			String instancia = scriptContas.getContas().get(0).getPersonagens().get(0).getInstancias().get(0);
+			//bot.executarInstancia(instancia);
+			
+			return;
+		}
+		
 		int finalizarX = script.getFinalizacao().getCoordenadas().get(0);
 		int finalizarY = script.getFinalizacao().getCoordenadas().get(1);
 		Coordenadas finalizacao = new Coordenadas(finalizarX, finalizarY);
 
 		if (bot.calcularDistancia(atual, finalizacao) <= distanciaMinima) {
 			System.out.println("Finalizou a rota: " + script.getFinalizacao().getDescricao());
-			if (JanelaPrincipal.instanciaRadioButton.isSelected()) {
-				// fazer as logicas pra iniciar as instancias
-				System.out.println("Caiu em rota de instancia?");
-				int numeroAltMoroc = 2;
-				bot.voltarMoroc(numeroAltMoroc);
-				bot.sleep(5000);
-				//Encerrar instancia
-				bot.moverMouse(bot.getxJanela() + 104, bot.getyJanela() + 436);
-				bot.sleep(300);
-				bot.clicarMouse();
-				bot.sleep(300);
-				return;
-			}
+			
 			// System.out.println("Ta caindo no na logica do farme mesmo?");
 			// Bloco para o player fazer as outras rotas se tiver
 			farm++;
+			
+			elseAcoes = 0;
+			passo = 0;
+			passoAlternativo = 0;
+			
 			if (farm > listaDeFarmBioChef.size() - 1) {
 				farm = 0;
 			}
@@ -685,9 +804,23 @@ public class GameController implements NativeKeyListener, Runnable {
 		 * monstro : monstrosRosa) { bot.atacarMonstro(monstro, KeyEvent.VK_Q); break;
 		 * // Ataca um monstro e sai }
 		 */
+		
+		// Boss
+		List<MatOfPoint> monstrosAmarelo = monstros.computeIfAbsent("amarelo", k -> new ArrayList<>());
+		if (!monstrosAmarelo.isEmpty()) {
+			monstrosAmarelo.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
+			for (MatOfPoint monstro : monstrosAmarelo) {
+				Skill skillDisponivel = getAvailableSkill("rosa");
+				if (skillDisponivel != null) {
+					bot.atacarMonstro(monstro, skillDisponivel.getTecla());
+					skillDisponivel.use(); // Marca a skill como usada
+					break; // Ataca um monstro e sai
+				}
+			}
+		}
 
 		// Prioridade: monstros azuis
-		List<MatOfPoint> monstrosAzul = monstros.get("azul");
+		List<MatOfPoint> monstrosAzul = monstros.computeIfAbsent("azul", k -> new ArrayList<>());
 		if (!monstrosAzul.isEmpty()) {
 			monstrosAzul.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
 			for (MatOfPoint monstro : monstrosAzul) {
@@ -702,7 +835,7 @@ public class GameController implements NativeKeyListener, Runnable {
 		}
 
 		// Monstros rosas
-		List<MatOfPoint> monstrosRosa = monstros.get("rosa");
+		List<MatOfPoint> monstrosRosa = monstros.computeIfAbsent("rosa", k -> new ArrayList<>());
 		if (!monstrosRosa.isEmpty()) {
 			monstrosRosa.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
 			for (MatOfPoint monstro : monstrosRosa) {
@@ -818,9 +951,9 @@ public class GameController implements NativeKeyListener, Runnable {
 		bot.apertarTecla(KeyEvent.VK_ENTER);
 		bot.sleep(500);
 
-		String usuario = scriptContas.getContas().get(0).getUsuario();
-		String senha = scriptContas.getContas().get(0).getSenha();
-		String pin = scriptContas.getContas().get(0).getPin();
+		String usuario = scriptContas.getContas().get(indexConta).getUsuario();
+		String senha = scriptContas.getContas().get(indexConta).getSenha();
+		String pin = scriptContas.getContas().get(indexConta).getPin();
 		bot.realizarLogin(usuario, senha);
 
 		System.out.println("Apertando enter na escolha do canal 1");
@@ -831,7 +964,7 @@ public class GameController implements NativeKeyListener, Runnable {
 		bot.inserirPin(pin);
 		bot.sleep(1000);
 
-		int indexPersonagem = scriptContas.getContas().get(0).getPersonagens().get(0).getIndexPersonagem();
+		int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getIndexPersonagem();
 		int pagina = scriptContas.getContas().get(0).getPersonagens().get(0).getPagina();
 		bot.escolherPersonagem(indexPersonagem, pagina);
 
@@ -840,10 +973,17 @@ public class GameController implements NativeKeyListener, Runnable {
 		bot.sleep(300);
 		bot.clicarMouse();
 		bot.sleep(300);
+		
+		//Fechar chat de npc
+		bot.apertarTecla(KeyEvent.VK_ENTER);
+		bot.sleep(300);
+		//Fechar chat de npc
+		bot.apertarTecla(KeyEvent.VK_ENTER);
+		bot.sleep(300);
 
 		// Selecionar Instancias
 		// Abrir Janela de instancias
-		bot.executarInstancia(scriptContas);
+		//bot.executarInstancia(scriptContas);
 	}
 
 	

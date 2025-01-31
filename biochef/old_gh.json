@@ -234,27 +234,32 @@
           { "coordenadas": [150, 180] },
           { "coordenadas": [151, 197] },
           { "coordenadas": [153, 217] },
-          { "coordenadas": [156, 221] }
+          { "coordenadas": [149, 230] }
         ],
         "verificacao": {
           "tipo": "teleport",
-          "coordenadas": [156, 221],
+          "coordenadas": [149, 230],
           "elseAcoes": [
-            { "coordenadas": [156, 221] }
+            { "coordenadas": [149, 230] }
           ]
         }
       },
       {
         "descricao": "Falar com o oscar na sala do boss",
         "passos": [
-          { "coordenadas": [161, 224] }
+          { "coordenadas": [149, 235] }
         ],
         "verificacao": {
           "tipo": "npc",
-          "coordenadas": [161, 224],
+          "coordenadas": [149, 235],
           "acoes": [
             {"balaoUnico": false, "opcao": 2 }
           ]
+        }
+      },
+      {
+        "verificacao": {
+          "tipo": "sleep"
         }
       },
       {
@@ -266,6 +271,7 @@
         ],
         "verificacao": {
           "boss": true,
+          "terminaNoBoss": true,
           "tipo": "teleport",
           "coordenadas": [170, 250],
           "elseAcoes": [

@@ -8,7 +8,7 @@ public class ConfigManager {
 
 	private static final String CONFIG_FILE = "config.json";
 	
-	// Classe interna para representar o retângulo
+	// Classe interna para representar o retângulo 
     public static class Rectangle {
         public int x;
         public int y;

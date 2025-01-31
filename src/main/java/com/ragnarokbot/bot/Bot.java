@@ -45,6 +45,9 @@ import org.opencv.highgui.HighGui;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.mouse.NativeMouseEvent;
 import com.ragnarokbot.main.BotRagnarok;
@@ -68,6 +71,8 @@ import com.sun.jna.platform.win32.WinUser;
 import config.ConfigManager;
 import config.ConfigManager.Config;
 import config.ContasConfig;
+import config.Pin;
+import config.ScriptLoader;
 
 import com.sun.jna.platform.win32.WinDef.HWND;
 import com.sun.jna.platform.win32.WinDef.RECT;
@@ -353,24 +358,35 @@ public class Bot {
 	    for (int i = 0; i < 10; i++) {
 	    	pins.add(new Rect());
 	    }
-	    
-	    Map<String, Integer> hashReferencia = new HashMap<>();
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000111111000000000111001110000000011000111000000001100011100000000111001110000000011111110000000000111110000000000000000000000000000000000000000000000000000000000000000000000", 0);
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000111111000000000111111110000000011111111000000001111111100000000111111110000000011111110000000000111110000000000000000000000000000000000000000000000000000000000000000000000", 1);
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000000011110000000000011111100000000011111110000000001111111000000000011111100000000000111110000000000011111000000000000000000000000000000000000000000000000000000000000000000000", 2);
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000000011110000000000011111100000000011111110000000001111111000000000011111100000000000111100000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 3);
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001100000000000000111110000000000011111100000000001111110000000000111111000000000011111100000000000011110000000000000011000000000000000000000000000000000000000000000000000000000000000000000", 4);
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000011110000000000011111100000000011111111000000001111111100000000011111100000000000111100000000000011100000000000000000000000000000000000000000000000000000000000000000000000", 5);
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001110000000000000111000000000000011100000000000001111110000000000111111100000000011100110000000000111111000000000001111000000000000000000000000000000000000000000000000000000000000000000000", 6);
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001111110000000000111111000000000111111100000000011111111000000001111111100000000111111110000000001111110000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 7);
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000011000000000000111111000000000011111100000000001111110000000000111111000000000011001100000000001111110000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 8);
-	    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000001111110000000000111011100000000011111110000000001111111000000000000111100000000000000110000000000000011000000000000000000000000000000000000000000000000000000000000000000000", 9);
+	    boolean jsonExiste = arquivoExiste("config/pins.json");
+	    ScriptLoader scriptLoader = new ScriptLoader();
+	    Map<String, Integer> hashReferencia;
+	    if (jsonExiste) {
+	    	hashReferencia = scriptLoader.carregarPin("config/pins.json");
+	    } else {
+	    	hashReferencia = new HashMap<>();
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000111111000000000111001110000000011000111000000001100011100000000111001110000000011111110000000000111110000000000000000000000000000000000000000000000000000000000000000000000", 0);
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000111111000000000111111110000000011111111000000001111111100000000111111110000000011111110000000000111110000000000000000000000000000000000000000000000000000000000000000000000", 1);
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000000011110000000000011111100000000011111110000000001111111000000000011111100000000000111110000000000011111000000000000000000000000000000000000000000000000000000000000000000000", 2);
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000000011110000000000011111100000000011111110000000001111111000000000011111100000000000111100000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 3);
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001100000000000000111110000000000011111100000000001111110000000000111111000000000011111100000000000011110000000000000011000000000000000000000000000000000000000000000000000000000000000000000", 4);
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000011110000000000011111100000000011111111000000001111111100000000011111100000000000111100000000000011100000000000000000000000000000000000000000000000000000000000000000000000", 5);
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001110000000000000111000000000000011100000000000001111110000000000111111100000000011100110000000000111111000000000001111000000000000000000000000000000000000000000000000000000000000000000000", 6);
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001111110000000000111111000000000111111100000000011111111000000001111111100000000111111110000000001111110000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 7);
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000011000000000000111111000000000011111100000000001111110000000000111111000000000011001100000000001111110000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 8);
+		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000001111110000000000111011100000000011111110000000001111111000000000000111100000000000000110000000000000011000000000000000000000000000000000000000000000000000000000000000000000", 9);
+		    
+	    }
 	    
 	    //Achar as coordenadas do OK
 	    int maiorX = 0;
 	    int menorY = 99999;
 	    int rectWidth = 0;
 	    int rectHeight = 0;
+	    
+	    // Lista para armazenar os hashes
+        List<Map<String, String>> pinsList = new ArrayList<>();
+        
 	    for(int i = 0; i < filtrados.size(); i++) {
             Rect rect = Imgproc.boundingRect(filtrados.get(i));
 
@@ -398,15 +414,26 @@ public class Bot {
             rectWidth = rect.width;
             rectHeight = rect.height;
 
-            //Salvar imagem
-            /*File outputFile = new File("numero" + i + ".png");
-            try {
-            	ImageIO.write(print, "png", outputFile);
-            } catch (IOException e) {
-            	e.printStackTrace();
-            }*/
-            
+            if (!jsonExiste) {
+            	//Salvar imagem
+                File outputFile = new File("imagem" + i + ".png");
+                try {
+                	ImageIO.write(print, "png", outputFile);
+                } catch (IOException e) {
+                	e.printStackTrace();
+                }
+                
+                // Adiciona o hash ao JSON
+                Map<String, String> pinData = new HashMap<>();
+                pinData.put("imagem" + i, hash);
+                pinsList.add(pinData);
+            }
         }
+	    if (!jsonExiste) {
+	    	// Criar e salvar o JSON
+	    	salvarJson(pinsList, "config/pins.json");
+	    }
+        
 	    try {
 	        for(int j = 0; j < pin.length(); j++) {
 	        	char c = pin.charAt(j);
@@ -458,10 +485,38 @@ public class Bot {
 	        return null;
 	    }
 	}
+	
+	private boolean arquivoExiste(String caminhoArquivo) {
+        File arquivo = new File(caminhoArquivo);
+        return arquivo.exists() && arquivo.isFile();
+    }
 
+	private void salvarJson(List<Map<String, String>> pinsList, String filePath) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode rootNode = objectMapper.createObjectNode();
+        ArrayNode pinsArray = objectMapper.createArrayNode();
 
+        for (Map<String, String> pin : pinsList) {
+            ObjectNode pinNode = objectMapper.createObjectNode();
+            pin.forEach(pinNode::put);
+            
+            pinNode.put("numero", 0);
+            
+            pinsArray.add(pinNode);
+        }
 
+        rootNode.set("pins", pinsArray);
 
+        File file = new File(filePath);
+        file.getParentFile().mkdirs(); // Garante que a pasta config/ exista
+
+        try {
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, rootNode);
+            System.out.println("JSON salvo em: " + filePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 	
 	// notebook
 	public MonstrosImagem analisarTela(Map<String, Scalar[]> colorRanges) {
@@ -687,6 +742,51 @@ public class Bot {
 
 					return npcsFiltrados;
 				}
+				
+	// notebook
+	public Map<String, List<MatOfPoint>> procurarBoss() {
+		// Definir a área onde os monstros aparecem na tela capturada
+		int areaX = 235; // Coordenada x da área de interesse
+		int areaY = 106; // Coordenada y da área de interesse
+
+		// Definir os intervalos de cores
+		Map<String, Scalar[]> colorRanges = new HashMap<>();
+		colorRanges.put("amarelo", new Scalar[] { new Scalar(22, 215, 215), new Scalar(42, 255, 255) });
+
+		MonstrosImagem analise = analisarTela(colorRanges);
+
+		// Analisar a tela para as cores definidas
+		Map<String, List<MatOfPoint>> detectedEntities = analise.listaEntidades;
+
+		// Map para armazenar as listas filtradas e visíveis
+		Map<String, List<MatOfPoint>> visibleEntities = new HashMap<>();
+
+		// Processar cada cor
+		for (Map.Entry<String, List<MatOfPoint>> entry : detectedEntities.entrySet()) {
+			String color = entry.getKey();
+			List<MatOfPoint> entities = entry.getValue();
+
+			// Filtrar monstros com altura >= 16
+			List<MatOfPoint> filtered = entities.stream().filter(monstro -> Imgproc.boundingRect(monstro).height >= 16)
+					.toList();
+
+			// Ajustar as coordenadas para serem globais
+			List<MatOfPoint> adjustedEntities = new ArrayList<>();
+			for (MatOfPoint entidade : filtered) {
+				List<org.opencv.core.Point> adjustedPoints = new ArrayList<>();
+				for (org.opencv.core.Point p : entidade.toList()) {
+					adjustedPoints.add(new org.opencv.core.Point(p.x + areaX, p.y + areaY)); // Ajusta as coordenadas
+				}
+				MatOfPoint adjustedEntidade = new MatOfPoint();
+				adjustedEntidade.fromList(adjustedPoints); // Constrói o MatOfPoint ajustado
+				adjustedEntities.add(adjustedEntidade);
+			}
+
+			visibleEntities.put(color, adjustedEntities); // Adicionar ao mapa de monstros visíveis
+		}
+
+		return visibleEntities;
+	}
 	
 	
 	public List<MatOfPoint> verificarBalaoNpc() {
@@ -1347,7 +1447,7 @@ public class Bot {
 				// Pressionar o botão direito do mouse
 				robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
 
-				moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY);
+				moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY - 100);
 				sleep(20);
 
 				// Obter a posição atual do mouse
@@ -1390,6 +1490,10 @@ public class Bot {
 			return memoria.obterHP(memoria.processId, memoria.addressHp);
 		}
 		
+		public String getMemoriaString() {
+			return memoria.obterStringMemoria(memoria.processId, memoria.addressString);
+		}
+		
 		//notebook
 		/**
 	     * Simula o pressionamento de Alt + um número de 0 a 9 no teclado.
@@ -1419,7 +1523,7 @@ public class Bot {
 	    }
 	    
 	    
-	public void executarInstancia(ContasConfig scriptContas) {
+	public void executarInstancia(String instancia) {
 		moverMouse(getxJanela() + 65, getyJanela() + 150);
 		sleep(300);
 		clicarMouse();
@@ -1438,7 +1542,6 @@ public class Bot {
 		sleep(1000);
 		moverMouse(getxJanela() + x + 70, getyJanela() + y + 140);
 		// int dg = 43; //tomb
-		String instancia = scriptContas.getContas().get(0).getPersonagens().get(0).getInstancias().get(0);
 		int dg = getNumeroInstancia(instancia);
 		//int dg = 33; // old gh
 		int counter = dg / 16;
@@ -1510,6 +1613,11 @@ public class Bot {
 		sleep(300);
 		clicarMouse();
 		sleep(300);
+		
+		sleep(3000);
+		visaoDeCima();
+		sleep(100);
+		zoom(-28);
 	}
 	
 	private int getNumeroInstancia(String instancia) {
@@ -1526,6 +1634,36 @@ public class Bot {
 				break;
 		}
 		return dg;
+	}
+	
+	public void encerrarInstancia() {
+		moverMouse(getxJanela() + 104, getyJanela() + 436);
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+	}
+	
+	public void deslogarPersonagem() {
+		apertarTecla(KeyEvent.VK_ESCAPE);
+		sleep(500);
+		moverMouse(getxJanela() + 511, getyJanela() + 513);
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+		clicarMouse();
+		sleep(300);
+	}
+	
+	public void voltarTelaLogin() {
+		moverMouse(getxJanela() + 966, getyJanela() + 85);
+		sleep(500);
+		clicarMouse();
+		sleep(500);
+		//confirmar
+		moverMouse(getxJanela() + 587, getyJanela() + 430);
+		sleep(500);
+		clicarMouse();
+		sleep(500);
 	}
 
 	public int getWidth() {
@@ -1559,5 +1697,11 @@ public class Bot {
 	public void setyJanela(int yJanela) {
 		this.yJanela = yJanela;
 	}
+
+	
+
+	
+
+	
 
 }

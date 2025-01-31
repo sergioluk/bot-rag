@@ -3,9 +3,28 @@ package config;
 import java.util.List;
 
 public class ContasConfig {
+	private List<String> instanciasDisponiveis;
+	private List<String> classesDisponiveis;
 	private List<Conta> contas;
 
-    public List<Conta> getContas() {
+	
+    public List<String> getInstanciasDisponiveis() {
+		return instanciasDisponiveis;
+	}
+
+	public void setInstanciasDisponiveis(List<String> instanciasDisponiveis) {
+		this.instanciasDisponiveis = instanciasDisponiveis;
+	}
+
+	public List<String> getClassesDisponiveis() {
+		return classesDisponiveis;
+	}
+
+	public void setClassesDisponiveis(List<String> classesDisponiveis) {
+		this.classesDisponiveis = classesDisponiveis;
+	}
+
+	public List<Conta> getContas() {
         return contas;
     }
 
@@ -59,8 +78,17 @@ public class ContasConfig {
         private int indexPersonagem;
         private boolean passarItens;
         private List<String> instancias;
+        private String classe;
+        
+        public String getClasse() {
+			return classe;
+		}
 
-        public int getPagina() {
+		public void setClasse(String classe) {
+			this.classe = classe;
+		}
+
+		public int getPagina() {
             return pagina;
         }
 

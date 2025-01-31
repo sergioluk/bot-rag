@@ -77,7 +77,14 @@ public class Script {
 	    private List<Passo> elseAcoes;
 	    private List<Acao> acoes;
 	    private boolean boss;
+	    private boolean terminaNoBoss;
 	    
+		public boolean isTerminaNoBoss() {
+			return terminaNoBoss;
+		}
+		public void setTerminaNoBoss(boolean terminaNoBoss) {
+			this.terminaNoBoss = terminaNoBoss;
+		}
 		public boolean isBoss() {
 			return boss;
 		}

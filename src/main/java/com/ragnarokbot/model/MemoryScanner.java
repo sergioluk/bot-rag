@@ -15,6 +15,8 @@ public class MemoryScanner {
 	//notebook
 	public long addressHp = 0x156F798;
 	
+	public long addressString = 0x19A9ED - 5;
+	
     public interface Kernel32 extends Library {
         Kernel32 INSTANCE = Native.load("kernel32", Kernel32.class);
 
@@ -118,5 +120,45 @@ public class MemoryScanner {
             Kernel32.INSTANCE.CloseHandle(processHandle);
         }
     }
+    
+    public String obterStringMemoria(int processId, long addressString) {
+        Pointer processHandle = Kernel32.INSTANCE.OpenProcess(
+                Kernel32.PROCESS_VM_READ | Kernel32.PROCESS_QUERY_INFORMATION,
+                false,
+                processId
+        );
+
+        if (processHandle == null) {
+            System.err.println("Não foi possível abrir o processo.");
+            return null;
+        }
+
+        byte[] buffer = new byte[256]; // Tamanho máximo da string a ser lida
+        IntByReference bytesRead = new IntByReference();
+
+        try {
+            boolean success = Kernel32.INSTANCE.ReadProcessMemory(
+                    processHandle,
+                    new Pointer(addressString),
+                    buffer,
+                    buffer.length,
+                    bytesRead
+            );
+
+            if (success && bytesRead.getValue() > 0) {
+                // Converter bytes para String, cortando no primeiro '\0' (caso seja uma string C-style)
+                return new String(buffer, 0, bytesRead.getValue(), "UTF-8").split("\0")[0];
+            } else {
+                System.err.println("Erro ao ler memória para a string.");
+                return null;
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao processar string: " + e.getMessage());
+            return null;
+        } finally {
+            Kernel32.INSTANCE.CloseHandle(processHandle);
+        }
+    }
+
 
 }
