@@ -1,7 +1,9 @@
 package com.ragnarokbot.main;
 
+import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
+import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
@@ -16,6 +18,7 @@ import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.GrafoMapa;
 import com.ragnarokbot.model.enums.Estado;
 import com.ragnarokbot.telas.JanelaPrincipal;
+import com.sun.jna.platform.win32.Wincon.COORD;
 
 import config.ContasConfig;
 import config.ContasConfig.Conta;
@@ -45,8 +48,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import javax.imageio.ImageIO;
@@ -116,6 +121,8 @@ public class GameController implements NativeKeyListener, Runnable {
     long startTimeBoss = System.currentTimeMillis(); // Marca o tempo inicial
     long maxSearchTime = 5000; // 5 segundos de busca mínima
     boolean foundBoss = false;
+    
+    public List<Coordenadas> coordsMonstrosAtrasParede = new ArrayList<>();
     
     public int indexConta = 0;
     public int indexPersonagem = 0;
@@ -215,7 +222,7 @@ public class GameController implements NativeKeyListener, Runnable {
 					}
 				}
 			}
-
+			/*
 			if (pausarBot) {
 				System.out.println("Bot pausado");
 				continue;
@@ -224,7 +231,7 @@ public class GameController implements NativeKeyListener, Runnable {
 			if (bot.configOCR.rectangle.x == 0) {
 				System.out.println("Aguardando setar coordenadas");
 				continue;
-			}
+			}*/
 			
 			 //notebook
             int timeRand = ThreadLocalRandom.current().nextInt(5000, 10001);
@@ -240,12 +247,91 @@ public class GameController implements NativeKeyListener, Runnable {
             //notebook
             if (script.getRotas().get(rota).getVerificacao().isBoss()) { // Boss encontrado
                processarLogicaMatarBoss();
-            } else if (verificarModoInstanciaProcura()) {
-            	monstros = bot.listaMonstrosInstancias();
+            //} else if (verificarModoInstanciaProcura()) {
+            	//monstros = bot.listaMonstrosInstancias();
             } else {
             	 monstros = bot.listaMonstros();
+            	 
+            	 if (verificarModoInstanciaProcura()) {
+            		 List<MatOfPoint> monstrosAtrasParede = monstros.get("monstrosAtrasParede");
+            		 
+            		// Set temporário para evitar duplicações
+            		Set<Coordenadas> coordenadasUnicas = new HashSet<>(coordsMonstrosAtrasParede);
+            		 
+            		 for(MatOfPoint monstro : monstrosAtrasParede) {
+                		 Rect m = Imgproc.boundingRect(monstro);
+                		 int centerX = m.x + m.width/2;
+                		 int centerY = m.y + m.height/2 + 10;
+                		 Coordenadas destinoBixo = bot.getCoordenadasTelaDoBixo(atual, centerX, centerY);
+                		 
+                		 Boolean isAndavel = mapaCarregado.get(destinoBixo);
+                		 System.out.println("Coordenadas analisada x: " + destinoBixo.x + " y: " + destinoBixo.y + " | " + isAndavel);
+                		 
+                		 if (isAndavel) {
+                			 boolean podeAdicionar = true;
+                			 
+                			 for(Coordenadas coord : coordenadasUnicas) {
+                				 int difX = Math.abs(destinoBixo.x - coord.x);
+                				 int difY = Math.abs(destinoBixo.y - coord.y);
+                				 if (difX <= 3 && difY <= 3) {
+                					 podeAdicionar = false;
+                					 break;
+                				 }
+                			 }
+                			 if (podeAdicionar) {
+                				 coordenadasUnicas.add(destinoBixo);  // Adiciona no conjunto para garantir que não haja repetição
+                				 coordsMonstrosAtrasParede.add(destinoBixo); // Adiciona na lista principal sem sobrescrever
+                	         }
+                		 }
+            		 }
+            		 
+            		 /*coordsMonstrosAtrasParede.sort(Comparator.comparingInt(coord -> {
+         			    List<Coordenadas> caminhoAteOBixo = aStar.encontrarCaminho(grafo, atual, coord);
+         			    return caminhoAteOBixo.size();
+         			}));*/
+            		// Exibir resultado formatado
+            		StringBuilder lista = new StringBuilder();
+            		for (Coordenadas c : coordsMonstrosAtrasParede) {
+            			lista.append(" (x: ").append(c.x).append(", y: ").append(c.y).append("), ");
+            		}
+            		System.out.println("Size: " + coordsMonstrosAtrasParede.size());
+            		System.out.println(lista);
+            		/*if (screen != null) {
+            			String filePath = "fotoTesteCoordenadas.png"; // Nome do arquivo na pasta atual
+            	        boolean success = Imgcodecs.imwrite(filePath, screen);
+            	        if (success) {
+            	            System.out.println("Imagem salva com sucesso em: " + filePath);
+            	        } else {
+            	            System.out.println("Falha ao salvar a imagem.");
+            	        }
+            			System.exit(0);
+            		}*/
+            	 }
+            	 /*
+            	 if (coordsMonstrosAtrasParede.isEmpty()) {
+            		 List<MatOfPoint> monstrosAtrasParede = monstros.get("monstrosAtrasParede");
+                	 for(MatOfPoint monstro : monstrosAtrasParede) {
+                		 Rect m = Imgproc.boundingRect(monstro);
+                		 int centerX = m.x + m.width/2;
+                		 int centerY = m.y + m.height/2;
+                		 Coordenadas destinoBixo = bot.getCoordenadasTelaPeloMouse(atual, centerX, centerY);
+                		 
+                		 List<Coordenadas> copiaMonstrosAtrasParede = new ArrayList<>(coordsMonstrosAtrasParede);
+                		 for(Coordenadas coord : copiaMonstrosAtrasParede) {
+                			 if (destinoBixo.x - coord.x > 3 && destinoBixo.y - coord.y > 3) {
+                				 coordsMonstrosAtrasParede.add(destinoBixo);
+                			 }
+                		 }
+                		 
+                		 coordsMonstrosAtrasParede.sort(Comparator.comparingInt(coord -> {
+                			    List<Coordenadas> caminhoAteOBixo = aStar.encontrarCaminho(grafo, atual, coord);
+                			    return caminhoAteOBixo.size();
+                			}));
+                		 
+                	 }
+            	 }*/
             }
-
+            
 			// Verificar se existem monstros visíveis
             if (!monstros.getOrDefault("rosa", List.of()).isEmpty() ||
             	    !monstros.getOrDefault("azul", List.of()).isEmpty() ||
@@ -534,6 +620,34 @@ public class GameController implements NativeKeyListener, Runnable {
     private void andar(Script script) {
     	int distanciaMinima = 5; // Defina a distância mínima aceitável 
     	
+    	if (!coordsMonstrosAtrasParede.isEmpty() && verificarModoInstanciaProcura()) {// && verificarModoInstanciaProcura()
+			Coordenadas destinoBixo = coordsMonstrosAtrasParede.get(0);
+			
+			if (bot.calcularDistancia(atual, destinoBixo) <= distanciaMinima) {
+				System.out.println("Chegou ao destino... removendo coord da lista!!!");
+				coordsMonstrosAtrasParede.remove(0);
+			} else {
+				List <Coordenadas> caminhoAteOBixo = aStar.encontrarCaminho(grafo, atual, destinoBixo);
+				Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOBixo, atual);
+				bot.moverPersonagem(atual, coordDestino, mapaCarregado);
+				System.out.println("Indo até o monstro atrás da parede x: " + destinoBixo.x + " y: " + destinoBixo.y);
+			}
+			return;
+    	}
+    	/*
+    	if (verificarModoInstanciaProcura()) {
+    		List<MatOfPoint> monstrosIntancias = monstros.getOrDefault("rosa", new ArrayList<>());
+    		if (!monstrosIntancias.isEmpty()) {
+    			Rect m = Imgproc.boundingRect(monstrosIntancias.get(0));
+    			int centerX = m.x + m.width/2;
+    			int centerY = m.y + m.height/2;
+    			Coordenadas destinoBixo = bot.getCoordenadasTelaPeloMouse(atual, centerX, centerY);
+    			List <Coordenadas> caminhoAteOBixo = aStar.encontrarCaminho(grafo, atual, destinoBixo);
+    			Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOBixo, atual);
+    			bot.moverPersonagem(atual, coordDestino, mapaCarregado);
+    		}
+    	}*/
+    	
     	//System.out.println("farm: " + farm + " | tamanho da lista: " + this.listaDeFarmBioChef.size());
     	System.out.println("descricao do script: " + script.getFinalizacao().getDescricao());
 
@@ -607,7 +721,7 @@ public class GameController implements NativeKeyListener, Runnable {
 		int verificarX = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(0);
 		int verificarY = script.getRotas().get(rota).getVerificacao().getCoordenadas().get(1);
 		Coordenadas verificarCoordenadas = new Coordenadas(verificarX, verificarY);
-		System.out.println("Verificando se está proximo de " + verificarCoordenadas + " | " + (bot.calcularDistancia(atual, verificarCoordenadas) <= distanciaMinima));
+		//System.out.println("Verificando se está proximo de " + verificarCoordenadas + " | " + (bot.calcularDistancia(atual, verificarCoordenadas) <= distanciaMinima));
 
 		if (bot.calcularDistancia(atual, verificarCoordenadas) <= distanciaMinima) {
 			System.out.println("Rota aumentada de verdade pela verificacao do teleport : " + verificarX + " " + verificarY);
@@ -787,67 +901,63 @@ public class GameController implements NativeKeyListener, Runnable {
 	 */
 
 	private void atacar(Map<String, List<MatOfPoint>> monstros) {
-		/*
-		 * List<MatOfPoint> monstrosRosa = monstros.get("rosa"); List<MatOfPoint>
-		 * monstrosAzul = monstros.get("azul");
-		 * 
-		 * //Dar prioridade para os azuis if (!monstrosAzul.isEmpty()) {
-		 * monstrosAzul.sort(Comparator.comparingDouble(m ->
-		 * bot.calcularDistanciaCentro(m))); //monstrosAzul.reversed(); for (MatOfPoint
-		 * monstro : monstrosAzul) {
-		 * 
-		 * bot.atacarMonstro(monstro, KeyEvent.VK_E); break; // Ataca um monstro e sai }
-		 * return; }
-		 * 
-		 * monstrosRosa.sort(Comparator.comparingDouble(m ->
-		 * bot.calcularDistanciaCentro(m))); //monstrosRosa.reversed(); for (MatOfPoint
-		 * monstro : monstrosRosa) { bot.atacarMonstro(monstro, KeyEvent.VK_Q); break;
-		 * // Ataca um monstro e sai }
-		 */
 		
+		Skill skillDisponivel = null;
 		// Boss
 		List<MatOfPoint> monstrosAmarelo = monstros.computeIfAbsent("amarelo", k -> new ArrayList<>());
 		if (!monstrosAmarelo.isEmpty()) {
 			monstrosAmarelo.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
-			for (MatOfPoint monstro : monstrosAmarelo) {
-				Skill skillDisponivel = getAvailableSkill("rosa");
-				if (skillDisponivel != null) {
-					bot.atacarMonstro(monstro, skillDisponivel.getTecla());
-					skillDisponivel.use(); // Marca a skill como usada
-					break; // Ataca um monstro e sai
+			
+			skillDisponivel = getAvailableSkill("rosa");
+			if (skillDisponivel != null) {
+				if (usarHabilidade(monstrosAmarelo.get(0), skillDisponivel.getTecla(), skillDisponivel)) {
+					skillDisponivel = null;
 				}
 			}
 		}
-
-		// Prioridade: monstros azuis
+		//monstros azuis
 		List<MatOfPoint> monstrosAzul = monstros.computeIfAbsent("azul", k -> new ArrayList<>());
 		if (!monstrosAzul.isEmpty()) {
 			monstrosAzul.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
-			for (MatOfPoint monstro : monstrosAzul) {
-				Skill skillDisponivel = getAvailableSkill("azul");
-				if (skillDisponivel != null) {
-					bot.atacarMonstro(monstro, skillDisponivel.getTecla());
-					skillDisponivel.use(); // Marca a skill como usada
-					break; // Ataca um monstro e sai
+			
+			skillDisponivel = getAvailableSkill("azul");
+			if (skillDisponivel != null) {
+				if (usarHabilidade(monstrosAzul.get(0), skillDisponivel.getTecla(), skillDisponivel)) {
+					skillDisponivel = null;
 				}
 			}
-			return;
 		}
 
 		// Monstros rosas
 		List<MatOfPoint> monstrosRosa = monstros.computeIfAbsent("rosa", k -> new ArrayList<>());
 		if (!monstrosRosa.isEmpty()) {
 			monstrosRosa.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
-			for (MatOfPoint monstro : monstrosRosa) {
-				Skill skillDisponivel = getAvailableSkill("rosa");
-				if (skillDisponivel != null) {
-					bot.atacarMonstro(monstro, skillDisponivel.getTecla());
-					skillDisponivel.use(); // Marca a skill como usada
-					break; // Ataca um monstro e sai
+			
+			skillDisponivel = getAvailableSkill("rosa");
+			if (skillDisponivel != null) {
+				if (usarHabilidade(monstrosRosa.get(0), skillDisponivel.getTecla(), skillDisponivel)) {
+					skillDisponivel = null;
 				}
 			}
 		}
+		
+		if (skillDisponivel == null) {
+			andar(script);
+		}
 
+	}
+	
+	private boolean usarHabilidade(MatOfPoint monstro, int tecla, Skill skill) {
+		Rect m = Imgproc.boundingRect(monstro);
+		 int centerX = m.x + m.width/2;
+		 int centerY = m.y + m.height/2 + 10;
+		 Coordenadas coord = bot.getCoordenadasTelaDoBixo(atual, centerX, centerY);
+		 if (bot.calcularDistancia(atual, coord) <= skill.getRange()) {
+			bot.atacarMonstro(monstro, tecla);
+			skill.use();
+			return true;
+		 } 
+		return false;
 	}
 
 	// Método auxiliar para obter a próxima habilidade disponível para uma cor

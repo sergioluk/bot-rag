@@ -543,7 +543,8 @@ public class Bot {
 			System.out.println("Erro ao carregar a imagem.");
 			return null;
 		}
-	
+		//Mat screenApagar = bufferedImageToMat(robot.createScreenCapture(new Rectangle(xJanela, yJanela, width, height)));
+		//GameController.screen = screenApagar;
 		// Converter a imagem para o espaço de cores HSV
 		Mat hsvImage = new Mat();
 		Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
@@ -603,8 +604,8 @@ public class Bot {
 
 			// Definir os intervalos de cores
 			Map<String, Scalar[]> colorRanges = new HashMap<>();
-			//colorRanges.put("rosa", new Scalar[] { new Scalar(148, 200, 200), new Scalar(154, 255, 255) });
-			colorRanges.put("rosa", new Scalar[] { new Scalar(148, 100, 100), new Scalar(154, 255, 255) });
+			colorRanges.put("rosa", new Scalar[] { new Scalar(148, 200, 200), new Scalar(154, 255, 255) });
+			//colorRanges.put("rosa", new Scalar[] { new Scalar(148, 100, 100), new Scalar(154, 255, 255) });
 			colorRanges.put("azul", new Scalar[] { new Scalar(108, 215, 204), new Scalar(128, 255, 255) }); // Azul
 
 			MonstrosImagem analise = analisarTela(colorRanges);
@@ -614,7 +615,9 @@ public class Bot {
 
 			// Map para armazenar as listas filtradas e visíveis
 			Map<String, List<MatOfPoint>> visibleEntities = new HashMap<>();
-
+			
+			List<MatOfPoint> monstrosAtrasParede = new ArrayList<>(); // Nova lista para monstros bloqueados
+			
 			// Processar cada cor
 			for (Map.Entry<String, List<MatOfPoint>> entry : detectedEntities.entrySet()) {
 				String color = entry.getKey();
@@ -624,20 +627,14 @@ public class Bot {
 				List<MatOfPoint> filtered = entities.stream().filter(monstro -> Imgproc.boundingRect(monstro).height >= 16)
 						.toList();
 
-				// Filtrar por visibilidade usando raycast
-				List<MatOfPoint> visible = filtrarMonstrosVisiveisRaycast(filtered, analise.screen);
+				// Obter monstros visíveis e bloqueados
+		        List<List<MatOfPoint>> visibilidade = filtrarMonstrosVisiveisRaycast(filtered, analise.screen);
+		        List<MatOfPoint> visible = visibilidade.get(0);
+		        List<MatOfPoint> bloqueados = visibilidade.get(1);
 
-				// Ajustar as coordenadas para serem globais
-				List<MatOfPoint> adjustedEntities = new ArrayList<>();
-				for (MatOfPoint entidade : visible) {
-					List<org.opencv.core.Point> adjustedPoints = new ArrayList<>();
-					for (org.opencv.core.Point p : entidade.toList()) {
-						adjustedPoints.add(new org.opencv.core.Point(p.x + areaX, p.y + areaY)); // Ajusta as coordenadas
-					}
-					MatOfPoint adjustedEntidade = new MatOfPoint();
-					adjustedEntidade.fromList(adjustedPoints); // Constrói o MatOfPoint ajustado
-					adjustedEntities.add(adjustedEntidade);
-				}
+		        // Ajustar coordenadas para serem globais
+		        List<MatOfPoint> adjustedEntities = ajustarCoordenadas(visible, areaX, areaY);
+		        List<MatOfPoint> adjustedBloqueados = ajustarCoordenadas(bloqueados, areaX, areaY);
 
 				// System.out.println("Tamanho da lista da imagem pequena " +
 				// adjustedEntities.size());
@@ -647,8 +644,12 @@ public class Bot {
 				// visibleEntities.put(color, visible); // Adicionar ao mapa de monstros
 				// visíveis
 				visibleEntities.put(color, adjustedEntities); // Adicionar ao mapa de monstros visíveis
+				monstrosAtrasParede.addAll(adjustedBloqueados); // Adicionar os bloqueados à lista geral
 			}
 
+			// Adicionar a nova lista ao mapa
+		    visibleEntities.put("monstrosAtrasParede", monstrosAtrasParede);
+		    
 			return visibleEntities;
 		}
 		
@@ -923,7 +924,7 @@ public class Bot {
 		public double calcularDistanciaCentro(MatOfPoint monstro) {
 			Rect boundingRect = Imgproc.boundingRect(monstro);
 			
-			System.out.println("Monstro em coordenadas: " + boundingRect.x + " " + boundingRect.y);
+			//System.out.println("Monstro em coordenadas: " + boundingRect.x + " " + boundingRect.y);
 
 			// Calcula o centro do monstro
 			int monstroCentroX = boundingRect.x + boundingRect.width / 2;
@@ -1130,8 +1131,9 @@ public class Bot {
 	    return points;
 	}
 	
-	public List<MatOfPoint> filtrarMonstrosVisiveisRaycast(List<MatOfPoint> monstros, Mat screen) {
+	public List<List<MatOfPoint>> filtrarMonstrosVisiveisRaycast(List<MatOfPoint> monstros, Mat screen) {
 	    List<MatOfPoint> monstrosVisiveis = new ArrayList<>();
+	    List<MatOfPoint> monstrosBloqueados = new ArrayList<>(); // Nova lista para os bloqueados
 
 	    //Obter posicaoJogador
         //Point posicaoJogador = new Point(width / 2, height / 2);
@@ -1175,10 +1177,27 @@ public class Bot {
 
 	        if (!bloqueado) {
 	            monstrosVisiveis.add(monstro); // Adiciona o monstro se não houver bloqueio
+	        } else {
+	            monstrosBloqueados.add(monstro);
 	        }
 	    }
 
-	    return monstrosVisiveis;
+	    // Retorna uma lista contendo as duas listas
+	    return List.of(monstrosVisiveis, monstrosBloqueados);
+	}
+	
+	private List<MatOfPoint> ajustarCoordenadas(List<MatOfPoint> monstros, int areaX, int areaY) {
+	    List<MatOfPoint> ajustados = new ArrayList<>();
+	    for (MatOfPoint entidade : monstros) {
+	        List<org.opencv.core.Point> adjustedPoints = new ArrayList<>();
+	        for (org.opencv.core.Point p : entidade.toList()) {
+	            adjustedPoints.add(new org.opencv.core.Point(p.x + areaX, p.y + areaY));
+	        }
+	        MatOfPoint adjustedEntidade = new MatOfPoint();
+	        adjustedEntidade.fromList(adjustedPoints);
+	        ajustados.add(adjustedEntidade);
+	    }
+	    return ajustados;
 	}
 	
 	public boolean compararCoordenadas(Coordenadas atual, Coordenadas destino) {
@@ -1335,6 +1354,32 @@ public class Bot {
 			// int my = (int) mousePos.getY() - yJanela;
 			int mx = mouseX - xJanela;
 			int my = mouseY - yJanela;
+
+			int x = Math.abs((mx - 505) / 18);
+			if (mx > 505) {
+				x += atual.x;
+			} else {
+				x -= atual.x - 1;
+			}
+			int y = Math.abs((my - 376) / 18);
+			if (my < 376) {
+				y += atual.y + 1;
+			} else {
+				y -= atual.y;
+			}
+			x = Math.abs(x);
+			y = Math.abs(y);
+			// System.out.println("Coordenadas pela tela: x: " + x + " y: " + y);
+			return new Coordenadas(x, y);
+		}
+		
+		public Coordenadas getCoordenadasTelaDoBixo(Coordenadas atual, int monstroX, int monstroY) {
+			// Obter a posição atual do mouse
+			// java.awt.Point mousePos = java.awt.MouseInfo.getPointerInfo().getLocation();
+			// int mx = (int) mousePos.getX() - xJanela;
+			// int my = (int) mousePos.getY() - yJanela;
+			int mx = monstroX;
+			int my = monstroY;
 
 			int x = Math.abs((mx - 505) / 18);
 			if (mx > 505) {

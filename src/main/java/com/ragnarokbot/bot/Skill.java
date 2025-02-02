@@ -25,6 +25,9 @@ public class Skill {
         return cor;
     }
     
+    public int getRange() {
+    	return range;
+    }
     
     public boolean isReady() {
         // Verifica se o cooldown acabou
