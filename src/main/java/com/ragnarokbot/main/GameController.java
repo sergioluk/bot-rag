@@ -967,11 +967,12 @@ public class GameController implements NativeKeyListener, Runnable {
 					bot.atalhoAltM(refresh);
 				}
 			} else {
+				contagemRefresh = 0;
 				coordsUltimoMonstro = coordBixo;
 			}
 		}
 		
-		 System.out.println("***************************************");
+		 
 	
 		if (skillDisponivel == null) {
 			andar(script);
