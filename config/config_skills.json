@@ -2,6 +2,7 @@
   "refresh": 1,
   "gomoroc": 2,
   "labirintovalk": 5,
+  "tempoDoLoop": 50,
   
   "classesDisponiveis" : ["sorc","mago","arqueiro","monk"],
   

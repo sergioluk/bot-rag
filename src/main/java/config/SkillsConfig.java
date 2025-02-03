@@ -8,9 +8,17 @@ public class SkillsConfig {
 	private int refresh;
 	private int gomoroc;
 	private int labirintovalk;
+	private int tempoDoLoop;
 	private List<String> classesDisponiveis;
 
-	
+	public int getTempoDoLoop() {
+		return tempoDoLoop;
+	}
+
+	public void setTempoDoLoop(int tempoDoLoop) {
+		this.tempoDoLoop = tempoDoLoop;
+	}
+
 	public List<String> getClassesDisponiveis() {
 		return classesDisponiveis;
 	}

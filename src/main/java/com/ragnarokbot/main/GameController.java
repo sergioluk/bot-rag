@@ -220,7 +220,8 @@ public class GameController implements NativeKeyListener, Runnable {
 
 		while (ligarBot) {
 			long startTime = System.currentTimeMillis();
-			bot.sleep(100);
+			//bot.sleep(100);
+			bot.sleep(skillsConfig.getTempoDoLoop());
 			synchronized (this) {
 				while (pausarBot) {
 					try {
@@ -1262,6 +1263,11 @@ public class GameController implements NativeKeyListener, Runnable {
     	int moroc = skillsConfig.getGomoroc();
     	bot.atalhoAltM(moroc);
     	bot.sleep(5000);
+    	//visao de cima
+    	bot.visaoDeCima();
+		bot.sleep(100);
+		bot.zoom(-28);
+		bot.sleep(100);
     	//Clicar pra curar
     	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(159,97));
     	bot.sleep(100);
