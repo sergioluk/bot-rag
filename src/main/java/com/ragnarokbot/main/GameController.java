@@ -121,6 +121,8 @@ public class GameController implements NativeKeyListener, Runnable {
     long startTimeBoss = System.currentTimeMillis(); // Marca o tempo inicial
     long maxSearchTime = 5000; // 5 segundos de busca mínima
     boolean foundBoss = false;
+    private boolean andarForcado = false;
+    long tempoAndarForcado = 0;
     
     public List<Coordenadas> coordsMonstrosAtrasParede = new ArrayList<>();
     
@@ -344,6 +346,14 @@ public class GameController implements NativeKeyListener, Runnable {
             	    !monstros.getOrDefault("azul", List.of()).isEmpty() ||
             	    !monstros.getOrDefault("amarelo", List.of()).isEmpty()) {
             	    stateMachine.mudarEstado(Estado.ATACANDO);
+            }
+            
+            if (andarForcado) {
+            	System.out.println("Andando Forçado!");
+            	stateMachine.mudarEstado(Estado.ANDANDO);
+            	if (System.currentTimeMillis() - tempoAndarForcado >= 1000) {
+            		andarForcado = false;
+            	}
             }
 			
 			switch (stateMachine.getEstadoAtual()) {
@@ -975,8 +985,13 @@ public class GameController implements NativeKeyListener, Runnable {
 		 
 	
 		if (skillDisponivel == null) {
-			andar(script);
-			System.out.println("Andando");
+			//andar(script);
+			if (andarForcado) {
+				return;
+			}
+			System.out.println("Ativando andar forçado por 1 segundos!");
+			andarForcado = true;
+			tempoAndarForcado = System.currentTimeMillis();
 		}
 
 	}
