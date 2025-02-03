@@ -124,6 +124,11 @@ public class GameController implements NativeKeyListener, Runnable {
     
     public List<Coordenadas> coordsMonstrosAtrasParede = new ArrayList<>();
     
+    private boolean isBoss = false;
+    
+    private Coordenadas coordsUltimoMonstro = new Coordenadas(0,0);
+    private int contagemRefresh = 0;
+    
     public int indexConta = 0;
     public int indexPersonagem = 0;
     public int indexInstancia = 0;
@@ -157,7 +162,7 @@ public class GameController implements NativeKeyListener, Runnable {
 		
 		//notebook
     	skillsConfig = scriptLoader.carregarSkills("config/config_skills.json");
-    	for (Classes c : skillsConfig.getClasses()) {
+    	/*for (Classes c : skillsConfig.getClasses()) {
     		System.out.println("classe: " + c.getClasse());
     		for (Skills sk : c.getSkills()) {
     			System.out.println("atalho: " + sk.getAtalho());
@@ -167,9 +172,12 @@ public class GameController implements NativeKeyListener, Runnable {
     			int teclaAtalho = KeyMapper.getTeclaAtalho(sk.getAtalho());
     			bot.skills.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange()));
     		}
-    	}
+    	}*/
+    	
 
 		bot.printarTela();
+		//atalho padrao para bio chef
+		carregarAtalhosSkills("mago");
 		bot.sleep(3000);
 
 		// Modo instancia
@@ -245,10 +253,9 @@ public class GameController implements NativeKeyListener, Runnable {
 
 			// Verificar monstros antes de andar
             //notebook
-            if (script.getRotas().get(rota).getVerificacao().isBoss()) { // Boss encontrado
+            isBoss = script.getRotas().get(rota).getVerificacao().isBoss();
+            if (isBoss == true) { // Boss encontrado
                processarLogicaMatarBoss();
-            //} else if (verificarModoInstanciaProcura()) {
-            	//monstros = bot.listaMonstrosInstancias();
             } else {
             	 monstros = bot.listaMonstros();
             	 
@@ -812,7 +819,9 @@ public class GameController implements NativeKeyListener, Runnable {
 				int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getIndexPersonagem();
 				int pagina = scriptContas.getContas().get(0).getPersonagens().get(0).getPagina();
 				bot.escolherPersonagem(indexPersonagem, pagina);
-
+				String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem).getClasse();
+				carregarAtalhosSkills(classe);
+				
 				// Fechar Logue e Ganhe
 				bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
 				bot.sleep(300);
@@ -903,6 +912,7 @@ public class GameController implements NativeKeyListener, Runnable {
 	private void atacar(Map<String, List<MatOfPoint>> monstros) {
 		
 		Skill skillDisponivel = null;
+		MatOfPoint monstro = null;
 		// Boss
 		List<MatOfPoint> monstrosAmarelo = monstros.computeIfAbsent("amarelo", k -> new ArrayList<>());
 		if (!monstrosAmarelo.isEmpty()) {
@@ -910,7 +920,8 @@ public class GameController implements NativeKeyListener, Runnable {
 			
 			skillDisponivel = getAvailableSkill("rosa");
 			if (skillDisponivel != null) {
-				if (usarHabilidade(monstrosAmarelo.get(0), skillDisponivel.getTecla(), skillDisponivel)) {
+				monstro = monstrosAmarelo.get(0);
+				if (usarHabilidade(monstro, skillDisponivel.getTecla(), skillDisponivel)) {
 					skillDisponivel = null;
 				}
 			}
@@ -922,7 +933,8 @@ public class GameController implements NativeKeyListener, Runnable {
 			
 			skillDisponivel = getAvailableSkill("azul");
 			if (skillDisponivel != null) {
-				if (usarHabilidade(monstrosAzul.get(0), skillDisponivel.getTecla(), skillDisponivel)) {
+				monstro = monstrosAzul.get(0);
+				if (usarHabilidade(monstro, skillDisponivel.getTecla(), skillDisponivel)) {
 					skillDisponivel = null;
 				}
 			}
@@ -935,14 +947,35 @@ public class GameController implements NativeKeyListener, Runnable {
 			
 			skillDisponivel = getAvailableSkill("rosa");
 			if (skillDisponivel != null) {
-				if (usarHabilidade(monstrosRosa.get(0), skillDisponivel.getTecla(), skillDisponivel)) {
+				monstro = monstrosRosa.get(0);
+				if (usarHabilidade(monstro, skillDisponivel.getTecla(), skillDisponivel)) {
 					skillDisponivel = null;
 				}
 			}
 		}
 		
+		if (monstro != null && isBoss == false) {
+			Rect m = Imgproc.boundingRect(monstro);
+			int centerX = m.x + m.width/2;
+			int centerY = m.y + m.height/2 + 10;
+			Coordenadas coordBixo = bot.getCoordenadasTelaDoBixo(atual, centerX, centerY);
+			if (bot.compararCoordenadas(coordBixo, coordsUltimoMonstro)) {
+				contagemRefresh++;
+				if (contagemRefresh > 3) {
+					contagemRefresh = 0;
+					int refresh = skillsConfig.getRefresh();
+					bot.atalhoAltM(refresh);
+				}
+			} else {
+				coordsUltimoMonstro = coordBixo;
+			}
+		}
+		
+		 System.out.println("***************************************");
+	
 		if (skillDisponivel == null) {
 			andar(script);
+			System.out.println("Andando");
 		}
 
 	}
@@ -965,16 +998,17 @@ public class GameController implements NativeKeyListener, Runnable {
 		Skill skill = null;
 		for (Skill sk : bot.skills) {
 			System.out.println("Skill: " + sk.getTecla() + " pronta: " + sk.isReady());
-			if (sk.getCor().equals(cor) && sk.isReady()) {
+			if (isBoss == true) {
+				if (sk.getCor().equals(cor)) {
+					skill = sk;
+					break;
+				}
+			} else if (sk.getCor().equals(cor) && sk.isReady()) {
 				skill = sk;
 				break;
 			}
 		}
 		return skill;
-		/*
-		 * return bot.skills.stream() .filter(skill -> skill.getCor().equals(cor) &&
-		 * skill.isReady()) .findFirst() .orElse(null);
-		 */
 	}
 
 	public void inicarBotPeloLocalAtualDoPlayer(Script script) {
@@ -1077,7 +1111,9 @@ public class GameController implements NativeKeyListener, Runnable {
 		int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getIndexPersonagem();
 		int pagina = scriptContas.getContas().get(0).getPersonagens().get(0).getPagina();
 		bot.escolherPersonagem(indexPersonagem, pagina);
-
+		String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem).getClasse();
+		carregarAtalhosSkills(classe);
+		
 		// Fechar Logue e Ganhe
 		bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
 		bot.sleep(300);
@@ -1248,6 +1284,19 @@ public class GameController implements NativeKeyListener, Runnable {
     	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(135,257));
     	bot.sleep(3000);
     	bot.clicarMouse();
+    }
+    
+    public void carregarAtalhosSkills(String classe) {
+    	bot.skills.clear();
+    	for (Classes c : skillsConfig.getClasses()) {
+    		if (c.getClasse().equals(classe)) {
+    			for (Skills sk : c.getSkills()) {
+    				int teclaAtalho = KeyMapper.getTeclaAtalho(sk.getAtalho());
+    				bot.skills.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange()));
+    			}
+    			break;
+    		}
+    	}
     }
 
     //notebook

@@ -8,6 +8,16 @@ public class SkillsConfig {
 	private int refresh;
 	private int gomoroc;
 	private int labirintovalk;
+	private List<String> classesDisponiveis;
+
+	
+	public List<String> getClassesDisponiveis() {
+		return classesDisponiveis;
+	}
+
+	public void setClassesDisponiveis(List<String> classesDisponiveis) {
+		this.classesDisponiveis = classesDisponiveis;
+	}
 
 	public int getRefresh() {
 		return refresh;

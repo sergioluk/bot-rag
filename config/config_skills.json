@@ -3,25 +3,27 @@
   "gomoroc": 2,
   "labirintovalk": 5,
   
+  "classesDisponiveis" : ["sorc","mago","arqueiro","monk"],
+  
   "classes": [
       {
         "classe": "mago",
         "skills" : [
           {
             "atalho": "Q",
-            "cd" : 0,
+            "cd" : 500,
             "cor" : "rosa",
             "range": 14
           },
           {
             "atalho": "E",
-            "cd" : 7,
+            "cd" : 7000,
             "cor" : "azul",
             "range": 9
           },
           {
             "atalho": "R",
-            "cd" : 5,
+            "cd" : 5000,
             "cor" : "azul",
             "range": 10
           }

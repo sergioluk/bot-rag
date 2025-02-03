@@ -32,7 +32,7 @@ public class Skill {
     public boolean isReady() {
         // Verifica se o cooldown acabou
         long currentTime = System.currentTimeMillis();
-        return (currentTime - lastUsedTime) >= (cd * 1000);
+        return (currentTime - lastUsedTime) >= cd;
     }
 
     public void use() {
