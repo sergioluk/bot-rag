@@ -73,11 +73,17 @@ import config.ConfigManager.Config;
 public class BotRagnarok {
 
 	public static JanelaPrincipal janelaPrincipal;
-
+	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 
-		System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
+		 // Caminho absoluto da DLL
+        String libPath = new File("libs/opencv_java451.dll").getAbsolutePath();
+
+        // Carrega a DLL manualmente
+        System.load(libPath);
+        
+		//System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
 		/*
 		 * ITesseract tesseract = new Tesseract();
