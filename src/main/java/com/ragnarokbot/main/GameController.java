@@ -674,7 +674,7 @@ public class GameController implements NativeKeyListener, Runnable {
     	}*/
     	
     	//System.out.println("farm: " + farm + " | tamanho da lista: " + this.listaDeFarmBioChef.size());
-    	System.out.println("descricao do script: " + script.getFinalizacao().getDescricao());
+    	System.out.println("descricao do script: " + script.getRotas().get(rota).getDescricao());
 
     	// Processar verificação específica da rota
         processarVerificacao(script, distanciaMinima);
