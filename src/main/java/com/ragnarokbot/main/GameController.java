@@ -248,8 +248,15 @@ public class GameController implements NativeKeyListener, Runnable {
             int timeRand = ThreadLocalRandom.current().nextInt(5000, 10001);
             if (bot.tempoPassou(timeRand)) {
             	if (bot.getHpAtual() <= 1) {
+            		String mapa = "";
             		if (script.getMapa().equals("bio.png")) {
-            			voltarParaBio();
+            			mapa = "bio";
+            		}
+            		if (script.getMapa().equals("chef.png")) {
+            			mapa = "chef";
+            		}
+            		if (!mapa.isBlank()) {
+            			voltarParaFarmar(mapa);
             		}
             	}
             }
@@ -985,7 +992,7 @@ public class GameController implements NativeKeyListener, Runnable {
 		
 		 
 	
-		if (skillDisponivel == null) {
+		if (skillDisponivel == null && !JanelaPrincipal.instanciaRadioButton.isSelected()) {
 			//andar(script);
 			if (andarForcado) {
 				return;
@@ -1254,7 +1261,7 @@ public class GameController implements NativeKeyListener, Runnable {
         return false;
     }
   //notebook
-    private void voltarParaBio() {
+    private void voltarParaFarmar(String mapa) {
     	//Voltar para labirinto valk
     	int labirinto = skillsConfig.getLabirintovalk();
     	bot.atalhoAltM(labirinto);
@@ -1284,28 +1291,58 @@ public class GameController implements NativeKeyListener, Runnable {
     	bot.sleep(80);
     	bot.clicarMouse();
     	bot.sleep(4000);
-    	bot.selecionarOpcao(20);
-    	bot.sleep(2000);
-    	bot.selecionarOpcao(1);
-    	bot.sleep(2000);
-    	bot.selecionarOpcao(2);
-    	bot.sleep(2000);
-    	bot.apertarTecla(KeyEvent.VK_ENTER);
-    	bot.sleep(2000);
-    	bot.selecionarOpcao(1);
-    	bot.sleep(2000);
-    	bot.apertarTecla(KeyEvent.VK_ENTER);
-    	bot.sleep(2000);
-    	bot.selecionarOpcao(1);
-    	bot.sleep(2000);
-    	bot.apertarTecla(KeyEvent.VK_ENTER);
-    	bot.sleep(5000);
-    	bot.visaoDeCima();
-    	bot.zoom(-28);
-    	//ir pro portal
-    	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(135,257));
-    	bot.sleep(3000);
-    	bot.clicarMouse();
+    	if (mapa.equals("bio")) {
+    		bot.selecionarOpcao(20);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(1);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(2);
+        	bot.sleep(2000);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(1);
+        	bot.sleep(2000);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(1);
+        	bot.sleep(2000);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	bot.sleep(5000);
+        	bot.visaoDeCima();
+        	bot.zoom(-28);
+        	//ir pro portal
+        	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(135,257));
+        	bot.sleep(3000);
+        	bot.clicarMouse();
+    	}
+    	if (mapa.equals("chef")) {
+    		bot.selecionarOpcao(21);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(1);
+        	bot.sleep(2000);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(1);
+        	bot.sleep(2000);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(2);
+        	bot.sleep(2000);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(1);
+        	bot.sleep(2000);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(1);
+        	bot.sleep(2000);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	bot.sleep(2000);
+        	bot.selecionarOpcao(1);
+        	bot.sleep(2000);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+    	}
+    	
     }
     
     public void carregarAtalhosSkills(String classe) {
