@@ -10,9 +10,13 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.Robot;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -109,6 +113,32 @@ public class JanelaPrincipal extends JFrame {
                 }
             }
         });
+        
+        String UUID = obterUUID();
+        System.out.println("UUID: " + UUID);
+        boolean permitir = false;
+        List<String> uuidPermitidos = Stream.of(
+        		"4C4C4544-0059-3410-8036-B6C04F593533", //Notebook meu
+        		"23A12DC8-7866-11E7-6895-641C6789B626", //Notebook do lucas
+        		"Cherry",
+        		"Date"
+        		).collect(Collectors.toList());
+        for (String id : uuidPermitidos) {
+        	if (id.equals(UUID)) {
+        		permitir = true;
+        	}
+        }
+        if (!permitir) {
+        	JOptionPane.showMessageDialog(
+        		    JanelaPrincipal.this,
+        		    "Computador não registrado!",
+        		    "Erro",
+        		    JOptionPane.ERROR_MESSAGE
+        		);
+        		gameController.fecharBot();
+        }
+        
+
     }
 
     private JPanel createTopPanel() {
@@ -333,6 +363,30 @@ public class JanelaPrincipal extends JFrame {
     		gameController.pausarBot();
     	}
     	pauseCounter++;
+    }
+    
+    public String obterUUID() {
+        try {
+            ProcessBuilder builder = new ProcessBuilder("wmic", "csproduct", "get", "UUID");
+            Process process = builder.start();
+
+            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+            String line;
+            String uuid = "";
+
+            while ((line = reader.readLine()) != null) {
+                if (line.matches(".*[0-9A-Fa-f-]{36}.*")) { // Filtra apenas UUIDs válidos
+                    uuid = line.trim();
+                    break;
+                }
+            }
+
+            reader.close();
+            return uuid.isEmpty() ? "UUID não encontrado" : uuid;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Erro ao obter UUID.";
+        }
     }
     
 }

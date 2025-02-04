@@ -1339,6 +1339,9 @@ public class GameController implements NativeKeyListener, Runnable {
         	bot.selecionarOpcao(1);
         	bot.sleep(2000);
         	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	bot.sleep(5000);
+        	bot.visaoDeCima();
+        	bot.zoom(-28);
     	}
     	
     }
