@@ -1260,8 +1260,8 @@ public class GameController implements NativeKeyListener, Runnable {
     	bot.atalhoAltM(labirinto);
     	bot.sleep(5000);
     	//Voltar para morroc
-    	int moroc = skillsConfig.getGomoroc();
-    	bot.atalhoAltM(moroc);
+    	int base = skillsConfig.getGoBase();
+    	bot.atalhoAltM(base);
     	bot.sleep(5000);
     	//visao de cima
     	bot.visaoDeCima();
@@ -1269,16 +1269,16 @@ public class GameController implements NativeKeyListener, Runnable {
 		bot.zoom(-28);
 		bot.sleep(100);
     	//Clicar pra curar
-    	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(159,97));
+    	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(231,201));
     	bot.sleep(100);
     	bot.clicarMouse();
     	bot.sleep(30);
     	bot.clicarMouse();
     	bot.sleep(100);
     	//Falar com teleporte
-    	bot.atalhoAltM(moroc);
+    	bot.atalhoAltM(base);
     	bot.sleep(2000);
-    	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(164,98));
+    	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(231,205));
     	bot.sleep(90);
     	bot.clicarMouse();
     	bot.sleep(80);

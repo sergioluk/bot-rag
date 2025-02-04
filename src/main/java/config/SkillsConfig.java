@@ -6,7 +6,7 @@ import java.util.List;
 public class SkillsConfig {
 	private List<Classes> classes;
 	private int refresh;
-	private int gomoroc;
+	private int goBase;
 	private int labirintovalk;
 	private int tempoDoLoop;
 	private List<String> classesDisponiveis;
@@ -35,12 +35,12 @@ public class SkillsConfig {
 		this.refresh = refresh;
 	}
 
-	public int getGomoroc() {
-		return gomoroc;
+	public int getGoBase() {
+		return goBase;
 	}
 
-	public void setGomoroc(int gomoroc) {
-		this.gomoroc = gomoroc;
+	public void setGoBase(int goBase) {
+		this.goBase = goBase;
 	}
 
 	public int getLabirintovalk() {
