@@ -9,7 +9,17 @@ public class SkillsConfig {
 	private int goBase;
 	private int labirintovalk;
 	private int tempoDoLoop;
+	private int tempoAndarForcado;
 	private List<String> classesDisponiveis;
+
+	
+	public int getTempoAndarForcado() {
+		return tempoAndarForcado;
+	}
+
+	public void setTempoAndarForcado(int tempoAndarForcado) {
+		this.tempoAndarForcado = tempoAndarForcado;
+	}
 
 	public int getTempoDoLoop() {
 		return tempoDoLoop;

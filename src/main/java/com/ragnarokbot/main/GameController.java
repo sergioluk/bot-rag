@@ -359,7 +359,7 @@ public class GameController implements NativeKeyListener, Runnable {
             if (andarForcado) {
             	System.out.println("Andando Forçado!");
             	stateMachine.mudarEstado(Estado.ANDANDO);
-            	if (System.currentTimeMillis() - tempoAndarForcado >= 1000) {
+            	if (System.currentTimeMillis() - tempoAndarForcado >= skillsConfig.getTempoAndarForcado()) {
             		andarForcado = false;
             	}
             }
@@ -1287,8 +1287,6 @@ public class GameController implements NativeKeyListener, Runnable {
     	bot.sleep(2000);
     	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(231,205));
     	bot.sleep(90);
-    	bot.clicarMouse();
-    	bot.sleep(80);
     	bot.clicarMouse();
     	bot.sleep(4000);
     	if (mapa.equals("bio")) {
