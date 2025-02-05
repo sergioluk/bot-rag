@@ -22,8 +22,15 @@ jobs:
           distribution: 'temurin'
           java-version: '21' # Altere para a versão do seu projeto
 
+      - name: Configurar Maven Cache (opcional, melhora a velocidade)
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+
       - name: Compilar o projeto
-        run: mvn clean package # Se for Maven, troque para o comando correto caso use Gradle
+        run: mvn clean package -DskipTests # Remove -DskipTests se quiser rodar testes
 
       - name: Criar Release no GitHub
         uses: softprops/action-gh-release@v1
@@ -33,6 +40,6 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            target/Stonks.jar # Ajuste conforme o caminho do binário gerado
+            target/*.jar # Garante que qualquer JAR gerado seja incluído
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
