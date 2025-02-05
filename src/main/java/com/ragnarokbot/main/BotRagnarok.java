@@ -194,20 +194,21 @@ public class BotRagnarok {
 		String filePath = "C:\\Users\\Sergio\\Desktop\\Minhas coisas\\enderecos.txt";
 		//findDuplicateAddresses(filePath);
 
-		int processId = 11256;
+		int processId = 19424;
 		int valueToFind = 27163;
 		// short valueToFind = 68;
 		// procurarInt(processId,valueToFind);
 		// procurarShort(processId, valueToFind);
 		// String nome = "Moeda de Inst";
 		// String nome = "obteve Moeda de Inst�ncia";
-		 String nome = "Servidor desligado, reinicialize o jogo.";//enrederos encontrados 0x5B3BB5D0 0x6E6087F8
+		 //String nome = "Servidor desligado, reinicialize o jogo.";//enrederos encontrados 0x5B3BB5D0 0x6E6087F8
+		 String nome = "Desconectado do servidor.";//enrederos encontrados 0x2628608 0x70B09968 0x70B0A070
 		// 0x5296F33D
 		System.out.println("entao");
 		//procurarString(processId, nome);
 		int soma = 0;
 		// mostrarValorMemoria(processId,0x156F798 + soma,0x18F4438 + soma);
-		mostrarStringMemoria(processId, 0x5B3BB5D0 + soma, 0x6E6087F8 + soma, 256);
+		mostrarStringMemoria(processId, 0x2628608 + soma, 0x70B0A070 + soma, 256);
 		// buscarItemPorId(processId, valueToFind); nao funcionou
 		// obteve Moeda de Inst�ncia 0x19A9ED
 

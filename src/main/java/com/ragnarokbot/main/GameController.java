@@ -1183,6 +1183,15 @@ public class GameController implements Runnable {
 	public void pararBot() {
 		System.out.println("Tecla 'O' pressionada. Parando o bot...");
 		ligarBot = false;
+		
+		rota = 0;
+		passo = 0;
+		acoesNpc = 0;
+		farm = 0;
+		
+		if (pausarBot) {
+			pausarBot();
+		}
 		/*try {
 			GlobalScreen.unregisterNativeHook();
 		} catch (NativeHookException e) {

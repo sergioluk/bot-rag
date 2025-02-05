@@ -79,7 +79,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 
     public JanelaPrincipal(GameController gameController) {
     	System.out.println("Criando JanelaPrincipal");
-        setTitle("RagnaBot");
+        setTitle("Stonks");
         //setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // Evita o fechamento padrão
         setSize(800, 600);
