@@ -16,9 +16,9 @@ permissions:
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - 'v*' # Somente quando um novo tag versão for criado (ex: v1.0.0)
+
 
 jobs:
   build:
@@ -35,16 +35,19 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+
+    - name: Renomear o JAR
+      run: mv target/*.jar target/Stonks.jar
     
     - name: Criar Release no GitHub
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}
-        name: "Release ${{ github.ref_name }}"
+        name: "Stonks ${{ github.ref_name }}"
         draft: false
         prerelease: false
         files: |
-          target/*.jar
+          files: target/Stonks.jar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
