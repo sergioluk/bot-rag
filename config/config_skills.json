@@ -1,9 +1,16 @@
 {
   "refresh": 1,
-  "goBase": 2,
+  "goBase": 34,
   "labirintovalk": 5,
   "tempoDoLoop": 50,
   "tempoAndarForcado": 600,
+
+  "atalhoPlay" : "SHIFT+CTRL+I",
+  "atalhoStop" : "SHIFT+CTRL+O",
+  "atalhoPause": "SHIFT+CTRL+P",
+  "atalhoClose": "SHIFT+CTRL+F",
+  "atalhoAdicionarCoords" : "SHIFT+CTRL+S",
+  "atalhoAbrirTxtCoords" : "SHIFT+CTRL+D",
   
   "classesDisponiveis" : ["sorc","mago","arqueiro","monk"],
   

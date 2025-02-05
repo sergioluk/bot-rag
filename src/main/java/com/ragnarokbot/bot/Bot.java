@@ -1743,10 +1743,29 @@ public class Bot {
 		this.yJanela = yJanela;
 	}
 
-	
+	public Robot getRobot() {
+		return robot;
+	}
+
+	public void setRobot(Robot robot) {
+		this.robot = robot;
+	}
+
+	public ITesseract getTesseract() {
+		return tesseract;
+	}
+
+	public void setTesseract(ITesseract tesseract) {
+		this.tesseract = tesseract;
+	}
+
+	public ITesseract getTesseractLetras() {
+		return tesseractLetras;
+	}
+
+	public void setTesseractLetras(ITesseract tesseractLetras) {
+		this.tesseractLetras = tesseractLetras;
+	}
 
 	
-
-	
-
 }

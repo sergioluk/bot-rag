@@ -64,7 +64,7 @@ import javax.swing.SwingUtilities;
 
 
 
-public class GameController implements NativeKeyListener, Runnable {
+public class GameController implements Runnable {
 
 	private final Bot bot;
 	//private final Tela tela;
@@ -134,25 +134,27 @@ public class GameController implements NativeKeyListener, Runnable {
     public int indexConta = 0;
     public int indexPersonagem = 0;
     public int indexInstancia = 0;
+    
+    private Thread botThread;
 
 	public GameController(Bot bot) {
 		this.bot = bot;
 		//this.tela = tela;
-
+		/*
 		try {
 			// Registrar o hook do teclado
 			GlobalScreen.registerNativeHook();
 			GlobalScreen.addNativeKeyListener(this);
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}*/
 
-		if (modoMemoria) {
+		/*if (modoMemoria) {
 			atual = bot.obterCoordenadasMemoria();
 		} else {
 			String coordenadaXY = bot.ocrCoordenadas();
 			atual = new Coordenadas(coordenadaXY);
-		}
+		}*/
 		ultimaCoordenada = atual;
 
 	}
@@ -479,11 +481,11 @@ public class GameController implements NativeKeyListener, Runnable {
 		}
 
 		System.out.println("Bot parado com sucesso.");
-		try {
+		/*try {
 			GlobalScreen.unregisterNativeHook();
 		} catch (NativeHookException e) {
 			e.printStackTrace();
-		}
+		}*/
 	}
 
 	private void carregarMapa() {
@@ -1177,6 +1179,20 @@ public class GameController implements NativeKeyListener, Runnable {
 		// bot.soltarMouse();
 		notify();
 	}
+	
+	public void pararBot() {
+		System.out.println("Tecla 'O' pressionada. Parando o bot...");
+		ligarBot = false;
+		/*try {
+			GlobalScreen.unregisterNativeHook();
+		} catch (NativeHookException e) {
+			e.printStackTrace();
+		}*/
+		// Se a thread estiver rodando, interrompê-la
+	    if (botThread != null && botThread.isAlive()) {
+	        botThread.interrupt();
+	    }
+	}
 
 	public void fecharBot() {
 		ligarBot = false; // Interrompe o loop
@@ -1358,7 +1374,7 @@ public class GameController implements NativeKeyListener, Runnable {
     		}
     	}
     }
-
+/*
     //notebook
     @Override
     public void nativeKeyPressed(NativeKeyEvent e) {
@@ -1374,6 +1390,11 @@ public class GameController implements NativeKeyListener, Runnable {
         // Ctrl + Shift + P
         if (isCtrlPressed && isShiftPressed && e.getKeyCode() == NativeKeyEvent.VC_P) {
             pausarBot();
+        }
+        
+        // Ctrl + Shift + O
+        if (isCtrlPressed && isShiftPressed && e.getKeyCode() == NativeKeyEvent.VC_O) {
+            pararBot();
         }
         
         // Ctrl + Shift + S
@@ -1394,7 +1415,7 @@ public class GameController implements NativeKeyListener, Runnable {
 	@Override
 	public void nativeKeyTyped(NativeKeyEvent e) {
 		// Não usado
-	}
+	}*/
 
 	public Script getScript() {
 		return script;

@@ -10,9 +10,63 @@ public class SkillsConfig {
 	private int labirintovalk;
 	private int tempoDoLoop;
 	private int tempoAndarForcado;
+	private String atalhoPlay;
+	private String atalhoStop;
+	private String atalhoPause;
+	private String atalhoClose;
+	private String atalhoAdicionarCoords;
+	private String atalhoAbrirTxtCoords;
 	private List<String> classesDisponiveis;
 
 	
+	public String getAtalhoPlay() {
+		return atalhoPlay;
+	}
+
+	public void setAtalhoPlay(String atalhoPlay) {
+		this.atalhoPlay = atalhoPlay;
+	}
+
+	public String getAtalhoStop() {
+		return atalhoStop;
+	}
+
+	public void setAtalhoStop(String atalhoStop) {
+		this.atalhoStop = atalhoStop;
+	}
+
+	public String getAtalhoPause() {
+		return atalhoPause;
+	}
+
+	public void setAtalhoPause(String atalhoPause) {
+		this.atalhoPause = atalhoPause;
+	}
+
+	public String getAtalhoClose() {
+		return atalhoClose;
+	}
+
+	public void setAtalhoClose(String atalhoClose) {
+		this.atalhoClose = atalhoClose;
+	}
+
+	public String getAtalhoAdicionarCoords() {
+		return atalhoAdicionarCoords;
+	}
+
+	public void setAtalhoAdicionarCoords(String atalhoAdicionarCoords) {
+		this.atalhoAdicionarCoords = atalhoAdicionarCoords;
+	}
+
+	public String getAtalhoAbrirTxtCoords() {
+		return atalhoAbrirTxtCoords;
+	}
+
+	public void setAtalhoAbrirTxtCoords(String atalhoAbrirTxtCoords) {
+		this.atalhoAbrirTxtCoords = atalhoAbrirTxtCoords;
+	}
+
 	public int getTempoAndarForcado() {
 		return tempoAndarForcado;
 	}

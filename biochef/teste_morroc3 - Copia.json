@@ -1,0 +1,27 @@
+{
+    "mapa": "moroc.png",
+    "rotas": [
+      {
+        "descricao": "indo pra esquerda",
+        "passos": [
+            { "coordenadas": [122, 27] },
+            { "coordenadas": [159, 30] },
+            { "coordenadas": [161, 79] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [161, 79],
+          "elseAcoes": [
+            { "coordenadas": [161, 79] }
+          ]
+        }
+      }
+    ],
+    "finalizacao": {
+      "descricao": "Terminado moroc 3",
+      "coordenadas": [161, 79]
+    },
+    "coordenadasAlt": [
+      { "links": [160, 190, 154, 179] }
+    ]
+}

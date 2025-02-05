@@ -85,28 +85,32 @@ public class BotRagnarok {
         
 		//System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
 
-		/*
-		 * ITesseract tesseract = new Tesseract();
-		 * tesseract.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
-		 * tesseract.setLanguage("eng"); // Configurar whitelist para reconhecer apenas
-		 * números tesseract.setTessVariable("tessedit_char_whitelist", "0123456789 ");
-		 * tesseract.setTessVariable("preserve_interword_spaces", "1");
-		 * tesseract.setTessVariable("user_defined_dpi", "300"); // 150 é rápido e
-		 * suficiente para números
-		 * 
-		 * ITesseract tesseractLetras = new Tesseract();
-		 * tesseractLetras.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
-		 * tesseractLetras.setLanguage("eng");
-		 * 
-		 * Robot robot = new Robot(); Bot bot = new Bot(tesseract, robot,
-		 * tesseractLetras);
-		 * 
-		 * Tela tela = new Tela(bot); SwingUtilities.invokeLater(() ->
-		 * tela.setVisible(true)); //Exibe a janela //SwingUtilities.invokeLater( () ->
-		 * new Tela(bot));
-		 * 
-		 * GameController gameController = new GameController(bot, tela);
-		 */
+        ITesseract tesseract = new Tesseract();
+		tesseract.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
+		tesseract.setLanguage("eng");
+		// Configurar whitelist para reconhecer apenas números
+		tesseract.setTessVariable("tessedit_char_whitelist", "0123456789 ");
+		tesseract.setTessVariable("preserve_interword_spaces", "1");
+		tesseract.setTessVariable("user_defined_dpi", "300"); // 150 é rápido e suficiente para números
+
+		ITesseract tesseractLetras = new Tesseract();
+		tesseractLetras.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
+		tesseractLetras.setLanguage("eng");
+
+		Robot robot = new Robot();
+		Bot bot = new Bot(tesseract, robot, tesseractLetras);
+
+		// Tela tela = new Tela(bot);
+		// SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
+		// SwingUtilities.invokeLater( () -> new Tela(bot));
+
+		// GameController gameController = new GameController(bot, tela);
+		GameController gameController = new GameController(bot);
+		// gameController.run();
+
+		janelaPrincipal = new JanelaPrincipal(gameController);
+		janelaPrincipal.setVisible(true);
+
 
 		// Apagar
 		Scalar[] limites = calcularLimites(242, 255, 0);
@@ -140,7 +144,7 @@ public class BotRagnarok {
 		 * }
 		 */
 
-		SwingUtilities.invokeLater(() -> {
+		/*SwingUtilities.invokeLater(() -> {
 			ProcessSelector selector = new ProcessSelector();
 			selector.setVisible(true);
 
@@ -177,41 +181,33 @@ public class BotRagnarok {
 						janelaPrincipal = new JanelaPrincipal(gameController);
 						janelaPrincipal.setVisible(true);
 
-						/*
-						 * GrafoMapa mapa = gerarGrafoDeMapa(carregarMapa("bio.png")); Coordenadas atual
-						 * = new Coordenadas(136,237); Coordenadas destino = new Coordenadas(122, 210);
-						 * AStar aStar = new AStar(); List<Coordenadas> caminho =
-						 * aStar.calcularCaminhoComExpansao(atual, destino, mapa); for (Coordenadas nodo
-						 * : caminho) { System.out.println(nodo.x + " " + nodo.y); }
-						 */
-
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
 				}
 			});
-		});
+		});*/
 
 		// gameController.run();
 		System.out.println("hasque00");
 
 		String filePath = "C:\\Users\\Sergio\\Desktop\\Minhas coisas\\enderecos.txt";
-		findDuplicateAddresses(filePath);
+		//findDuplicateAddresses(filePath);
 
-		int processId = 7372;
+		int processId = 11256;
 		int valueToFind = 27163;
 		// short valueToFind = 68;
 		// procurarInt(processId,valueToFind);
 		// procurarShort(processId, valueToFind);
 		// String nome = "Moeda de Inst";
 		// String nome = "obteve Moeda de Inst�ncia";
-		 String nome = "obtido.";
+		 String nome = "Servidor desligado, reinicialize o jogo.";//enrederos encontrados 0x5B3BB5D0 0x6E6087F8
 		// 0x5296F33D
 		System.out.println("entao");
 		//procurarString(processId, nome);
 		int soma = 0;
 		// mostrarValorMemoria(processId,0x156F798 + soma,0x18F4438 + soma);
-		//mostrarStringMemoria(processId, 0x70CB09BD + soma, 0x5BAB710D + soma, 256);
+		mostrarStringMemoria(processId, 0x5B3BB5D0 + soma, 0x6E6087F8 + soma, 256);
 		// buscarItemPorId(processId, valueToFind); nao funcionou
 		// obteve Moeda de Inst�ncia 0x19A9ED
 
@@ -228,7 +224,7 @@ public class BotRagnarok {
 		 * Thread.sleep(1000); Coordenadas destino = new Coordenadas(x,y);
 		 * setarMouseEmCoordenadaTela(atual, destino, janela.x, janela.y); }
 		 */
-		List<Coordenadas> caminhoCalculado = List.of(new Coordenadas(10, 10), new Coordenadas(11, 11),
+		/*List<Coordenadas> caminhoCalculado = List.of(new Coordenadas(10, 10), new Coordenadas(11, 11),
 				new Coordenadas(12, 12), new Coordenadas(13, 13), new Coordenadas(14, 14), new Coordenadas(15, 15),
 				new Coordenadas(16, 16), new Coordenadas(17, 17), new Coordenadas(18, 18), new Coordenadas(19, 19),
 				new Coordenadas(20, 20));
@@ -236,7 +232,7 @@ public class BotRagnarok {
 		Coordenadas atual = new Coordenadas(10, 10);
 		Coordenadas proximaCoordenada = escolherProximaCoordenada(caminhoCalculado, atual);
 
-		System.out.println("Próxima Coordenada: " + proximaCoordenada);
+		System.out.println("Próxima Coordenada: " + proximaCoordenada);*/
 
 		/*
 		 * tive que instalar o tesseract e pegar a dll do opencv na pasta
@@ -246,7 +242,7 @@ public class BotRagnarok {
 		 * -Djava.library.path=
 		 * "C:/Users/Sergio/eclipse-workspace/ragnarokbot/src/main/resources/libs"
 		 */
-
+		System.out.println("finishou");
 	}
 
 	public static GrafoMapa gerarGrafoDeMapa(Map<Coordenadas, Boolean> mapaCoordenadas) {
