@@ -52,6 +52,7 @@ import com.sun.jna.platform.win32.WinDef;
 import com.ragnarokbot.bot.Bot;
 import com.ragnarokbot.bot.ProcessSelector;
 import com.ragnarokbot.bot.Tela;
+import com.ragnarokbot.bot.Updater;
 import com.ragnarokbot.model.AStar;
 import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.GrafoMapa;
@@ -74,8 +75,44 @@ public class BotRagnarok {
 
 	public static JanelaPrincipal janelaPrincipal;
 	
+	public static String REPO_OWNER = "sergioluk";  // 🔹 Coloque seu usuário do GitHub
+	public static String REPO_NAME = "bot-rag";       // 🔹 Coloque o nome do repositório
+	public static String DOWNLOAD_PATH = "Stonks.jar"; // 🔥 Nome do JAR gerado no release
+	public static String VERSION_FILE = "version.txt"; // 🔥 Arquivo que armazena a versão local
+	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
+		
+		try {
+			 // Lê a versão atual do bot
+			String currentVersion = Updater.getCurrentVersion();
+            System.out.println("📢 Versão atual: " + currentVersion);
+            
+	        // Verifica a versão mais recente
+	        String latestVersion = Updater.getLatestVersion();
+	        System.out.println("📢 Versão mais recente: " + latestVersion);
+
+	        if (!currentVersion.equals(latestVersion)) {
+	            System.out.println("🚀 Nova versão disponível! Atualizando...");
+
+	            // URL do download (ajuste conforme o release do GitHub)
+	            String downloadUrl = "https://github.com/" + REPO_OWNER + "/" + REPO_NAME +
+	                                 "/releases/latest/download/" + DOWNLOAD_PATH;
+
+	            // Baixa a nova versão e reinicia
+	            Updater.downloadNewVersion(downloadUrl);
+	            
+	            //Atualiza o arquivo de versão
+                Updater.saveCurrentVersion(latestVersion);
+                
+	            Updater.restartBot();
+	        } else {
+	            System.out.println("✅ Bot já está atualizado!");
+	        }
+
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	    }
 
 		 // Caminho absoluto da DLL
         String libPath = new File("libs/opencv_java451.dll").getAbsolutePath();
@@ -208,7 +245,7 @@ public class BotRagnarok {
 		//procurarString(processId, nome);
 		int soma = 0;
 		// mostrarValorMemoria(processId,0x156F798 + soma,0x18F4438 + soma);
-		mostrarStringMemoria(processId, 0x2628608 + soma, 0x70B0A070 + soma, 256);
+		//mostrarStringMemoria(processId, 0x2628608 + soma, 0x70B0A070 + soma, 256);
 		// buscarItemPorId(processId, valueToFind); nao funcionou
 		// obteve Moeda de Inst�ncia 0x19A9ED
 
