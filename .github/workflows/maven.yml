@@ -37,7 +37,8 @@ jobs:
       run: mvn -B package --file pom.xml
 
     - name: Renomear o JAR
-      run: mv target/*.jar target/Stonks.jar
+      run: mv target/bot-ragnarok-1.0-SNAPSHOT.jar target/Stonks.jar
+
     
     - name: Criar Release no GitHub
       uses: softprops/action-gh-release@v1
