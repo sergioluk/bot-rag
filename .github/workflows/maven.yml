@@ -46,8 +46,7 @@ jobs:
         name: "Stonks ${{ github.ref_name }}"
         draft: false
         prerelease: false
-        files: |
-          files: target/Stonks.jar
+        files: target/Stonks.jar
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
