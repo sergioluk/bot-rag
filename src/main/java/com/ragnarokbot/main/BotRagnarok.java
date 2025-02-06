@@ -83,7 +83,7 @@ public class BotRagnarok {
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
 		
-		try {
+		/*try {
 			 // Lê a versão atual do bot
 			String currentVersion = Updater.getCurrentVersion();
             System.out.println("📢 Versão atual: " + currentVersion);
@@ -112,7 +112,7 @@ public class BotRagnarok {
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	    }
+	    }*/
 
 		 // Caminho absoluto da DLL
         String libPath = new File("libs/opencv_java451.dll").getAbsolutePath();
