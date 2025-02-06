@@ -10,6 +10,7 @@ import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Robot;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.File;
@@ -103,7 +104,8 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         
         this.gameController = gameController;
         
-        
+        // Define o ícone da janela
+        setIconImage(Toolkit.getDefaultToolkit().getImage("config/ico.png"));
 
         // Adiciona a imagem de fundo
         try {
