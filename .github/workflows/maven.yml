@@ -21,24 +21,22 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: # Especifica o uso de um container docker
+    container:
       image: jelastic/maven:3.9.5-openjdk-21
 
     steps:
       - uses: actions/checkout@v4
       - name: Build with Maven
-        working-directory: bot-rag # Define o diretório de trabalho
-        run: mvn clean package -DskipTests # Adicione -DskipTests para pular os testes (opcional)
-      - name: Rename JAR (Não é mais necessário)
         working-directory: bot-rag
-        # O shade plugin já renomeia, então não precisa mais renomear.
-      - name: Criar Release no GitHub
+        run: mvn clean package -DskipTests
+      - name: Criar Release no GitHub # O passo "Rename JAR" foi removido
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref_name }}
           name: "Stonks ${{ github.ref_name }}"
           draft: false
           prerelease: false
-          files: bot-rag/target/Stonks.jar # Ajuste o caminho para o arquivo
+          files: bot-rag/target/Stonks.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
