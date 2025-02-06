@@ -384,6 +384,11 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         timeLabel.setText(tempo);
     }
     
+    private void resetarSequenciaBioChef() {
+    	sequenciaBioChef.clear();
+    	updateSequenciaLabel();
+    }
+    
 	// Método chamado ao clicar no botão Play
     private void play() {
         System.out.println("Clicou no botão Play");
@@ -395,8 +400,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             
             if (instanciaRadioButton.isSelected()) {//instancia
             	System.out.println("Modo Instância selecionado");
-            	sequenciaBioChef.clear();
-            	updateSequenciaLabel();
+            	resetarSequenciaBioChef();
             	
             	String instancia = instanceList.getSelectedValue();
             	if (instancia == null) {
@@ -510,6 +514,9 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     }
     
     private void atualizarScripts() {
+    	
+    	resetarSequenciaBioChef();
+    	
         // Atualiza os arquivos no painel esquerdo
         DefaultListModel<String> instanceListModel = (DefaultListModel<String>) instanceList.getModel();
         instanceListModel.clear(); // Limpa os arquivos anteriores

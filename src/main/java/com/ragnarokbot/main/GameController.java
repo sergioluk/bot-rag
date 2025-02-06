@@ -1160,7 +1160,12 @@ public class GameController implements Runnable {
 
 	
 	
-	
+	public void resetarRotas() {
+		rota = 0;
+		passo = 0;
+		acoesNpc = 0;
+		farm = 0;
+	}
 	
 	public synchronized void pausarBot() {
 		if (script.getMapa() == null) {
@@ -1184,10 +1189,7 @@ public class GameController implements Runnable {
 		System.out.println("Tecla 'O' pressionada. Parando o bot...");
 		ligarBot = false;
 		
-		rota = 0;
-		passo = 0;
-		acoesNpc = 0;
-		farm = 0;
+		resetarRotas();
 		
 		if (pausarBot) {
 			pausarBot();
@@ -1287,6 +1289,7 @@ public class GameController implements Runnable {
     }
   //notebook
     private void voltarParaFarmar(String mapa) {
+    	resetarRotas();
     	//Voltar para labirinto valk
     	int labirinto = skillsConfig.getLabirintovalk();
     	bot.atalhoAltM(labirinto);
