@@ -112,7 +112,7 @@ public class BotRagnarok {
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	    }*/ 
+	    }*/  
 
 		 // Caminho absoluto da DLL
         String libPath = new File("libs/opencv_java451.dll").getAbsolutePath();
