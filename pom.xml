@@ -107,6 +107,14 @@
                                 </excludes>
                             </filter>
                         </filters>
+                        <relocations>  <relocation>
+                                <pattern>org.apache.commons</pattern>  <shadedPattern>com.ragnarokbot.shaded.org.apache.commons</shadedPattern>
+                            </relocation>
+                            <relocation>
+                                <pattern>com.google.guava</pattern>
+                                <shadedPattern>com.ragnarokbot.shaded.com.google.guava</shadedPattern>
+                            </relocation>
+                            </relocations>
                     </configuration>
                 </execution>
             </executions>
