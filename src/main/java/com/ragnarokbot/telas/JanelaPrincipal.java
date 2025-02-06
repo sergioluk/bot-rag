@@ -1,12 +1,15 @@
 package com.ragnarokbot.telas;
 
 import java.awt.AWTException;
+import java.awt.AlphaComposite;
 import java.awt.BorderLayout;
 import java.awt.Button;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Robot;
@@ -279,8 +282,17 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     }
 
     private JPanel createLeftPanel(ButtonGroup group) {
-        JPanel leftPanel = new JPanel();
-        leftPanel.setBackground(Color.WHITE);
+    	JPanel leftPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.65f)); // 90% opacidade
+                g2d.setColor(new Color(255, 255, 255, 100)); // Branco com transparência
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        leftPanel.setOpaque(false); // Importante para permitir a transparência
         leftPanel.setPreferredSize(new Dimension(205, 255));
         leftPanel.setLayout(new BorderLayout());
 
@@ -306,8 +318,17 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     }
 
     private JPanel createRightPanel(ButtonGroup group) {
-        rightPanel = new JPanel();
-        rightPanel.setBackground(Color.WHITE);
+        rightPanel = new JPanel(){
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2d = (Graphics2D) g;
+                g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.65f)); // 90% opacidade
+                g2d.setColor(new Color(255, 255, 255, 100)); // Branco com transparência
+                g2d.fillRect(0, 0, getWidth(), getHeight());
+            }
+        };
+        rightPanel.setOpaque(false); // Importante para permitir a transparência
         rightPanel.setPreferredSize(new Dimension(205, 255));
         rightPanel.setLayout(new BorderLayout());
 
