@@ -179,7 +179,7 @@ public class GameController implements Runnable {
     	}*/
     	
 
-		bot.printarTela();
+		//bot.printarTela();
 		//atalho padrao para bio chef
 		carregarAtalhosSkills("mago");
 		bot.sleep(3000);

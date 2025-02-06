@@ -82,7 +82,7 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		/*
+		
 		try {
 			 // Lê a versão atual do bot
 			String currentVersion = Updater.getCurrentVersion();
@@ -112,7 +112,7 @@ public class BotRagnarok {
 
 	    } catch (Exception e) {
 	        e.printStackTrace();
-	    }*/
+	    }
 
 		 // Caminho absoluto da DLL
         String libPath = new File("libs/opencv_java451.dll").getAbsolutePath();
@@ -226,7 +226,7 @@ public class BotRagnarok {
 		});*/
 
 		// gameController.run();
-		System.out.println("hasque00");
+		System.out.println("Iniciando...");
 
 		String filePath = "C:\\Users\\Sergio\\Desktop\\Minhas coisas\\enderecos.txt";
 		//findDuplicateAddresses(filePath);
