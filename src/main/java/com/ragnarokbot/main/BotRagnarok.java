@@ -82,37 +82,39 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		
-		try {
-			 // Lê a versão atual do bot
-			String currentVersion = Updater.getCurrentVersion();
-            System.out.println("📢 Versão atual: " + currentVersion);
-            
-	        // Verifica a versão mais recente
-	        String latestVersion = Updater.getLatestVersion();
-	        System.out.println("📢 Versão mais recente: " + latestVersion);
-
-	        if (!currentVersion.equals(latestVersion)) {
-	            System.out.println("🚀 Nova versão disponível! Atualizando...");
-
-	            // URL do download (ajuste conforme o release do GitHub)
-	            String downloadUrl = "https://github.com/" + REPO_OWNER + "/" + REPO_NAME +
-	                                 "/releases/latest/download/" + DOWNLOAD_PATH;
-
-	            // Baixa a nova versão e reinicia
-	            Updater.downloadNewVersion(downloadUrl);
+		boolean dev = false;
+		if (dev == false) {
+			try {
+				 // Lê a versão atual do bot
+				String currentVersion = Updater.getCurrentVersion();
+	            System.out.println("📢 Versão atual: " + currentVersion);
 	            
-	            //Atualiza o arquivo de versão
-                Updater.saveCurrentVersion(latestVersion);
-                
-	            Updater.restartBot();
-	        } else {
-	            System.out.println("✅ Bot já está atualizado!");
-	        }
+		        // Verifica a versão mais recente
+		        String latestVersion = Updater.getLatestVersion();
+		        System.out.println("📢 Versão mais recente: " + latestVersion);
 
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+		        if (!currentVersion.equals(latestVersion)) {
+		            System.out.println("🚀 Nova versão disponível! Atualizando...");
+
+		            // URL do download (ajuste conforme o release do GitHub)
+		            String downloadUrl = "https://github.com/" + REPO_OWNER + "/" + REPO_NAME +
+		                                 "/releases/latest/download/" + DOWNLOAD_PATH;
+
+		            // Baixa a nova versão e reinicia
+		            Updater.downloadNewVersion(downloadUrl);
+		            
+		            //Atualiza o arquivo de versão
+	                Updater.saveCurrentVersion(latestVersion);
+	                
+		            Updater.restartBot();
+		        } else {
+		            System.out.println("✅ Bot já está atualizado!");
+		        }
+
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		}
 
 		 // Caminho absoluto da DLL
         String libPath = new File("libs/opencv_java451.dll").getAbsolutePath();
