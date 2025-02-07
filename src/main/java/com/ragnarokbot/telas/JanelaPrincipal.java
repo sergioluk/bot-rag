@@ -12,9 +12,12 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Point;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -43,6 +46,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
+import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
@@ -353,12 +357,43 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 
                 JLabel fileLabel = new JLabel(file.getName());
                 JButton addButton = new JButton("+");
+                
                 addButton.addActionListener(e -> {
                 	if (farmRadioButton.isSelected()) {
 	                    sequenciaBioChef.add(file.getName());
 	                    updateSequenciaLabel();
 	                    JOptionPane.showMessageDialog(this, "Adicionado à sequência: " + file.getName());
                 	}
+                });
+                
+            	// Criar uma janela flutuante para exibir a imagem
+                JWindow imageWindow = new JWindow();
+                JLabel imageLabel = new JLabel();
+                imageWindow.getContentPane().add(imageLabel);
+                imageWindow.pack();
+                
+             // Adiciona evento de mouse para exibir a imagem
+                fileLabel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseEntered(MouseEvent e) {
+                        String imagePath = "config/rotas-desenhadas/" + file.getName().replace(".json", ".png");
+                        File imageFile = new File(imagePath);
+                        if (imageFile.exists()) {
+                            ImageIcon icon = new ImageIcon(imagePath);
+                            imageLabel.setIcon(icon);
+                            imageWindow.pack();
+
+                            // Posição da imagem ao lado esquerdo do painel
+                            Point location = filePanel.getLocationOnScreen();
+                            imageWindow.setLocation(location.x - imageWindow.getWidth() - 10, location.y);
+                            imageWindow.setVisible(true);
+                        }
+                    }
+
+                    @Override
+                    public void mouseExited(MouseEvent e) {
+                        imageWindow.setVisible(false);
+                    }
                 });
 
                 filePanel.add(fileLabel, BorderLayout.CENTER);

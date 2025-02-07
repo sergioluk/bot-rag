@@ -1,0 +1,214 @@
+{
+  "mapa": "bio.png",
+  "rotas": [
+    {
+      "descricao": "início-quadrado-esquerdo",
+      "passos": [
+        { "coordenadas": [137, 232] },
+        { "coordenadas": [121, 245] },
+        { "coordenadas": [115, 253] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [115, 253]
+      }
+    },
+    {
+      "descricao": "início-quadrado-direito",
+      "passos": [
+        { "coordenadas": [143, 237] },
+        { "coordenadas": [162, 252] },
+        { "coordenadas": [145, 231] },
+        { "coordenadas": [140, 214] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [140,214]
+      }
+    },
+    {
+      "descricao": "início-cilindro-direito",
+      "passos": [
+        { "coordenadas": [148, 205] },
+        { "coordenadas": [174, 198] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [174,198]
+      }
+    },
+    {
+      "descricao": "início-cilindro-esquerdo",
+      "passos": [
+        { "coordenadas": [131, 206] },
+        { "coordenadas": [106, 198] },
+        { "coordenadas": [140, 181] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [140,181]
+      }
+    },
+    {
+      "descricao": "rota-principal-cima-1",
+      "passos": [
+        { "coordenadas": [155, 184] },
+        { "coordenadas": [166, 175] },
+        { "coordenadas": [176, 182] },
+        { "coordenadas": [181, 181] },
+        { "coordenadas": [199, 176] },
+        { "coordenadas": [203, 184] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [203,184]
+      }
+    },
+    {
+      "descricao": "quadrado-direito-cima",
+      "passos": [
+        { "coordenadas": [237, 177] },
+        { "coordenadas": [240, 195] },
+        { "coordenadas": [240, 220] },
+        { "coordenadas": [235, 205] },
+        { "coordenadas": [203, 170] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [203,170]
+      }
+    },
+    {
+      "descricao": "rota-principal-direita-full",
+      "passos": [
+        { "coordenadas": [199, 165] },
+        { "coordenadas": [198, 145] },
+        { "coordenadas": [225, 142] },
+        { "coordenadas": [248, 139] },
+        { "coordenadas": [228, 134] },
+        { "coordenadas": [198, 125] },
+        { "coordenadas": [208, 118] },
+        { "coordenadas": [211, 110] },
+        { "coordenadas": [185, 96] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [185,96]
+      }
+    },
+    {
+      "descricao": "quadrado-direito-baixo",
+      "passos": [
+        { "coordenadas": [189, 87] },
+        { "coordenadas": [209, 65] },
+        { "coordenadas": [240, 64] },
+        { "coordenadas": [201, 85] },
+        { "coordenadas": [166, 81] },
+        { "coordenadas": [156, 98] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [156,98]
+      }
+    },
+    {
+      "descricao": "meio-de-baixo",
+      "passos": [
+        { "coordenadas": [153, 72] },
+        { "coordenadas": [139, 61] },
+        { "coordenadas": [139, 35] },
+        { "coordenadas": [123, 78] },
+        { "coordenadas": [119, 99] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [119,99]
+      }
+    },
+    {
+      "descricao": "quadrado-esquerdo-baixo",
+      "passos": [
+        { "coordenadas": [110, 78] },
+        { "coordenadas": [88, 86] },
+        { "coordenadas": [47, 67] },
+        { "coordenadas": [35, 74] },
+        { "coordenadas": [84, 100] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [84,100]
+      }
+    },
+    {
+      "descricao": "rota-principal-esquerda-full",
+      "passos": [
+        { "coordenadas": [66, 110] },
+        { "coordenadas": [72, 118] },
+        { "coordenadas": [73, 134] },
+        { "coordenadas": [48, 138] },
+        { "coordenadas": [29, 140] },
+        { "coordenadas": [56, 147] },
+        { "coordenadas": [82, 152] },
+        { "coordenadas": [75, 168] },
+        { "coordenadas": [76, 180] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [76,180]
+      }
+    },
+    {
+      "descricao": "quadrado-esquerdo-cima",
+      "passos": [
+        { "coordenadas": [57, 173] },
+        { "coordenadas": [39, 190] },
+        { "coordenadas": [46, 217] },
+        { "coordenadas": [35, 209] },
+        { "coordenadas": [76, 191] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [76, 191]
+      }
+    },
+    {
+      "descricao": "rota-principal-cima-2",
+      "passos": [
+        { "coordenadas": [105, 179] },
+        { "coordenadas": [125, 180] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [125, 180]
+      }
+    },
+    {
+      "descricao": "meio",
+      "passos": [
+        { "coordenadas": [139, 172] },
+        { "coordenadas": [145, 149] },
+        { "coordenadas": [181, 139] },
+        { "coordenadas": [180, 158] },
+        { "coordenadas": [181, 117] },
+        { "coordenadas": [168, 138] },
+        { "coordenadas": [151, 123] },
+        { "coordenadas": [131, 125] },
+        { "coordenadas": [123, 138] },
+        { "coordenadas": [96, 138] },
+        { "coordenadas": [99, 157] },
+        { "coordenadas": [98, 117] },
+        { "coordenadas": [110, 138] },
+        { "coordenadas": [131, 149] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [131, 149]
+      }
+    }
+
+  ],
+  "finalizacao": {
+    "descricao": "Reiniciando Bio",
+    "coordenadas": [131, 149]
+  }
+}

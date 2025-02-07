@@ -1,0 +1,32 @@
+{
+  "mapa": "bio.png",
+  "rotas": [
+    {
+      "descricao": "centro",
+      "passos": [
+        { "coordenadas": [139, 172] },
+        { "coordenadas": [145, 149] },
+        { "coordenadas": [181, 139] },
+        { "coordenadas": [180, 158] },
+        { "coordenadas": [181, 117] },
+        { "coordenadas": [168, 138] },
+        { "coordenadas": [151, 123] },
+        { "coordenadas": [131, 125] },
+        { "coordenadas": [123, 138] },
+        { "coordenadas": [96, 138] },
+        { "coordenadas": [99, 157] },
+        { "coordenadas": [98, 117] },
+        { "coordenadas": [110, 138] },
+        { "coordenadas": [131, 149] }
+      ],
+      "verificacao": {
+        "tipo": "teleport",
+        "coordenadas": [131, 149]
+      }
+    }
+  ],
+  "finalizacao": {
+    "descricao": "Reiniciando Bio",
+    "coordenadas": [131, 149]
+  }
+}
