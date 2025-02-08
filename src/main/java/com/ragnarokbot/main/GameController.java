@@ -135,6 +135,8 @@ public class GameController implements Runnable {
     public int indexPersonagem = 0;
     public int indexInstancia = 0;
     
+    boolean saindoDeCimaBio = false;
+    
     private Thread botThread;
 
 	public GameController(Bot bot) {
@@ -363,6 +365,14 @@ public class GameController implements Runnable {
             	stateMachine.mudarEstado(Estado.ANDANDO);
             	if (System.currentTimeMillis() - tempoAndarForcado >= skillsConfig.getTempoAndarForcado()) {
             		andarForcado = false;
+            	}
+            }
+            
+            if (script.getMapa().equals("bio.png")) { //parte de cima de bio
+            	if ((atual.x >= 126 && atual.x <= 153) && (atual.y >= 257 && atual.y <= 265)) {
+            		saindoDeCimaBio = true;
+            	} else {
+            		saindoDeCimaBio = false;
             	}
             }
 			
@@ -646,6 +656,13 @@ public class GameController implements Runnable {
 	//notebook
     private void andar(Script script) {
     	int distanciaMinima = 5; // Defina a distância mínima aceitável 
+    	
+    	if (saindoDeCimaBio) {
+    		bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(135,257));
+        	bot.sleep(100);
+        	bot.clicarMouse();
+    		return;
+    	}
     	
     	if (!coordsMonstrosAtrasParede.isEmpty() && verificarModoInstanciaProcura()) {// && verificarModoInstanciaProcura()
 			Coordenadas destinoBixo = coordsMonstrosAtrasParede.get(0);
