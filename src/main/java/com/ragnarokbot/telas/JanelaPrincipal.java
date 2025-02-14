@@ -174,7 +174,8 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         		"4C4C4544-0059-3410-8036-B6C04F593533", //Notebook meu
         		"23A12DC8-7866-11E7-6895-641C6789B626", //Notebook do lucas
         		"DAB38BF6-3E48-26F2-D1BA-7C10C942BDF7", //PC de Tulete47
-        		"03000200-0400-0500-0006-000700080009" //Notebook antigo Saiaka
+        		"03000200-0400-0500-0006-000700080009", //Notebook antigo Saiaka
+        		"FEABFE60-ADC3-79BD-36A2-107C61A5EB2D" //Pc meu
         		).collect(Collectors.toList());
         for (String id : uuidPermitidos) {
         	if (id.equals(UUID)) {
