@@ -1,6 +1,7 @@
 package com.ragnarokbot.bot;
 
 import java.awt.AWTException;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
@@ -230,6 +231,41 @@ public class Bot {
 	   	 }
 	}
 	
+	public BufferedImage selecionarOpcaoComRetorno(int opcaoEscolhida, int x, int y, int width, int height) {
+		sleep(100);
+		List<MatOfPoint> balao = null;
+		Rect m = null;
+		Rectangle captureArea = new Rectangle(getxJanela() + x, getyJanela() + y, width, height);
+		BufferedImage imagem = robot.createScreenCapture(captureArea);
+		sleep(500);
+		if (opcaoEscolhida == 1) {
+			balao = verificarBalaoNpcTeleport();
+			if (balao.size() > 0) {
+				m = Imgproc.boundingRect(balao.get(0));
+				captureArea = new Rectangle(getxJanela() + m.x, getyJanela() + m.y, m.width, m.height);
+				imagem = robot.createScreenCapture(captureArea);
+			}
+			
+			apertarTecla(KeyEvent.VK_ENTER);
+	   	} else {
+	   		for (int i = 0; i < opcaoEscolhida - 1; i++) {
+	       		apertarTecla(KeyEvent.VK_DOWN);
+	       		sleep(200);
+	       	}
+	   		balao = verificarBalaoNpcTeleport();
+			if (balao.size() > 0) {
+				m = Imgproc.boundingRect(balao.get(0));
+				captureArea = new Rectangle(getxJanela() + m.x, getyJanela() + m.y, m.width, m.height);
+				imagem = robot.createScreenCapture(captureArea);
+			} else {
+		   		captureArea = new Rectangle(getxJanela() + x, getyJanela() + y, width, height);
+				imagem = robot.createScreenCapture(captureArea);
+			}
+	   		apertarTecla(KeyEvent.VK_ENTER);
+	   	 }
+		return imagem;
+	}
+	
 	public BufferedImage printarTela() {
 		
 		// Captura a tela da área da janela
@@ -245,6 +281,99 @@ public class Bot {
         
         System.out.println("Printado");
         return print;
+	}
+	
+	public boolean detectarPixelsAmarelos(int posX, int posY, int width, int height) {
+		Rectangle captureArea = new Rectangle(posX, posY, width, height);
+		BufferedImage imagem = robot.createScreenCapture(captureArea);
+		
+        int largura = imagem.getWidth();
+        int altura = imagem.getHeight();
+        int contadorAmarelo = 0;
+
+        for (int y = 0; y < altura; y++) {
+            for (int x = 0; x < largura; x++) {
+                Color cor = new Color(imagem.getRGB(x, y));
+
+                // Define faixa de cor amarela
+                if (ehAmarelo(cor)) {
+                    contadorAmarelo++;
+                }
+            }
+        }
+
+        System.out.println("Pixels amarelos detectados: " + contadorAmarelo);
+
+        // Define um limite de pixels amarelos para considerar que a mensagem apareceu
+        int threshold = 1000;
+        return contadorAmarelo > threshold;
+    }
+
+    private boolean ehAmarelo(Color cor) {
+        int r = cor.getRed();
+        int g = cor.getGreen();
+        int b = cor.getBlue();
+
+        // O amarelo tem valores altos de R e G, e baixo de B
+        return (r > 180 && g > 180 && b < 100);
+    }
+	
+	public boolean compararImagens(BufferedImage imagem1, BufferedImage imagem2) {
+		// Converte para Mat (OpenCV)
+        Mat matRef = bufferedImageToMat(imagem1);
+        Mat matAtual = bufferedImageToMat(imagem2);
+        
+        Mat img1Gray = new Mat();
+        Mat img2Gray = new Mat();
+        
+        // Converter para tons de cinza
+        Imgproc.cvtColor(matRef, img1Gray, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.cvtColor(matAtual, img2Gray, Imgproc.COLOR_BGR2GRAY);
+        
+        // Ajustar tamanho (caso tenha pequenas diferenças)
+        Imgproc.resize(img2Gray, img2Gray, img1Gray.size());
+
+        // Calcula diferença absoluta
+        Mat diff = new Mat();
+        Core.absdiff(img1Gray, img2Gray, diff);
+
+        // Calcula o percentual de diferença
+        Scalar sumDiff = Core.sumElems(diff);
+        double totalDiff = sumDiff.val[0] / (img1Gray.rows() * img1Gray.cols());
+
+        System.out.println("Diferença detectada: " + totalDiff);
+
+        // Se a diferença for menor que um certo limiar, consideramos que são iguais
+        return totalDiff < 30.0;
+	}
+	
+	public boolean compararBalaoNpc(BufferedImage imagem1, BufferedImage imagem2) {
+		// Converte para Mat (OpenCV)
+        Mat matRef = bufferedImageToMat(imagem1);
+        Mat matAtual = bufferedImageToMat(imagem2);
+        
+        Mat img1Gray = new Mat();
+        Mat img2Gray = new Mat();
+        
+        // Converter para tons de cinza
+        Imgproc.cvtColor(matRef, img1Gray, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.cvtColor(matAtual, img2Gray, Imgproc.COLOR_BGR2GRAY);
+        
+        // Ajustar tamanho (caso tenha pequenas diferenças)
+        Imgproc.resize(img2Gray, img2Gray, img1Gray.size());
+
+        // Calcula diferença absoluta
+        Mat diff = new Mat();
+        Core.absdiff(img1Gray, img2Gray, diff);
+
+        // Calcula o percentual de diferença
+        Scalar sumDiff = Core.sumElems(diff);
+        double totalDiff = sumDiff.val[0] / (img1Gray.rows() * img1Gray.cols());
+
+        System.out.println("Diferença detectada: " + totalDiff);
+
+        // Se a diferença for menor que um certo limiar, consideramos que são iguais
+        return totalDiff < 5.0;
 	}
 	
 	private Mat bufferedImageToMat(BufferedImage image) {
@@ -300,6 +429,22 @@ public class Bot {
 	}*/
 	
 	public void inserirPin(String pin) {
+		
+		BufferedImage imagemTelaPin = null;
+		String path = "config/telas/pin.png";
+		try {
+			imagemTelaPin = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace(); // 954 72 24 25
+		}
+		boolean imagensIguais = false;
+		do {
+			BufferedImage atual = printarParteTela(954, 72, 24, 25);
+			imagensIguais = compararImagens(atual, imagemTelaPin);
+			System.out.println("Verificando imagens: " + imagensIguais);
+			sleep(500);
+		} while( imagensIguais == false);
+		
 	    // Capturar a tela da área definida
 	    Rectangle captureArea = new Rectangle(xJanela, yJanela, width, height);
 	    BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
@@ -359,6 +504,7 @@ public class Bot {
 	    	pins.add(new Rect());
 	    }
 	    boolean jsonExiste = arquivoExiste("config/pins.json");
+	    System.out.println("pins.json existe? " + jsonExiste);
 	    ScriptLoader scriptLoader = new ScriptLoader();
 	    Map<String, Integer> hashReferencia;
 	    if (jsonExiste) {
@@ -721,28 +867,28 @@ public class Bot {
 		    return npcsFiltrados;   
 	}*/
 	
-				// notebook
-				public List<MatOfPoint> listaNpcs() {
-					// Definir os limites de cor
-					Scalar lowerColor = new Scalar(0, 215, 215); // Limite inferior (laranja)
-					Scalar upperColor = new Scalar(17, 255, 255); // Limite superior (laranja)
+	// notebook
+	public List<MatOfPoint> listaNpcs() {
+		// Definir os limites de cor
+		Scalar lowerColor = new Scalar(0, 215, 215); // Limite inferior (laranja)
+		Scalar upperColor = new Scalar(17, 255, 255); // Limite superior (laranja)
 
-					MonstrosImagem analise = analisarTela(Map.of("npcs", new Scalar[] { lowerColor, upperColor }));
+		MonstrosImagem analise = analisarTela(Map.of("npcs", new Scalar[] { lowerColor, upperColor }));
 
-					// Obter a lista de NPCs usando a chave "npcs"
-					List<MatOfPoint> npcs = analise.listaEntidades.getOrDefault("npcs", new ArrayList<>());
+		// Obter a lista de NPCs usando a chave "npcs"
+		List<MatOfPoint> npcs = analise.listaEntidades.getOrDefault("npcs", new ArrayList<>());
 
-					if (npcs.isEmpty()) {
-						return npcs;
-					}
+		if (npcs.isEmpty()) {
+			return npcs;
+		}
 
-					// Filtrar monstros com altura maior que 16 pixels
-					List<MatOfPoint> npcsFiltrados = npcs.stream().filter(
-							monstro -> Imgproc.boundingRect(monstro).height >= 16 && Imgproc.boundingRect(monstro).width >= 16)
-							.toList();
+		// Filtrar monstros com altura maior que 16 pixels
+		List<MatOfPoint> npcsFiltrados = npcs.stream().filter(
+				monstro -> Imgproc.boundingRect(monstro).height >= 16 && Imgproc.boundingRect(monstro).width >= 16)
+				.toList();
 
-					return npcsFiltrados;
-				}
+		return npcsFiltrados;
+	}
 				
 	// notebook
 	public Map<String, List<MatOfPoint>> procurarBoss() {
@@ -835,6 +981,40 @@ public class Bot {
 		    return npcsFiltrados;   
 	}
 	
+	public List<MatOfPoint> verificarBalaoNpcTeleport() {
+		// Definir os limites de cor
+	    Scalar lowerColor = new Scalar(0, 0, 207);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+	    
+	    //MonstrosImagem analise = analisarTela(lowerColor, upperColor);
+	    MonstrosImagem analise = analisarTela(Map.of("baloesNpc", new Scalar[]{lowerColor, upperColor}));
+	   
+	    
+	    
+	    //List<MatOfPoint> npcs = analise.listaEntidades;
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> npcs = analise.listaEntidades.getOrDefault("baloesNpc", new ArrayList<>());
+	
+			if (npcs.isEmpty()) {
+	        	return npcs;
+	        }
+			
+			// Altura máxima da imagem
+		    int imageHeight = analise.screen.rows();
+	        
+		    // Filtrar NPCs por tamanho e posição
+		    List<MatOfPoint> npcsFiltrados = npcs.stream()
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            
+		            return boundingBox.width >= 250 &&
+		                   boundingBox.height >= 50; // Abaixo de 80% da altura da imagem
+		        })
+		        .toList();
+		    
+		    return npcsFiltrados;   
+	}
+	
 	public MonstrosImagem analisarTelaBalao(Map<String, Scalar[]> colorRanges) {
 	    
 		// Capturar a tela da área definida
@@ -914,6 +1094,77 @@ public class Bot {
 		    
 	
 		    return npcsFiltrados;   
+	}
+	
+	public List<MatOfPoint> verificarJanelaEncerrarInstancia() {
+		Scalar lowerColor = new Scalar(0, 0, 215);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+	    
+	    // Capturar a tela da área definida
+	    Rectangle captureArea = null;
+	    captureArea = new Rectangle(xJanela, yJanela, width, height);
+	    BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
+	    
+	    Map<String, Scalar[]> colorRanges = Map.of("baloesNpc", new Scalar[]{lowerColor, upperColor});
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(screenFullImage);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Mapear os resultados
+	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	    
+	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+	        String colorName = entry.getKey();
+	        Scalar lowerColor2 = entry.getValue()[0];
+	        Scalar upperColor2 = entry.getValue()[1];
+
+	        // Criar máscara para identificar a cor dentro do intervalo
+	        Mat mask = new Mat();
+	        Core.inRange(hsvImage, lowerColor2, upperColor2, mask);
+
+	        // Encontrar contornos na máscara
+	        List<MatOfPoint> entidades = new ArrayList<>();
+	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	        
+	        // Armazenar os contornos filtrados associados à cor
+	        detectedEntities.put(colorName, entidades);
+	    }
+	    
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> janela = detectedEntities.getOrDefault("baloesNpc", new ArrayList<>());
+	
+			if (janela.isEmpty()) {
+	        	return janela;
+	        }
+	        
+		    // Filtrar NPCs por tamanho e posição
+		    List<MatOfPoint> janelaEncerrarInstancia = janela.stream()
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            return boundingBox.width <= 210 && (boundingBox.height >= 100 && boundingBox.height <= 140);
+		        })
+		        .toList();
+		    
+		    
+		    // Desenhar contornos na imagem original
+		    /*Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(screen, janelaEncerrarInstancia, -1, greenColor, 2);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, screen);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		    
+	
+		    return janelaEncerrarInstancia;   
+	    
 	}
 	
 	public int calcularDistancia(Coordenadas atual, Coordenadas destino) {
@@ -1270,27 +1521,42 @@ public class Bot {
 	}
 	
 	public void realizarLogin(String usuario, String senha) {
+		BufferedImage imagemTelaLogin = null;
+		String path = "config/telas/login.png";
 		try {
-			System.out.println("Realizando login");
-	        System.out.println("Mouse indo para o campo de login");
-	        moverMouse(xJanela + 228, yJanela + 492);
-	        Thread.sleep(200);
-	        apertarTecla(KeyEvent.VK_TAB);
-	        Thread.sleep(500);
-	        System.out.println("Digitando o login");
-	        digitarTexto(usuario);
-	        Thread.sleep(500);
-	        System.out.println("Mouse indo para o campo de senha");
-	        apertarTecla(KeyEvent.VK_TAB);
-	        Thread.sleep(500);
-	        System.out.println("Digitando a senha");
-	        digitarTexto(senha);
-	        Thread.sleep(500);
-	        apertarTecla(KeyEvent.VK_ENTER);
-	        Thread.sleep(500);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+			imagemTelaLogin = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace(); // 550 480 127 137
 		}
+		boolean imagensIguais = false;
+		do {
+			BufferedImage atual = printarParteTela(550, 480, 127, 137);
+			imagensIguais = compararImagens(atual, imagemTelaLogin);
+			System.out.println("Verificando imagens: " + imagensIguais);
+			sleep(500);
+		} while( imagensIguais == false);
+		System.out.println("Realizando login");
+		System.out.println("Mouse indo para o campo de login");
+		moverMouse(xJanela + 228, yJanela + 492);
+		sleep(200);
+		apertarTecla(KeyEvent.VK_TAB);
+		sleep(500);
+		System.out.println("Digitando o login");
+		digitarTexto(usuario);
+		sleep(500);
+		System.out.println("Mouse indo para o campo de senha");
+		apertarTecla(KeyEvent.VK_TAB);
+		sleep(500);
+		System.out.println("Digitando a senha");
+		digitarTexto(senha);
+		sleep(500);
+		apertarTecla(KeyEvent.VK_ENTER);
+		sleep(500);
+	}
+	
+	public BufferedImage printarParteTela(int x, int y, int width, int heigh) {
+		Rectangle captureArea = new Rectangle(xJanela + x, yJanela + y, width, heigh);
+		return robot.createScreenCapture(captureArea);
 	}
 	
 	public void escolherPersonagem(int num, int pagina) {
@@ -1588,6 +1854,7 @@ public class Bot {
 		moverMouse(getxJanela() + x + 70, getyJanela() + y + 140);
 		// int dg = 43; //tomb
 		int dg = getNumeroInstancia(instancia);
+		System.out.println("Numero dg: " + dg + " instancia: " + instancia);
 		//int dg = 33; // old gh
 		int counter = dg / 16;
 		if (dg == 16) {
@@ -1682,21 +1949,60 @@ public class Bot {
 	}
 	
 	public void encerrarInstancia() {
-		moverMouse(getxJanela() + 104, getyJanela() + 436);
-		sleep(300);
-		clicarMouse();
-		sleep(300);
+		List<MatOfPoint> janela = verificarJanelaEncerrarInstancia();
+		System.out.println("tamanho da lista janela: " + janela.size());
+		if (!janela.isEmpty()) {
+			Rect j = Imgproc.boundingRect(janela.get(0));
+			int centerX = j.x + j.width/2;
+			int centerY = j.y + j.height/2;
+			
+			moverMouse(getxJanela() + centerX, getyJanela() + centerY + 40);
+			sleep(1000);
+			clicarMouse();
+			sleep(500);
+			System.out.println("Verificando se a instancia fechou mesmo");
+			List<MatOfPoint> janelaFechada = verificarJanelaEncerrarInstancia();
+			while(!janelaFechada.isEmpty()) {
+				System.out.println("Não fechou ainda, tentando fechar");
+				moverMouse(getxJanela() + centerX, getyJanela() + centerY + 40);
+				sleep(1000);
+				clicarMouse();
+				janelaFechada = verificarJanelaEncerrarInstancia();
+				sleep(500);
+			}
+			
+		}
+		System.out.println("Instancia Fechada com sucesso!");
 	}
 	
 	public void deslogarPersonagem() {
-		apertarTecla(KeyEvent.VK_ESCAPE);
-		sleep(500);
-		moverMouse(getxJanela() + 511, getyJanela() + 513);
-		sleep(300);
-		clicarMouse();
-		sleep(300);
-		clicarMouse();
-		sleep(300);
+		
+		BufferedImage imagemTelaPin = null;
+		String path = "config/telas/pin.png";
+		try {
+			imagemTelaPin = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace(); // 954 72 24 25
+		}
+		boolean imagensIguais = false;
+		do {
+			
+			apertarTecla(KeyEvent.VK_ESCAPE);
+			sleep(500);
+			moverMouse(getxJanela() + 511, getyJanela() + 513);
+			sleep(300);
+			clicarMouse();
+			sleep(300);
+			clicarMouse();
+			sleep(300);
+			
+			BufferedImage atual = printarParteTela(954, 72, 24, 25);
+			imagensIguais = compararImagens(atual, imagemTelaPin);
+			System.out.println("Verificando imagens: " + imagensIguais);
+			sleep(500);
+		} while( imagensIguais == false);
+		
+		
 	}
 	
 	public void voltarTelaLogin() {

@@ -1,30 +1,30 @@
 {
     "contas": [
         { 
-            "usuario" : "login1",
-            "senha" : "senha1",
-            "pin" : "1111",
+            "usuario" : "israelmd",
+            "senha" : "Zazakwy00!",
+            "pin" : "9751",
             "personagens" : [
-                {
-                    "pagina" : 1,
-                    "indexPersonagem" : 1,
-                    "passarItens" : false,
-                    "classe" : "mago",
-                    "instancias" : ["teste_morroc1"]
-                },
                 {
                     "pagina" : 1,
                     "indexPersonagem" : 3,
                     "passarItens" : false,
                     "classe" : "mago",
-                    "instancias" : ["teste_morroc1", "teste_morroc2", "teste_morroc3"]
+                    "instancias" : ["Old Glast Heim"]
+                },
+                {
+                    "pagina" : 4,
+                    "indexPersonagem" : 4,
+                    "passarItens" : false,
+                    "classe" : "mago",
+                    "instancias" : ["teste_morroc1", "teste_morroc2"]
                 }
             ]
         },
         {
-            "usuario" : "login2",
-            "senha" : "senha2",
-            "pin" : "2222",
+            "usuario" : "ursopolargay5",
+            "senha" : "Cofre246",
+            "pin" : "7790",
             "personagens" : [
                 {
                     "pagina" : 1,

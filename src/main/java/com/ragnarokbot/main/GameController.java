@@ -123,10 +123,12 @@ public class GameController implements Runnable {
     boolean foundBoss = false;
     private boolean andarForcado = false;
     long tempoAndarForcado = 0;
+    long tempoVerificacaoOldGH = System.currentTimeMillis();
     
     public List<Coordenadas> coordsMonstrosAtrasParede = new ArrayList<>();
     
     private boolean isBoss = false;
+    private boolean verificarSeLimpouOldGh = false;
     
     private Coordenadas coordsUltimoMonstro = new Coordenadas(0,0);
     private int contagemRefresh = 0;
@@ -180,7 +182,7 @@ public class GameController implements Runnable {
     		}
     	}*/
     	
-
+    	//bot.encerrarInstancia();
 		//bot.printarTela();
 		//atalho padrao para bio chef
 		carregarAtalhosSkills("mago");
@@ -215,6 +217,8 @@ public class GameController implements Runnable {
 		}
 
     	carregarMapa();
+    	
+    	//voltarParaFarmar("bio");
 
 		/* ligarBot = false; */
     	
@@ -305,11 +309,7 @@ public class GameController implements Runnable {
                 	         }
                 		 }
             		 }
-            		 
-            		 /*coordsMonstrosAtrasParede.sort(Comparator.comparingInt(coord -> {
-         			    List<Coordenadas> caminhoAteOBixo = aStar.encontrarCaminho(grafo, atual, coord);
-         			    return caminhoAteOBixo.size();
-         			}));*/
+
             		// Exibir resultado formatado
             		StringBuilder lista = new StringBuilder();
             		for (Coordenadas c : coordsMonstrosAtrasParede) {
@@ -317,40 +317,9 @@ public class GameController implements Runnable {
             		}
             		System.out.println("Size: " + coordsMonstrosAtrasParede.size());
             		System.out.println(lista);
-            		/*if (screen != null) {
-            			String filePath = "fotoTesteCoordenadas.png"; // Nome do arquivo na pasta atual
-            	        boolean success = Imgcodecs.imwrite(filePath, screen);
-            	        if (success) {
-            	            System.out.println("Imagem salva com sucesso em: " + filePath);
-            	        } else {
-            	            System.out.println("Falha ao salvar a imagem.");
-            	        }
-            			System.exit(0);
-            		}*/
+            		
             	 }
-            	 /*
-            	 if (coordsMonstrosAtrasParede.isEmpty()) {
-            		 List<MatOfPoint> monstrosAtrasParede = monstros.get("monstrosAtrasParede");
-                	 for(MatOfPoint monstro : monstrosAtrasParede) {
-                		 Rect m = Imgproc.boundingRect(monstro);
-                		 int centerX = m.x + m.width/2;
-                		 int centerY = m.y + m.height/2;
-                		 Coordenadas destinoBixo = bot.getCoordenadasTelaPeloMouse(atual, centerX, centerY);
-                		 
-                		 List<Coordenadas> copiaMonstrosAtrasParede = new ArrayList<>(coordsMonstrosAtrasParede);
-                		 for(Coordenadas coord : copiaMonstrosAtrasParede) {
-                			 if (destinoBixo.x - coord.x > 3 && destinoBixo.y - coord.y > 3) {
-                				 coordsMonstrosAtrasParede.add(destinoBixo);
-                			 }
-                		 }
-                		 
-                		 coordsMonstrosAtrasParede.sort(Comparator.comparingInt(coord -> {
-                			    List<Coordenadas> caminhoAteOBixo = aStar.encontrarCaminho(grafo, atual, coord);
-                			    return caminhoAteOBixo.size();
-                			}));
-                		 
-                	 }
-            	 }*/
+            	 
             }
             
 			// Verificar se existem monstros visíveis
@@ -375,6 +344,30 @@ public class GameController implements Runnable {
             		saindoDeCimaBio = false;
             	}
             }
+            
+            if (verificarSeLimpouOldGh) {
+            	if (System.currentTimeMillis() - tempoVerificacaoOldGH <= 2000) {
+            		System.out.println("Analisando Old GH");
+                	boolean areaLimpa = bot.detectarPixelsAmarelos(bot.getxJanela() + 222, bot.getyJanela() + 40, 658, 183);
+    	        	System.out.println("Todos monstros estão mortos? " + areaLimpa);
+    	        	if (areaLimpa) {
+    	        		if (rota == 2) { //parte da esquerda
+    	        			System.out.println("Indo para o portal...");
+    	        			passo = script.getRotas().get(2).getPassos().size() - 1;
+    	        			verificarSeLimpouOldGh = false;
+    	        			coordsMonstrosAtrasParede.clear();
+    	        		} else if (rota == 3) { //parte da direita
+    	        			System.out.println("Indo para o portal...");
+    	        			passo = script.getRotas().get(3).getPassos().size() - 1;
+    	        			verificarSeLimpouOldGh = false;
+    	        			coordsMonstrosAtrasParede.clear();
+    	        		}
+    	        	}
+            	} else {
+            		tempoVerificacaoOldGH = System.currentTimeMillis();
+                	verificarSeLimpouOldGh = false;
+            	}
+            }
 			
 			switch (stateMachine.getEstadoAtual()) {
 			case ANDANDO:
@@ -395,44 +388,6 @@ public class GameController implements Runnable {
 					ultimoMovimento = System.currentTimeMillis();
 				}
 				ultimaCoordenadaOcr = atual;
-
-				// verificar se tem falha no ocr pra nao dar coordenadas muito longe
-				// as vezes o ocr erra a leitura e o personagem fica indo para direções
-				// estranhas
-				/*
-				 * if (Math.abs(ultimaCoordenada.x - atual.x) > 20 ||
-				 * Math.abs(ultimaCoordenada.y - atual.y) > 20 ) { int diminuirPasso = passo -
-				 * 1; if (diminuirPasso <= 0) { diminuirPasso = 0; } int x =
-				 * script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().
-				 * get(0); int y =
-				 * script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().
-				 * get(1); atual = new Coordenadas(x,y);
-				 * 
-				 * System.out.println("****************#########################");
-				 * System.out.println("****************######################### " + atual);
-				 * System.out.println("****************#########################" +
-				 * ultimaCoordenada); Coordenadas atualMemoria = bot.obterCoordenadasMemoria();
-				 * atual = atualMemoria;
-				 * 
-				 * }
-				 */
-				/*
-				 * int diminuirPasso = passo - 1; if (diminuirPasso <= 0) { diminuirPasso = 0; }
-				 * int xInicio =
-				 * script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().
-				 * get(0); int yInicio =
-				 * script.getRotas().get(rota).getPassos().get(diminuirPasso).getCoordenadas().
-				 * get(1); int xFim =
-				 * script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(0);
-				 * int yFim =
-				 * script.getRotas().get(rota).getPassos().get(passo).getCoordenadas().get(1);
-				 * 
-				 * double distanciaDaReta = bot.calcularDistanciaDaReta(new
-				 * Coordenadas(xInicio,yInicio), new Coordenadas(xFim,yFim), atual);
-				 * 
-				 * if (distanciaDaReta > 10) { AStar aStar = new AStar(); //caminhoAlternativo =
-				 * aStar.calcularCaminhoComExpansao(atual, new Coordenadas(xFim,yFim), grafo); }
-				 */
 
 				ultimaCoordenada = atual;
 
@@ -462,6 +417,13 @@ public class GameController implements Runnable {
 	            	    !monstros.getOrDefault("azul", List.of()).isEmpty() ||
 	            	    !monstros.getOrDefault("amarelo", List.of()).isEmpty()) {
 					atacar(monstros);
+
+					//Verificar se matou todos os bixos de cada lado de old gh
+			        if (script.getMapa().equals("old_glast_heim.png") && passo >= 10 && (rota == 2 || rota == 3)) {
+			        	System.out.println("Ja passou do passo 10 e ta na esquerda ou direita");
+			        	verificarSeLimpouOldGh = true;
+			        	tempoVerificacaoOldGH = System.currentTimeMillis();
+			        }
 					stateMachine.mudarEstado(Estado.ANDANDO);
 	            }
 				
@@ -514,17 +476,18 @@ public class GameController implements Runnable {
                  foundBoss = true;
                  startTimeBoss = System.currentTimeMillis(); // Reseta o timer sempre que encontrar um boss
                  atacar(monstros);
-					stateMachine.mudarEstado(Estado.ANDANDO);
+				stateMachine.mudarEstado(Estado.ANDANDO);
              } else {
                  foundBoss = false;
              }
 
-             bot.sleep(100);
+             bot.sleep(100);//velocidade de atk
 
          } while ((System.currentTimeMillis() - startTimeBoss) < maxSearchTime || foundBoss);
 
          // Se saiu do loop, significa que não achou boss por 5 segundos
          if (script.getRotas().get(rota).getVerificacao().isTerminaNoBoss()) {
+        	 System.out.println("Termina no chefe, indo para verificação de finalização de instancia");
              finalizarRota(script, 5);
              stateMachine.mudarEstado(Estado.ANDANDO);
          } else {
@@ -767,6 +730,11 @@ public class GameController implements Runnable {
 		Coordenadas verificarCoordenadas = new Coordenadas(verificarX, verificarY);
 		//System.out.println("Verificando se está proximo de " + verificarCoordenadas + " | " + (bot.calcularDistancia(atual, verificarCoordenadas) <= distanciaMinima));
 
+		//Diminuir a verificacao pra passar pra proxima rota ao passar no portal
+		if (script.getMapa().equals("old_glast_heim.png") && ((passo == script.getRotas().get(2).getPassos().size() - 1) || (passo == script.getRotas().get(3).getPassos().size() - 1))) {
+			distanciaMinima = 3;
+			System.out.println("Diminuindo range de verificacao pra passar no portal");
+		}
 		if (bot.calcularDistancia(atual, verificarCoordenadas) <= distanciaMinima) {
 			System.out.println("Rota aumentada de verdade pela verificacao do teleport : " + verificarX + " " + verificarY);
 			rota++;
@@ -810,6 +778,23 @@ public class GameController implements Runnable {
 			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
 			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
 			
+			System.out.println("voltando para base");
+			bot.sleep(1000);
+	    	String path = "config/minimapas/base.png";
+	    	int voltarBase = skillsConfig.getGoBase();
+	    	verificarSeMudouMapa(path, voltarBase);
+			System.out.println("Aguardando 3 segundos");
+			bot.sleep(1000);
+			System.out.println("Aguardando 2 segundos");
+			bot.sleep(1000);
+			System.out.println("Aguardando 1 segundo");
+			
+			System.out.println("Encerrando Instancia");
+			bot.encerrarInstancia();
+			System.out.println("Analisando proximos passos...");
+			//Voltando base encerar instancia né
+			//Ao trocar de personagem, apertar enter 2x por causa dos chats de npc do inicio...
+			
 			int ultimoIndexConta = indexConta;
 			indexInstancia++;
 			if (indexInstancia > scriptContas.getContas().get(indexConta)
@@ -845,6 +830,20 @@ public class GameController implements Runnable {
 					bot.realizarLogin(usuario, senha);
 
 					System.out.println("Apertando enter na escolha do canal 1");
+					BufferedImage imagemTelaCanal = null;
+					String canal = "config/telas/canal.png";
+					try {
+						imagemTelaCanal = ImageIO.read(new File(canal));
+					} catch (IOException e) {
+						e.printStackTrace(); // 376 400 281 200
+					}
+					boolean imagensIguais = false;
+					do {
+						BufferedImage atual = bot.printarParteTela(376, 400, 281, 200);
+						imagensIguais = bot.compararImagens(atual, imagemTelaCanal);
+						System.out.println("Verificando imagens: " + imagensIguais);
+						bot.sleep(500);
+					} while( imagensIguais == false);
 					bot.apertarTecla(KeyEvent.VK_ENTER);
 					bot.sleep(5000);
 
@@ -854,24 +853,28 @@ public class GameController implements Runnable {
 				}
 				
 				int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getIndexPersonagem();
-				int pagina = scriptContas.getContas().get(0).getPersonagens().get(0).getPagina();
+				int pagina = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getPagina();// tava 0 0 por algum motivo
 				bot.escolherPersonagem(indexPersonagem, pagina);
-				String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem).getClasse();
+				String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getClasse();
+				System.out.println("Carregando atalhos da classe: " + classe);
 				carregarAtalhosSkills(classe);
 				
 				// Fechar Logue e Ganhe
+				System.out.println("Fechando Logue e Ganhe");
 				bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
 				bot.sleep(300);
 				bot.clicarMouse();
 				bot.sleep(300);
 				
 				//Fechar chat de npc
+				System.out.println("Apertando enter 2x para fechar chat de npc");
 				bot.apertarTecla(KeyEvent.VK_ENTER);
 				bot.sleep(300);
 				//Fechar chat de npc
 				bot.apertarTecla(KeyEvent.VK_ENTER);
 				bot.sleep(300);
 				
+				System.out.println("Visão topdown");
 				bot.visaoDeCima();
 				bot.sleep(100);
 				bot.zoom(-28);
@@ -886,8 +889,8 @@ public class GameController implements Runnable {
 			setScript(scriptTemp);
 			carregarMapa();
 			
-			String instancia = scriptContas.getContas().get(0).getPersonagens().get(0).getInstancias().get(0);
-			//bot.executarInstancia(instancia);
+			String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getInstancias().get(indexInstancia);
+			bot.executarInstancia(instancia);
 			
 			return;
 		}
@@ -1144,8 +1147,22 @@ public class GameController implements Runnable {
 		bot.realizarLogin(usuario, senha);
 
 		System.out.println("Apertando enter na escolha do canal 1");
+		BufferedImage imagemTelaCanal = null;
+		String path = "config/telas/canal.png";
+		try {
+			imagemTelaCanal = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace(); // 376 400 281 200
+		}
+		boolean imagensIguais = false;
+		do {
+			BufferedImage atual = bot.printarParteTela(376, 400, 281, 200);
+			imagensIguais = bot.compararImagens(atual, imagemTelaCanal);
+			System.out.println("Verificando imagens: " + imagensIguais);
+			bot.sleep(500);
+		} while( imagensIguais == false);
 		bot.apertarTecla(KeyEvent.VK_ENTER);
-		bot.sleep(5000);
+		bot.sleep(10000);
 
 		System.out.println("Chega na parte do pin...");
 		bot.inserirPin(pin);
@@ -1154,7 +1171,7 @@ public class GameController implements Runnable {
 		int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getIndexPersonagem();
 		int pagina = scriptContas.getContas().get(0).getPersonagens().get(0).getPagina();
 		bot.escolherPersonagem(indexPersonagem, pagina);
-		String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem).getClasse();
+		String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getClasse();
 		carregarAtalhosSkills(classe);
 		
 		// Fechar Logue e Ganhe
@@ -1172,7 +1189,8 @@ public class GameController implements Runnable {
 
 		// Selecionar Instancias
 		// Abrir Janela de instancias
-		//bot.executarInstancia(scriptContas);
+		String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getInstancias().get(indexInstancia);
+		bot.executarInstancia(instancia);
 	}
 
 	
@@ -1304,24 +1322,69 @@ public class GameController implements Runnable {
         }
         return false;
     }
+    
+    public void verificarSeMudouMapa(String path, int altOpcao) {
+    	BufferedImage imagemRef = null;
+        try {
+			imagemRef = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+        
+        boolean imagensIguais = false;
+        do {
+        	if (altOpcao != -1) { 
+        		bot.atalhoAltM(altOpcao);
+        	}
+        	
+        	// Captura do minimapa atual
+            Rectangle captureArea = new Rectangle(bot.getxJanela() + 880, bot.getyJanela() + 16, 128, 128);
+            BufferedImage imagemAtual = bot.getRobot().createScreenCapture(captureArea);
+            
+            imagensIguais = bot.compararImagens(imagemRef, imagemAtual);
+
+            System.out.println("As imagens são similares? " + imagensIguais);
+            bot.sleep(100);
+        } while (imagensIguais == false);
+    }
+    
+    private void verificarSeBalaoNpcMudou(BufferedImage imagemBalaoAnterior, int x, int y, int width, int height) {
+    	bot.sleep(100);
+    	BufferedImage imagemBalaoAtual = null;
+    	boolean comparacao = true;
+    	do {
+    		List<MatOfPoint> balao = bot.verificarBalaoNpcTeleport();
+    		if (balao.size() > 0) {
+				Rect m = Imgproc.boundingRect(balao.get(0));
+				Rectangle captureArea = new Rectangle(bot.getxJanela() + m.x, bot.getyJanela() + m.y, m.width, m.height);
+				imagemBalaoAtual = bot.getRobot().createScreenCapture(captureArea);
+			} else {
+				Rectangle captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+				imagemBalaoAtual = bot.getRobot().createScreenCapture(captureArea);
+			}
+			comparacao = bot.compararBalaoNpc(imagemBalaoAnterior, imagemBalaoAtual);
+			bot.sleep(100);
+		} while (comparacao == true);
+    }
   //notebook
-    private void voltarParaFarmar(String mapa) {
+    public void voltarParaFarmar(String mapa) {
     	resetarRotas();
     	//Voltar para labirinto valk
     	int labirinto = skillsConfig.getLabirintovalk();
-    	bot.atalhoAltM(labirinto);
-    	bot.sleep(5000);
+    	String path = "config/minimapas/valkiria.png";
+    	verificarSeMudouMapa(path, labirinto);
+        
     	//Voltar para morroc
+    	path = "config/minimapas/base.png";
     	int base = skillsConfig.getGoBase();
-    	bot.atalhoAltM(base);
-    	bot.sleep(5000);
+    	verificarSeMudouMapa(path, base);
     	//visao de cima
     	bot.visaoDeCima();
 		bot.sleep(100);
 		bot.zoom(-28);
 		bot.sleep(100);
     	//Clicar pra curar
-    	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(231,201));
+    	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(231,202));
     	bot.sleep(100);
     	bot.clicarMouse();
     	bot.sleep(30);
@@ -1330,27 +1393,72 @@ public class GameController implements Runnable {
     	//Falar com teleporte
     	bot.atalhoAltM(base);
     	bot.sleep(2000);
+    	List<MatOfPoint> balao = new ArrayList<MatOfPoint>();
+    	BufferedImage imagemBalaoAnterior = null;
+    	Rectangle captureArea = null;
+    	int x = 0; int y = 0; int width = 0; int height = 0;
     	bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(231,205));
     	bot.sleep(90);
     	bot.clicarMouse();
-    	bot.sleep(4000);
+    	do {
+        	balao = bot.verificarBalaoNpcTeleport();
+        	System.out.println("Tamanho balao: " + balao.size());
+        	System.out.println("Balao de npc detectado?: " + (balao.size() > 0 ? true : false));
+        	
+        	if (balao.size() > 0) {
+        		Rect m = Imgproc.boundingRect(balao.get(0));
+        		x = m.x; y = m.y; width = m.width; height = m.height;
+                captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+                imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+        	}
+        	bot.sleep(500);
+    	} while (balao.isEmpty());
+    	//bot.sleep(4000);
     	if (mapa.equals("bio")) {
-    		bot.selecionarOpcao(20);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(1);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(2);
-        	bot.sleep(2000);
+    		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(20, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(2, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		balao = bot.verificarBalaoNpcTeleport();
+    		if (balao.size() > 0) {
+				Rect m = Imgproc.boundingRect(balao.get(0));
+				captureArea = new Rectangle(bot.getxJanela() + m.x, bot.getyJanela() + m.y, m.width, m.height);
+				imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			} else {
+				captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+	            imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			}
         	bot.apertarTecla(KeyEvent.VK_ENTER);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(1);
-        	bot.sleep(2000);
+        	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+        	imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		balao = bot.verificarBalaoNpcTeleport();
+    		if (balao.size() > 0) {
+				Rect m = Imgproc.boundingRect(balao.get(0));
+				captureArea = new Rectangle(bot.getxJanela() + m.x, bot.getyJanela() + m.y, m.width, m.height);
+				imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			} else {
+				captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+	            imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			}
         	bot.apertarTecla(KeyEvent.VK_ENTER);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(1);
-        	bot.sleep(2000);
+        	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+        	imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+    		bot.sleep(1000);
+        	//bot.sleep(2000);
         	bot.apertarTecla(KeyEvent.VK_ENTER);
-        	bot.sleep(5000);
+        	path = "config/minimapas/bio.png";
+        	verificarSeMudouMapa(path, -1);
+        	//bot.sleep(5000);
         	bot.visaoDeCima();
         	bot.zoom(-28);
         	//ir pro portal
@@ -1359,32 +1467,92 @@ public class GameController implements Runnable {
         	bot.clicarMouse();
     	}
     	if (mapa.equals("chef")) {
-    		bot.selecionarOpcao(21);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(1);
-        	bot.sleep(2000);
+    		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(21, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		balao = bot.verificarBalaoNpcTeleport();
+    		if (balao.size() > 0) {
+				Rect m = Imgproc.boundingRect(balao.get(0));
+				captureArea = new Rectangle(bot.getxJanela() + m.x, bot.getyJanela() + m.y, m.width, m.height);
+				imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			} else {
+				captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+	            imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			}
         	bot.apertarTecla(KeyEvent.VK_ENTER);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(1);
-        	bot.sleep(2000);
+        	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+        	imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		balao = bot.verificarBalaoNpcTeleport();
+    		if (balao.size() > 0) {
+				Rect m = Imgproc.boundingRect(balao.get(0));
+				captureArea = new Rectangle(bot.getxJanela() + m.x, bot.getyJanela() + m.y, m.width, m.height);
+				imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			} else {
+				captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+	            imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			}
         	bot.apertarTecla(KeyEvent.VK_ENTER);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(2);
-        	bot.sleep(2000);
+        	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+        	imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(2, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		balao = bot.verificarBalaoNpcTeleport();
+    		if (balao.size() > 0) {
+				Rect m = Imgproc.boundingRect(balao.get(0));
+				captureArea = new Rectangle(bot.getxJanela() + m.x, bot.getyJanela() + m.y, m.width, m.height);
+				imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			} else {
+				captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+	            imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			}
         	bot.apertarTecla(KeyEvent.VK_ENTER);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(1);
-        	bot.sleep(2000);
+        	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+        	imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		balao = bot.verificarBalaoNpcTeleport();
+    		if (balao.size() > 0) {
+				Rect m = Imgproc.boundingRect(balao.get(0));
+				captureArea = new Rectangle(bot.getxJanela() + m.x, bot.getyJanela() + m.y, m.width, m.height);
+				imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			} else {
+				captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+	            imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			}
         	bot.apertarTecla(KeyEvent.VK_ENTER);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(1);
-        	bot.sleep(2000);
+        	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+        	imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	//bot.sleep(2000);
+    		balao = bot.verificarBalaoNpcTeleport();
+    		if (balao.size() > 0) {
+				Rect m = Imgproc.boundingRect(balao.get(0));
+				captureArea = new Rectangle(bot.getxJanela() + m.x, bot.getyJanela() + m.y, m.width, m.height);
+				imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			} else {
+				captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+	            imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+			}
         	bot.apertarTecla(KeyEvent.VK_ENTER);
-        	bot.sleep(2000);
-        	bot.selecionarOpcao(1);
-        	bot.sleep(2000);
+        	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	bot.sleep(1000);
+        	
+        	//bot.sleep(2000);
         	bot.apertarTecla(KeyEvent.VK_ENTER);
-        	bot.sleep(5000);
+        	bot.sleep(100);
+        	bot.apertarTecla(KeyEvent.VK_ENTER);
+        	path = "config/minimapas/chef.png";
+        	verificarSeMudouMapa(path, -1);
+        	//bot.sleep(5000);
         	bot.visaoDeCima();
         	bot.zoom(-28);
     	}

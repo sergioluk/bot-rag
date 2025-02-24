@@ -82,7 +82,7 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		boolean dev = false;
+		boolean dev = true;
 		if (dev == false) {
 			try {
 				 // Lê a versão atual do bot
@@ -138,7 +138,7 @@ public class BotRagnarok {
 
 		Robot robot = new Robot();
 		Bot bot = new Bot(tesseract, robot, tesseractLetras);
-
+		//bot.printarTela();
 		// Tela tela = new Tela(bot);
 		// SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
 		// SwingUtilities.invokeLater( () -> new Tela(bot));
@@ -156,6 +156,14 @@ public class BotRagnarok {
 		System.out.println("Lower: " + limites[0]);
 		System.out.println("Upper: " + limites[1]);
 		// Apagar
+		
+		//bot.detectarPixelsAmarelos(222, 240, 658, 183);
+		//bot.printarTela();
+		/*boolean detectou = bot.detectarPixelsAmarelos(654, 180, 658, 183);
+		System.out.println("Detectou? " + detectou);*/
+		/*String path = "config/minimapas/valkiria.png";
+		int labirinto = 5;
+    	gameController.verificarSeMudouMapa(path, labirinto);*/
 
 		/*
 		 * GrafoMapa grafo = new GrafoMapa();
@@ -233,7 +241,7 @@ public class BotRagnarok {
 		String filePath = "C:\\Users\\Sergio\\Desktop\\Minhas coisas\\enderecos.txt";
 		//findDuplicateAddresses(filePath);
 
-		int processId = 19424;
+		int processId = 14464;
 		int valueToFind = 27163;
 		// short valueToFind = 68;
 		// procurarInt(processId,valueToFind);
@@ -247,7 +255,7 @@ public class BotRagnarok {
 		//procurarString(processId, nome);
 		int soma = 0;
 		// mostrarValorMemoria(processId,0x156F798 + soma,0x18F4438 + soma);
-		//mostrarStringMemoria(processId, 0x2628608 + soma, 0x70B0A070 + soma, 256);
+		//mostrarStringMemoria(processId, 0x70B0A070 + soma, 0x70B09968 + soma, 256);
 		// buscarItemPorId(processId, valueToFind); nao funcionou
 		// obteve Moeda de Inst�ncia 0x19A9ED
 
