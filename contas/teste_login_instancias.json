@@ -1,9 +1,9 @@
 {
     "contas": [
         { 
-            "usuario" : "israelmd",
-            "senha" : "Zazakwy00!",
-            "pin" : "9751",
+            "usuario" : "-",
+            "senha" : "-!",
+            "pin" : "-",
             "personagens" : [
                 {
                     "pagina" : 1,
@@ -22,9 +22,9 @@
             ]
         },
         {
-            "usuario" : "ursopolargay5",
-            "senha" : "Cofre246",
-            "pin" : "7790",
+            "usuario" : "-",
+            "senha" : "-",
+            "pin" : "-",
             "personagens" : [
                 {
                     "pagina" : 1,

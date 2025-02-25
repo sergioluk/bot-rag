@@ -1,40 +1,36 @@
 package com.ragnarokbot.bot;
 
-public class Skill {
+public class Buff {
 	private int tecla;
-	private String cor;
 	private int cd;
 	private int cdCounter;
-	//notebook
-	private int range;
 	private long lastUsedTime; // Timestamp do último uso
 	
-	private Boolean main;
-	private String posicao;
+	private boolean self;
+	private String icone;
 	
-	public Skill(int tecla, String cor, int cd, int range, String posicao, Boolean main) {
+	public Buff(int tecla, int cd, boolean self, String icone) {
 		this.tecla = tecla;
-		this.cor = cor;
 		this.cd = cd;
-		this.range = range;
 		this.lastUsedTime = 0;
-		this.posicao = posicao;
-		this.main = main;
+		this.self = self;
+		this.icone = icone;
 	}
 	
 	public int getTecla() {
         return tecla;
     }
+	
+    
+    public boolean isSelf() {
+		return self;
+	}
 
-    public String getCor() {
-        return cor;
-    }
-    
-    public int getRange() {
-    	return range;
-    }
-    
-    public boolean isReady() {
+	public String getIcone() {
+		return icone;
+	}
+
+	public boolean isReady() {
         // Verifica se o cooldown acabou
         long currentTime = System.currentTimeMillis();
         return (currentTime - lastUsedTime) >= cd;
@@ -44,5 +40,4 @@ public class Skill {
         // Marca o tempo de uso
         lastUsedTime = System.currentTimeMillis();
     }
-    
 }

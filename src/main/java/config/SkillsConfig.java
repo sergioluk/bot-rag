@@ -127,6 +127,7 @@ public class SkillsConfig {
 	public static class Classes {
 		private String classe;
 		private List<Skills> skills;
+		private List<Buffs> buffs;
 		public String getClasse() {
 			return classe;
 		}
@@ -139,6 +140,12 @@ public class SkillsConfig {
 		public void setSkills(List<Skills> skills) {
 			this.skills = skills;
 		}
+		public List<Buffs> getBuffs() {
+			return buffs;
+		}
+		public void setBuffs(List<Buffs> buffs) {
+			this.buffs = buffs;
+		}
 	}
 	
 	public static class Skills {
@@ -146,6 +153,8 @@ public class SkillsConfig {
 		private int cd;
 		private String cor;
 		private int range;
+		private String posicao;
+		private Boolean main;
 		public String getAtalho() {
 			return atalho;
 		}
@@ -169,6 +178,49 @@ public class SkillsConfig {
 		}
 		public void setRange(int range) {
 			this.range = range;
+		}
+		public String getPosicao() {
+			return posicao;
+		}
+		public void setPosicao(String posicao) {
+			this.posicao = posicao;
+		}
+		public Boolean isMain() {
+			return main;
+		}
+		public void setMain(Boolean main) {
+			this.main = main;
+		}
+	}
+	
+	public static class Buffs {
+		private String atalho;
+		private int cd;
+		private boolean self;
+		private String icone;
+		public String getAtalho() {
+			return atalho;
+		}
+		public void setAtalho(String atalho) {
+			this.atalho = atalho;
+		}
+		public int getCd() {
+			return cd;
+		}
+		public void setCd(int cd) {
+			this.cd = cd;
+		}
+		public boolean isSelf() {
+			return self;
+		}
+		public void setSelf(boolean self) {
+			this.self = self;
+		}
+		public String getIcone() {
+			return icone;
+		}
+		public void setIcone(String icone) {
+			this.icone = icone;
 		}
 		
 	}

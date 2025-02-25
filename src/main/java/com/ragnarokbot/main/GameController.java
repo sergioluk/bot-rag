@@ -11,6 +11,7 @@ import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import com.ragnarokbot.bot.Bot;
+import com.ragnarokbot.bot.Buff;
 import com.ragnarokbot.bot.Skill;
 import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.model.AStar;
@@ -26,6 +27,7 @@ import config.ContasConfig.Personagem;
 import config.Script;
 import config.ScriptLoader;
 import config.SkillsConfig;
+import config.SkillsConfig.Buffs;
 import config.SkillsConfig.Classes;
 import config.SkillsConfig.Skills;
 import config.Script.Acao;
@@ -185,7 +187,8 @@ public class GameController implements Runnable {
     	//bot.encerrarInstancia();
 		//bot.printarTela();
 		//atalho padrao para bio chef
-		carregarAtalhosSkills("mago");
+    	String classe = JanelaPrincipal.obterClasseSelecionada();
+		carregarAtalhosSkills(classe);
 		bot.sleep(3000);
 
 		// Modo instancia
@@ -218,7 +221,7 @@ public class GameController implements Runnable {
 
     	carregarMapa();
     	
-    	//voltarParaFarmar("bio");
+    	voltarParaFarmar("chef");
 
 		/* ligarBot = false; */
     	
@@ -1369,6 +1372,9 @@ public class GameController implements Runnable {
   //notebook
     public void voltarParaFarmar(String mapa) {
     	resetarRotas();
+    	
+    	String dificuldade = JanelaPrincipal.obterDificuldadeSelecionada();
+    	String sala = JanelaPrincipal.obterSalaSelecionada();
     	//Voltar para labirinto valk
     	int labirinto = skillsConfig.getLabirintovalk();
     	String path = "config/minimapas/valkiria.png";
@@ -1418,8 +1424,13 @@ public class GameController implements Runnable {
     		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(20, x, y, width, height);
     		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
         	//bot.sleep(2000);
-    		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
-    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+    		if (dificuldade.equals("normal")) {
+    			imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+        		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+    		} else if (dificuldade.equals("hard")) {
+    			imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(2, x, y, width, height);
+        		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+    		}
         	//bot.sleep(2000);
     		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(2, x, y, width, height);
     		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
@@ -1459,6 +1470,7 @@ public class GameController implements Runnable {
         	path = "config/minimapas/bio.png";
         	verificarSeMudouMapa(path, -1);
         	//bot.sleep(5000);
+        	bot.sleep(1000);
         	bot.visaoDeCima();
         	bot.zoom(-28);
         	//ir pro portal
@@ -1485,8 +1497,14 @@ public class GameController implements Runnable {
         	bot.apertarTecla(KeyEvent.VK_ENTER);
         	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
         	//bot.sleep(2000);
-        	imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
-    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	if (dificuldade.equals("normal")) {
+        		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+        		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	} else if (dificuldade.equals("hard")) {
+        		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(2, x, y, width, height);
+        		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	}
+        	
         	//bot.sleep(2000);
     		balao = bot.verificarBalaoNpcTeleport();
     		if (balao.size() > 0) {
@@ -1500,8 +1518,14 @@ public class GameController implements Runnable {
         	bot.apertarTecla(KeyEvent.VK_ENTER);
         	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
         	//bot.sleep(2000);
-        	imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(2, x, y, width, height);
-    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	if (sala.equals("1")) {
+        		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+        		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	} else if (sala.equals("2")) {
+        		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(2, x, y, width, height);
+        		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	}
+        	
         	//bot.sleep(2000);
     		balao = bot.verificarBalaoNpcTeleport();
     		if (balao.size() > 0) {
@@ -1553,6 +1577,7 @@ public class GameController implements Runnable {
         	path = "config/minimapas/chef.png";
         	verificarSeMudouMapa(path, -1);
         	//bot.sleep(5000);
+        	bot.sleep(1000);
         	bot.visaoDeCima();
         	bot.zoom(-28);
     	}
@@ -1561,12 +1586,24 @@ public class GameController implements Runnable {
     
     public void carregarAtalhosSkills(String classe) {
     	bot.skills.clear();
+    	bot.buffs.clear();
     	for (Classes c : skillsConfig.getClasses()) {
     		if (c.getClasse().equals(classe)) {
     			for (Skills sk : c.getSkills()) {
     				int teclaAtalho = KeyMapper.getTeclaAtalho(sk.getAtalho());
-    				bot.skills.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange()));
+    				Boolean main = false;
+    				if (sk.isMain() != null) {
+    					main = sk.isMain();
+    				}
+    				bot.skills.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange(), sk.getPosicao(), main));
     			}
+    			if (c.getBuffs() != null) {
+    				for (Buffs b : c.getBuffs()) {
+        				int teclaAtalho = KeyMapper.getTeclaAtalho(b.getAtalho());
+        				bot.buffs.add(new Buff(teclaAtalho, b.getCd(), b.isSelf(), b.getIcone()));
+        			}
+    			}
+    			
     			break;
     		}
     	}

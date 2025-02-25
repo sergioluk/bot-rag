@@ -11,6 +11,7 @@ import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.Point;
 import java.awt.Robot;
@@ -63,6 +64,7 @@ import config.ContasConfig;
 import config.Script;
 import config.ScriptLoader;
 import config.SkillsConfig;
+import config.SkillsConfig.Classes;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import utils.Atalho;
@@ -84,6 +86,9 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     private JPanel rightPanel;
     private SkillsConfig config;
     private Map<String, Atalho> atalhos = new HashMap<>();
+    private static JComboBox<String> comboBoxDificuldade;
+    private static JComboBox<String> comboBoxClasse;
+    private static JComboBox<String> comboBoxSala;
 
     public JanelaPrincipal(GameController gameController) {
     	System.out.println("Criando JanelaPrincipal");
@@ -265,14 +270,48 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         topPanel.add(topLeftPanel, BorderLayout.WEST); // Adiciona o painel com ComboBox e Botão à esquerda
         topPanel.add(leftButtonsPanel, BorderLayout.CENTER); // Adiciona o painel com os botões no centro
         topPanel.add(timePanel, BorderLayout.EAST);
+        topPanel.add(criarPainelClasseDificuldadeSala(), BorderLayout.SOUTH);
 
         return topPanel;
+    }
+    
+    private void atualizarComboBoxClasse() {
+    	ScriptLoader scriptLoader = new ScriptLoader();
+    	SkillsConfig skillsConfig = scriptLoader.carregarSkills("config/config_skills.json");
+
+        comboBoxClasse.removeAllItems();
+        for (Classes c : skillsConfig.getClasses()) {
+            comboBoxClasse.addItem(c.getClasse());
+        }
+    }
+
+    
+    private JPanel criarPainelClasseDificuldadeSala() {
+    	JPanel painel = new JPanel();
+    	painel.setOpaque(false);
+    	painel.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+    	painel.setLayout(new GridLayout(1, 2, 5, 5)); // 1 linha, 2 colunas, espaçamento de 5px
+    	
+    	String[] dificuldades = {"normal", "hard"};
+    	comboBoxDificuldade = new JComboBox<>(dificuldades);
+    	
+    	comboBoxClasse = new JComboBox<>();
+    	atualizarComboBoxClasse();
+    	
+    	String[] salas = {"2", "1"};
+    	comboBoxSala = new JComboBox<>(salas);
+    	
+    	painel.add(comboBoxDificuldade);
+    	painel.add(comboBoxClasse);
+    	painel.add(comboBoxSala);
+    	
+    	return painel;
     }
 
     private JPanel createBelowTopPanel() {
         JPanel belowTopPanel = new JPanel(new BorderLayout());
         belowTopPanel.setOpaque(false);
-        belowTopPanel.setBorder(BorderFactory.createEmptyBorder(55, 20, 20, 20));
+        belowTopPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
         // Criando o grupo de botões para garantir seleção única
         ButtonGroup radioButtonGroup = new ButtonGroup();
@@ -572,6 +611,8 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     
     private void atualizarScripts() {
     	
+    	atualizarComboBoxClasse();
+    	
     	resetarSequenciaBioChef();
     	
         // Atualiza os arquivos no painel esquerdo
@@ -713,6 +754,16 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 	        return -1;
 	    }
 	}
+	
+	public static String obterDificuldadeSelecionada() {
+        return (String) comboBoxDificuldade.getSelectedItem();
+    }
+	public static String obterSalaSelecionada() {
+        return (String) comboBoxSala.getSelectedItem();
+    }
+	public static String obterClasseSelecionada() {
+        return (String) comboBoxClasse.getSelectedItem();
+    }
 	
 }
 

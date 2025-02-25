@@ -22,19 +22,66 @@
             "atalho": "Q",
             "cd" : 500,
             "cor" : "rosa",
-            "range": 14
+            "range": 14,
+            "posicao": "1-2",
+            "main": true
           },
           {
             "atalho": "E",
             "cd" : 7000,
             "cor" : "azul",
-            "range": 9
+            "range": 9,
+            "posicao": "1-2"
           },
           {
             "atalho": "R",
             "cd" : 5000,
             "cor" : "azul",
-            "range": 10
+            "range": 10,
+            "posicao": "1-2"
+          }
+        ],
+        "buffs" : [
+          {
+            "atalho": "X",
+            "cd": 500,
+            "self": false,
+            "icone": "config/buff_icone/lux.png"
+          }
+        ]
+      },
+      {
+        "classe": "mago x1",
+        "skills" : [
+          {
+            "atalho": "Q",
+            "cd" : 500,
+            "cor" : "rosa",
+            "range": 14,
+            "posicao": "1-2",
+            "main": true
+          },
+          {
+            "atalho": "E",
+            "cd" : 7000,
+            "cor" : "azul",
+            "range": 9,
+            "posicao": "1-2"
+          },
+          {
+            "atalho": "R",
+            "cd" : 5000,
+            "cor" : "azul",
+            "range": 10,
+            "posicao": "1-2"
+          }
+        ],
+        "buffs" : [
+          {
+            "atalho": "X",
+            "cd": 500,
+            "self": false,
+            "icone": "config/buff_icone/lux.png"
           }
         ]
       }

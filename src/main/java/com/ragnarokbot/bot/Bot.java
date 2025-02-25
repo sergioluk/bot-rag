@@ -74,6 +74,7 @@ import config.ConfigManager.Config;
 import config.ContasConfig;
 import config.Pin;
 import config.ScriptLoader;
+import config.SkillsConfig.Buffs;
 
 import com.sun.jna.platform.win32.WinDef.HWND;
 import com.sun.jna.platform.win32.WinDef.RECT;
@@ -96,6 +97,7 @@ public class Bot {
     private int yJanela;
     
     public List<Skill> skills = new ArrayList<>();
+    public List<Buff> buffs = new ArrayList<>();
 
     private MemoryScanner memoria = new MemoryScanner();
     
