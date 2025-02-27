@@ -1169,6 +1169,146 @@ public class Bot {
 	    
 	}
 	
+	public List<MatOfPoint> verificarTamanhoJanelaHp() {
+		Scalar lowerColor = new Scalar(0, 0, 215);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+	    
+	    // Capturar a tela da área definida
+	    BufferedImage hpImage = printarParteTela(0, 0, 219, 157);
+	    
+	    
+	    Map<String, Scalar[]> colorRanges = Map.of("janelaHp", new Scalar[]{lowerColor, upperColor});
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(hpImage);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Mapear os resultados
+	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	    
+	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+	        String colorName = entry.getKey();
+	        Scalar lowerColor2 = entry.getValue()[0];
+	        Scalar upperColor2 = entry.getValue()[1];
+
+	        // Criar máscara para identificar a cor dentro do intervalo
+	        Mat mask = new Mat();
+	        Core.inRange(hsvImage, lowerColor2, upperColor2, mask);
+
+	        // Encontrar contornos na máscara
+	        List<MatOfPoint> entidades = new ArrayList<>();
+	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	        
+	        // Armazenar os contornos filtrados associados à cor
+	        detectedEntities.put(colorName, entidades);
+	    }
+	    
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> janela = detectedEntities.getOrDefault("janelaHp", new ArrayList<>());
+	
+			if (janela.isEmpty()) {
+	        	return janela;
+	        }
+	        
+		    // Filtrar NPCs por tamanho e posição
+		    List<MatOfPoint> janelaEncerrarInstancia = janela.stream()
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            return boundingBox.width > 200 && boundingBox.height > 80;
+		        })
+		        .toList();
+		    
+		    
+		    // Desenhar contornos na imagem original
+		    /*Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(screen, janelaEncerrarInstancia, -1, greenColor, 2);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, screen);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		    
+	
+		    return janelaEncerrarInstancia;   
+	    
+	}
+	
+	public List<MatOfPoint> procurarIventario() {
+		Scalar lowerColor = new Scalar(0, 0, 215);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+	    
+	    // Capturar a tela da área definida
+	    BufferedImage inventario = printarParteTela(0, 0, width, height);
+	    
+	    
+	    Map<String, Scalar[]> colorRanges = Map.of("inventario", new Scalar[]{lowerColor, upperColor});
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(inventario);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Mapear os resultados
+	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	    
+	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+	        String colorName = entry.getKey();
+	        Scalar lowerColor2 = entry.getValue()[0];
+	        Scalar upperColor2 = entry.getValue()[1];
+
+	        // Criar máscara para identificar a cor dentro do intervalo
+	        Mat mask = new Mat();
+	        Core.inRange(hsvImage, lowerColor2, upperColor2, mask);
+
+	        // Encontrar contornos na máscara
+	        List<MatOfPoint> entidades = new ArrayList<>();
+	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	        
+	        // Armazenar os contornos filtrados associados à cor
+	        detectedEntities.put(colorName, entidades);
+	    }
+	    
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> janela = detectedEntities.getOrDefault("inventario", new ArrayList<>());
+	
+			if (janela.isEmpty()) {
+	        	return janela;
+	        }
+	        
+		    // Filtrar NPCs por tamanho e posição
+		    List<MatOfPoint> janelaEncerrarInstancia = janela.stream()
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            return boundingBox.width > 230 && boundingBox.height > 170;
+		        })
+		        .toList();
+		    
+		    
+		    // Desenhar contornos na imagem original
+		    /*Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(screen, janelaEncerrarInstancia, -1, greenColor, 2);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, screen);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		    
+	
+		    return janelaEncerrarInstancia;   
+	    
+	}
+	
 	public int calcularDistancia(Coordenadas atual, Coordenadas destino) {
 	    return (int) Math.sqrt(Math.pow(destino.x - atual.x, 2) + Math.pow(destino.y - atual.y, 2));
 	}
@@ -1837,9 +1977,20 @@ public class Bot {
 	    
 	    
 	public void executarInstancia(String instancia) {
-		moverMouse(getxJanela() + 65, getyJanela() + 150);
-		sleep(300);
-		clicarMouse();
+		
+		List<MatOfPoint> janelaHpGrande = verificarTamanhoJanelaHp(); 
+		System.out.println("Tamanho da janela do hp é grande?: " + (janelaHpGrande.isEmpty()? false : true));
+		
+		if (janelaHpGrande.isEmpty()) {//clicar mais em cima
+			moverMouse(getxJanela() + 65, getyJanela() + 150);
+			sleep(300);
+			clicarMouse();
+		} else {//clicar mais em baixo
+			moverMouse(getxJanela() + 65, getyJanela() + 227);
+			sleep(300);
+			clicarMouse();
+		}
+		
 		// Selecionar de fato a instancia
 		sleep(300);
 		
@@ -1989,19 +2140,23 @@ public class Bot {
 		boolean imagensIguais = false;
 		do {
 			
-			apertarTecla(KeyEvent.VK_ESCAPE);
-			sleep(500);
-			moverMouse(getxJanela() + 511, getyJanela() + 513);
-			sleep(300);
-			clicarMouse();
-			sleep(300);
-			clicarMouse();
-			sleep(300);
-			
 			BufferedImage atual = printarParteTela(954, 72, 24, 25);
 			imagensIguais = compararImagens(atual, imagemTelaPin);
 			System.out.println("Verificando imagens: " + imagensIguais);
-			sleep(500);
+			sleep(1000);
+			
+			if (!imagensIguais) {
+				apertarTecla(KeyEvent.VK_ESCAPE);
+				sleep(500);
+				moverMouse(getxJanela() + 511, getyJanela() + 513);
+				sleep(300);
+				clicarMouse();
+				sleep(300);
+				clicarMouse();
+				sleep(300);
+			}
+			
+			sleep(1000);
 		} while( imagensIguais == false);
 		
 		

@@ -157,6 +157,20 @@ public class BotRagnarok {
 		System.out.println("Upper: " + limites[1]);
 		// Apagar
 		
+		do {
+			
+		} while();
+		List<MatOfPoint> inventario = bot.procurarIventario();
+		if (!inventario.isEmpty()) {
+			Rect m = Imgproc.boundingRect(inventario.get(0));
+			bot.moverMouse(bot.getxJanela() + m.x, bot.getyJanela() + m.y);
+			System.out.println("x: " + m.x + " y: " + m.y);
+		}
+		
+		
+		//System.out.println("inventario: " + m.size());
+		//bot.executarInstancia("oi");
+		//bot.realizarLogin("asd","123");
 		//bot.detectarPixelsAmarelos(222, 240, 658, 183);
 		//bot.printarTela();
 		/*boolean detectou = bot.detectarPixelsAmarelos(654, 180, 658, 183);

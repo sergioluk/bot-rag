@@ -89,6 +89,10 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     private static JComboBox<String> comboBoxDificuldade;
     private static JComboBox<String> comboBoxClasse;
     private static JComboBox<String> comboBoxSala;
+    private JButton playButton;
+    private JButton stopButton;
+    private JButton pauseResumeButton;
+    private Color corPadrao;
 
     public JanelaPrincipal(GameController gameController) {
     	System.out.println("Criando JanelaPrincipal");
@@ -245,13 +249,15 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         JButton atualizarScripts = new JButton("<html><center>Atualizar<br>Scripts</center></html>");
         atualizarScripts.addActionListener(e -> atualizarScripts()); // Adiciona ação para o botão Play
 
-        JButton playButton = new JButton("<html><center>Play<br>" + config.getAtalhoPlay() + "</center></html>");
+        playButton = new JButton("<html><center>Play<br>" + config.getAtalhoPlay() + "</center></html>");
         playButton.addActionListener(e -> play()); // Adiciona ação para o botão Play
+
+        corPadrao = playButton.getBackground();
         
-        JButton stopButton = new JButton("<html><center>Stop<br>" + config.getAtalhoStop() + "</center></html>");
+        stopButton = new JButton("<html><center>Stop<br>" + config.getAtalhoStop() + "</center></html>");
         stopButton.addActionListener(e -> stop()); // Adiciona ação para o botão Play
         
-        JButton pauseResumeButton = new JButton("<html><center>Pause/Resume<br>" + config.getAtalhoPause() + "</center></html>");
+        pauseResumeButton = new JButton("<html><center>Pause/Resume<br>" + config.getAtalhoPause() + "</center></html>");
         pauseResumeButton.addActionListener(e -> pauseResume());
         System.out.println("Adicionando ActionListener ao botão Pause/Resume");
         
@@ -273,6 +279,10 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         topPanel.add(criarPainelClasseDificuldadeSala(), BorderLayout.SOUTH);
 
         return topPanel;
+    }
+    
+    private void resetarCor(JButton botao) {
+    	botao.setBackground(corPadrao);
     }
     
     private void atualizarComboBoxClasse() {
@@ -488,6 +498,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 	// Método chamado ao clicar no botão Play
     private void play() {
         System.out.println("Clicou no botão Play");
+        
         try {
             
             ScriptLoader scriptLoader = new ScriptLoader();
@@ -528,6 +539,11 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             	 botThread = new Thread(gameController); // Cria a thread para o GameController
             	 gameController.setLigarBot(true);
                  botThread.start(); // Inicia o loop do bot
+                 
+
+                 playButton.setBackground(new Color(144, 238, 144));//Verde claro
+                 resetarCor(pauseResumeButton);
+                 resetarCor(stopButton);
             }
 			//gameController.run();
 			
@@ -541,6 +557,10 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     	Bot bot = gameController.getBot();
     	GameController gc = new GameController(bot);
     	gameController = gc;
+    	
+    	stopButton.setBackground(new Color(250, 85, 85));//Vermelho claro
+        resetarCor(pauseResumeButton);
+        resetarCor(playButton);
     }
     public void pauseResume() {
     	System.out.println("Evento Pause/Resume disparado");
@@ -559,6 +579,10 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     		gameController.pausarBot();
     	}
     	pauseCounter++;
+    	
+    	pauseResumeButton.setBackground(new Color(211, 129, 129));//Cinza vermelho claro
+        resetarCor(stopButton);
+        resetarCor(playButton);
     }
     
     public String obterUUID() {

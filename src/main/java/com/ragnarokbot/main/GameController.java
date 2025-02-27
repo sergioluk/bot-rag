@@ -221,7 +221,7 @@ public class GameController implements Runnable {
 
     	carregarMapa();
     	
-    	voltarParaFarmar("chef");
+    	//voltarParaFarmar("bio");
 
 		/* ligarBot = false; */
     	
@@ -1432,8 +1432,14 @@ public class GameController implements Runnable {
         		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
     		}
         	//bot.sleep(2000);
-    		imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(2, x, y, width, height);
-    		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+    		if (sala.equals("1")) {
+    			imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(1, x, y, width, height);
+        		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+    		} else if (sala.equals("2")) {
+    			imagemBalaoAnterior = bot.selecionarOpcaoComRetorno(2, x, y, width, height);
+        		verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+    		}
+    		
         	//bot.sleep(2000);
     		balao = bot.verificarBalaoNpcTeleport();
     		if (balao.size() > 0) {
