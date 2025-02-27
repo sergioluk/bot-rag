@@ -82,7 +82,7 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		boolean dev = true;
+		boolean dev = false;
 		if (dev == false) {
 			try {
 				 // Lê a versão atual do bot
@@ -157,7 +157,7 @@ public class BotRagnarok {
 		System.out.println("Upper: " + limites[1]);
 		// Apagar
 		
-		do {
+		/*do {
 			
 		} while();
 		List<MatOfPoint> inventario = bot.procurarIventario();
@@ -165,7 +165,7 @@ public class BotRagnarok {
 			Rect m = Imgproc.boundingRect(inventario.get(0));
 			bot.moverMouse(bot.getxJanela() + m.x, bot.getyJanela() + m.y);
 			System.out.println("x: " + m.x + " y: " + m.y);
-		}
+		}*/
 		
 		
 		//System.out.println("inventario: " + m.size());
