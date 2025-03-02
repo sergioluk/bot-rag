@@ -1574,6 +1574,20 @@ public class GameController implements Runnable {
 			}
         	bot.apertarTecla(KeyEvent.VK_ENTER);
         	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	
+        	if (sala.equals("1")) {
+        		balao = bot.verificarBalaoNpcTeleport();
+        		if (balao.size() > 0) {
+    				Rect m = Imgproc.boundingRect(balao.get(0));
+    				captureArea = new Rectangle(bot.getxJanela() + m.x, bot.getyJanela() + m.y, m.width, m.height);
+    				imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+    			} else {
+    				captureArea = new Rectangle(bot.getxJanela() + x, bot.getyJanela() + y, width, height);
+    	            imagemBalaoAnterior = bot.getRobot().createScreenCapture(captureArea);
+    			}
+            	bot.apertarTecla(KeyEvent.VK_ENTER);
+            	verificarSeBalaoNpcMudou(imagemBalaoAnterior, x, y, width, height);
+        	}
         	bot.sleep(1000);
         	
         	//bot.sleep(2000);

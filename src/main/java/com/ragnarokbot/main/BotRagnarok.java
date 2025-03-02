@@ -252,13 +252,13 @@ public class BotRagnarok {
 		// gameController.run();
 		System.out.println("Iniciando...");
 
-		String filePath = "C:\\Users\\Sergio\\Desktop\\Minhas coisas\\enderecos.txt";
-		//findDuplicateAddresses(filePath);
+		String filePath = "C:\\Users\\Sérgio\\Desktop\\enderecos.txt";
+		findDuplicateAddresses(filePath);
 
-		int processId = 14464;
-		int valueToFind = 27163;
+		int processId = 19336;
+		int valueToFind = 48136;
 		// short valueToFind = 68;
-		// procurarInt(processId,valueToFind);
+		//procurarInt(processId,valueToFind);
 		// procurarShort(processId, valueToFind);
 		// String nome = "Moeda de Inst";
 		// String nome = "obteve Moeda de Inst�ncia";
@@ -268,7 +268,7 @@ public class BotRagnarok {
 		System.out.println("entao");
 		//procurarString(processId, nome);
 		int soma = 0;
-		// mostrarValorMemoria(processId,0x156F798 + soma,0x18F4438 + soma);
+		//mostrarValorMemoria(processId,0x15874D0 + soma,0x15874D4 + soma); //0x19D46C 0x156EC84 0x156FD4C 0x156EF68
 		//mostrarStringMemoria(processId, 0x70B0A070 + soma, 0x70B09968 + soma, 256);
 		// buscarItemPorId(processId, valueToFind); nao funcionou
 		// obteve Moeda de Inst�ncia 0x19A9ED

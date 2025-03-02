@@ -9,11 +9,14 @@ public class MemoryScanner {
 	
 	public static int processId = 0; 
 	//public long addressX = 0x19D468; 
-	public long addressX = 0x1557FBC;
+	//public long addressX = 0x1557FBC;
+	public long addressX = 0x156FD4C;
 	//public long addressY = 0x19D46C; 
-	public long addressY = 0x1557FC0;
+	//public long addressY = 0x1557FC0;
+	public long addressY = 0x156FD4C + 4;
 	//notebook
-	public long addressHp = 0x156F798;
+	public long addressHp = 0x15874D0;
+	//public long addressHp = 0x156F798;
 	
 	public long addressString = 0x19A9ED - 5;
 	
