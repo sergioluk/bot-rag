@@ -41,6 +41,7 @@ import utils.KeyMapper;
 import java.awt.Desktop;
 import java.awt.Event;
 import java.awt.Rectangle;
+import java.awt.Robot;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
@@ -140,8 +141,8 @@ public class GameController implements Runnable {
 	boolean saindoDeCimaBio = false;
 
 	boolean isBase = false;
-	
-	//voltar Pro farme
+
+	// voltar Pro farme
 	private boolean falouComCurandeiro = false;
 	boolean modoVoltarParaFarmar = false;
 	private int ultimoIndex = 0;
@@ -149,6 +150,18 @@ public class GameController implements Runnable {
 	private boolean jaEscolheuPrimeiraOpcao = false;
 	private boolean jaEscolheuSegundaBioOpcao = false;
 	private List<Integer> listaOpcoesFarmNpc = new ArrayList<>();
+
+	private boolean finalizandoInstancia = false;
+	private boolean guardandoEquipsArmazem = false;
+	private int passosInteragirKafra = 0;
+	private Rect rectAltQ = null;
+	private Rect rectArmazem = null;
+	private Rect rectInventario = null;
+	private boolean modoDesequiparEquips = false;
+	private int passosDesequiparEquips = 0;
+	private boolean pegarEquipsArmazem = false;
+	private boolean pegarEquipsArmazem2 = false;
+	private int passosInteragirKafraRemoverItens = 0;
 
 	private Thread botThread;
 
@@ -187,7 +200,7 @@ public class GameController implements Runnable {
 		 */
 
 		// bot.encerrarInstancia();
-		// bot.printarTela();
+		//bot.printarTela();
 		// atalho padrao para bio chef
 		String classe = JanelaPrincipal.obterClasseSelecionada();
 		carregarAtalhosSkills(classe);
@@ -196,19 +209,6 @@ public class GameController implements Runnable {
 		// Modo instancia
 		if (scriptContas != null) {
 			System.out.println("Scriptcontas não é null");
-
-			for (Conta conta : scriptContas.getContas()) {
-				System.out.println("Usuário: " + conta.getUsuario());
-				System.out.println("Senha: " + conta.getSenha());
-				System.out.println("PIN: " + conta.getPin());
-				for (Personagem personagem : conta.getPersonagens()) {
-					System.out.println(" - Página: " + personagem.getPagina());
-					System.out.println(" - Index: " + personagem.getIndexPersonagem());
-					System.out.println(" - Passar Itens: " + personagem.isPassarItens());
-					System.out.println(" - Classe: " + personagem.getClasse());
-					System.out.println(" - Instâncias: " + personagem.getInstancias());
-				}
-			}
 			String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem)
 					.getInstancias().get(indexInstancia) + ".json";
 			Script scriptTemp = scriptLoader.carregarScriptdoJson("instancias/" + instancia);
@@ -223,7 +223,10 @@ public class GameController implements Runnable {
 		carregarMapa();
 		carregarOpcoesFarmNpc();
 
-		//voltarBase();
+		// Testar se funcionou a programagem e desativar logar pela primeira vez pra
+		// testar...
+		//modoDesequiparEquips = true;
+		// voltarBase();
 
 		/* ligarBot = false; */
 
@@ -259,6 +262,10 @@ public class GameController implements Runnable {
 				if (bot.getHpAtual() <= 1) {
 					voltarBase();
 				}
+			}
+
+			if (modoDesequiparEquips) {
+				desequiparEquips();
 			}
 
 			// Verificar monstros antes de andar
@@ -438,6 +445,14 @@ public class GameController implements Runnable {
 					interagirComNpcParaVoltarFarmar();
 					continue;
 				}
+				if (guardandoEquipsArmazem) {
+					interagirComAKafra();
+					continue;
+				}
+				if (pegarEquipsArmazem2) {
+					interagirComAKafraRetirarEquips();
+					continue;
+				}
 
 				// stateMachine.mudarEstado(Estado.ANDANDO);
 				break;
@@ -559,6 +574,37 @@ public class GameController implements Runnable {
 			}
 			return;
 		}
+
+		if (JanelaPrincipal.instanciaRadioButton.isSelected() && (finalizandoInstancia || pegarEquipsArmazem)) {
+			System.out.println("Tentando falar com a kafra!!!!!!!!11!");
+			int base = skillsConfig.getGoBase();
+			bot.atalhoAltM(base);
+			bot.sleep(2000);
+			bot.visaoDeCima();
+			bot.zoom(-28);
+			bot.sleep(1000);
+			System.out.println("Tacando mouse na kafra, coordenadas atual: " + atual);
+			bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(234, 204));
+			bot.sleep(90);
+			bot.clicarMouse();
+			bot.sleep(1000);
+
+			List<MatOfPoint> balao = bot.verificarBalaoNpcTeleport();
+			if (!balao.isEmpty()) {
+				tentandoFalarComNpc = false;
+				finalizandoInstancia = false;
+				guardandoEquipsArmazem = true;
+				if (pegarEquipsArmazem) {
+					pegarEquipsArmazem2 = true;
+					pegarEquipsArmazem = false;
+					guardandoEquipsArmazem = false;
+				}
+				System.out.println("Falou com a kafra");
+				System.out.println("Método falarComNpc()");
+			}
+			return;
+		}
+
 		List<MatOfPoint> npcs = bot.listaNpcs();
 		if (!npcs.isEmpty()) {
 			MatOfPoint npcEncontrado = npcs.get(0);
@@ -823,109 +869,10 @@ public class GameController implements Runnable {
 
 			System.out.println("Encerrando Instancia");
 			bot.encerrarInstancia();
-			System.out.println("Analisando proximos passos...");
-			// Voltando base encerar instancia né
-			// Ao trocar de personagem, apertar enter 2x por causa dos chats de npc do
-			// inicio...
+			System.out.println("Desequipando os equipamentos...");
+			bot.sleep(2000);
 
-			int ultimoIndexConta = indexConta;
-			indexInstancia++;
-			if (indexInstancia > scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem)
-					.getInstancias().size() - 1) {
-				indexInstancia = 0;
-
-				indexPersonagem++;
-				if (indexPersonagem > scriptContas.getContas().get(indexConta).getPersonagens().size() - 1) {
-					indexPersonagem = 0;
-
-					indexConta++;
-					if (indexConta > scriptContas.getContas().size() - 1) {
-						indexConta = 0;
-						ligarBot = false;
-						fecharBot();
-						return;
-					}
-
-				}
-				System.out.println("Deslogando personagem");
-				bot.deslogarPersonagem();
-
-				if (ultimoIndexConta != indexConta) { // indexConta aumentou
-					System.out.println("Indo tela login");
-					bot.sleep(3000);
-					bot.voltarTelaLogin();
-
-					System.out.println("Logando");
-					String usuario = scriptContas.getContas().get(indexConta).getUsuario();
-					String senha = scriptContas.getContas().get(indexConta).getSenha();
-					String pin = scriptContas.getContas().get(indexConta).getPin();
-					bot.realizarLogin(usuario, senha);
-
-					System.out.println("Apertando enter na escolha do canal 1");
-					BufferedImage imagemTelaCanal = null;
-					String canal = "config/telas/canal.png";
-					try {
-						imagemTelaCanal = ImageIO.read(new File(canal));
-					} catch (IOException e) {
-						e.printStackTrace(); // 376 400 281 200
-					}
-					boolean imagensIguais = false;
-					do {
-						BufferedImage atual = bot.printarParteTela(376, 400, 281, 200);
-						imagensIguais = bot.compararImagens(atual, imagemTelaCanal);
-						System.out.println("Verificando imagens: " + imagensIguais);
-						bot.sleep(500);
-					} while (imagensIguais == false);
-					bot.apertarTecla(KeyEvent.VK_ENTER);
-					bot.sleep(5000);
-
-					System.out.println("Chega na parte do pin...");
-					bot.inserirPin(pin);
-					bot.sleep(1000);
-				}
-
-				int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens()
-						.get(this.indexPersonagem).getIndexPersonagem();
-				int pagina = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
-						.getPagina();// tava 0 0 por algum motivo
-				bot.escolherPersonagem(indexPersonagem, pagina);
-				String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
-						.getClasse();
-				System.out.println("Carregando atalhos da classe: " + classe);
-				carregarAtalhosSkills(classe);
-
-				// Fechar Logue e Ganhe
-				System.out.println("Fechando Logue e Ganhe");
-				bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
-				bot.sleep(300);
-				bot.clicarMouse();
-				bot.sleep(300);
-
-				// Fechar chat de npc
-				System.out.println("Apertando enter 2x para fechar chat de npc");
-				bot.apertarTecla(KeyEvent.VK_ENTER);
-				bot.sleep(300);
-				// Fechar chat de npc
-				bot.apertarTecla(KeyEvent.VK_ENTER);
-				bot.sleep(300);
-
-				System.out.println("Visão topdown");
-				bot.visaoDeCima();
-				bot.sleep(100);
-				bot.zoom(-28);
-
-			}
-			String instanciaScript = scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem)
-					.getInstancias().get(indexInstancia) + ".json";
-			ScriptLoader scriptLoader = new ScriptLoader();
-			Script scriptTemp = scriptLoader.carregarScriptdoJson("instancias/" + instanciaScript);
-			setScript(scriptTemp);
-			carregarMapa();
-
-			String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
-					.getInstancias().get(indexInstancia);
-			bot.executarInstancia(instancia);
-
+			modoDesequiparEquips = true;
 			return;
 		}
 
@@ -956,6 +903,122 @@ public class GameController implements Runnable {
 			// script.getFinalizacao().getDescricao());
 			bot.sleep(300);
 		}
+	}
+
+	private void deslogarPersonagemContaIniciarInstancia() {
+		int ultimoIndexConta = indexConta;
+		indexInstancia++;
+		if (indexInstancia > scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem)
+				.getInstancias().size() - 1) {
+			indexInstancia = 0;
+
+			indexPersonagem++;
+			if (indexPersonagem > scriptContas.getContas().get(indexConta).getPersonagens().size() - 1) {
+				indexPersonagem = 0;
+
+				indexConta++;
+				if (indexConta > scriptContas.getContas().size() - 1) {
+					indexConta = 0;
+					ligarBot = false;
+					fecharBot();
+					return;
+				}
+
+			}
+			System.out.println("Deslogando personagem");
+			bot.deslogarPersonagem();
+
+			if (ultimoIndexConta != indexConta) { // indexConta aumentou
+				System.out.println("Indo tela login");
+				bot.sleep(3000);
+				bot.voltarTelaLogin();
+
+				System.out.println("Logando");
+				String usuario = scriptContas.getContas().get(indexConta).getUsuario();
+				String senha = scriptContas.getContas().get(indexConta).getSenha();
+				String pin = scriptContas.getContas().get(indexConta).getPin();
+				bot.realizarLogin(usuario, senha);
+
+				System.out.println("Apertando enter na escolha do canal 1");
+				BufferedImage imagemTelaCanal = null;
+				String canal = "config/telas/canal.png";
+				try {
+					imagemTelaCanal = ImageIO.read(new File(canal));
+				} catch (IOException e) {
+					e.printStackTrace(); // 377 571 280 29
+				}
+				boolean imagensIguais = false;
+				do {
+					BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
+					imagensIguais = bot.compararImagens(atual, imagemTelaCanal);
+					System.out.println("Verificando imagens: " + imagensIguais);
+					bot.sleep(500);
+				} while (imagensIguais == false);
+				bot.apertarTecla(KeyEvent.VK_UP);
+				bot.sleep(500);
+				bot.apertarTecla(KeyEvent.VK_UP);
+				bot.sleep(500);
+				bot.apertarTecla(KeyEvent.VK_UP);
+				bot.sleep(500);
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+				bot.sleep(5000);
+
+				System.out.println("Chega na parte do pin...");
+				bot.inserirPin(pin);
+				bot.sleep(1000);
+			}
+
+			int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+					.getIndexPersonagem();
+			int pagina = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+					.getPagina();// tava 0 0 por algum motivo
+			bot.escolherPersonagem(indexPersonagem, pagina);
+			String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+					.getClasse();
+			System.out.println("Carregando atalhos da classe: " + classe);
+			carregarAtalhosSkills(classe);
+
+			// Fechar Logue e Ganhe
+			System.out.println("Fechando Logue e Ganhe");
+			bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
+			bot.sleep(300);
+			bot.clicarMouse();
+			bot.sleep(300);
+
+			// Fechar chat de npc
+			System.out.println("Apertando enter 2x para fechar chat de npc");
+			bot.apertarTecla(KeyEvent.VK_ENTER);
+			bot.sleep(300);
+			// Fechar chat de npc
+			bot.apertarTecla(KeyEvent.VK_ENTER);
+			bot.sleep(300);
+
+			System.out.println("Visão topdown");
+			bot.visaoDeCima();
+			bot.sleep(100);
+			bot.zoom(-28);
+
+			pegarEquipsArmazem = true;
+			tentandoFalarComNpc = true;
+			stateMachine.mudarEstado(Estado.NPC);
+
+		}
+
+		// iniciarInstancia();
+	}
+
+	private void iniciarInstancia() {
+		String instanciaScript = scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem)
+				.getInstancias().get(indexInstancia) + ".json";
+		ScriptLoader scriptLoader = new ScriptLoader();
+		Script scriptTemp = scriptLoader.carregarScriptdoJson("instancias/" + instanciaScript);
+		setScript(scriptTemp);
+		carregarMapa();
+
+		String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+				.getInstancias().get(indexInstancia);
+		System.out.println("Executando instancia");
+		bot.executarInstancia(instancia);
 	}
 
 	private void reiniciarRota() {
@@ -1184,15 +1247,21 @@ public class GameController implements Runnable {
 		try {
 			imagemTelaCanal = ImageIO.read(new File(path));
 		} catch (IOException e) {
-			e.printStackTrace(); // 376 400 281 200
+			e.printStackTrace(); // 377 571 280 29
 		}
 		boolean imagensIguais = false;
 		do {
-			BufferedImage atual = bot.printarParteTela(376, 400, 281, 200);
+			BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
 			imagensIguais = bot.compararImagens(atual, imagemTelaCanal);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			bot.sleep(500);
 		} while (imagensIguais == false);
+		bot.apertarTecla(KeyEvent.VK_UP);
+		bot.sleep(500);
+		bot.apertarTecla(KeyEvent.VK_UP);
+		bot.sleep(500);
+		bot.apertarTecla(KeyEvent.VK_UP);
+		bot.sleep(500);
 		bot.apertarTecla(KeyEvent.VK_ENTER);
 		bot.sleep(10000);
 
@@ -1224,7 +1293,10 @@ public class GameController implements Runnable {
 		// Abrir Janela de instancias
 		String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
 				.getInstancias().get(indexInstancia);
-		bot.executarInstancia(instancia);
+		//bot.executarInstancia(instancia);
+		stateMachine.mudarEstado(Estado.NPC);
+		tentandoFalarComNpc = true;
+		pegarEquipsArmazem = true;
 	}
 
 	public void resetarRotas() {
@@ -1258,6 +1330,7 @@ public class GameController implements Runnable {
 
 		resetarRotas();
 		resetarVariaveisVoltarFarme();
+		resetandoVariaveisDeFinalInstancia();
 
 		if (pausarBot) {
 			pausarBot();
@@ -1475,8 +1548,6 @@ public class GameController implements Runnable {
 		System.out.println("Index aumentando de " + ultimoIndex + " para: " + indexVoltarFarm);
 	}
 
-
-
 	private void interagirComNpcParaVoltarFarmar() {
 		bot.sleep(200);
 		resetarRotas();
@@ -1559,7 +1630,7 @@ public class GameController implements Runnable {
 		}
 
 	}
-	
+
 	public void resetarVariaveisVoltarFarme() {
 		modoVoltarParaFarmar = false;
 		falouComCurandeiro = false;
@@ -1808,6 +1879,230 @@ public class GameController implements Runnable {
 			bot.sleep(1000);
 			bot.visaoDeCima();
 			bot.zoom(-28);
+		}
+
+	}
+
+	public void interagirComAKafraRetirarEquips() {
+
+		bot.sleep(200);
+		System.out.println("passosInteragirKafraRemoverItens: " + passosInteragirKafraRemoverItens);
+
+		if (passosInteragirKafraRemoverItens == 0 || passosInteragirKafraRemoverItens == 1) {
+			System.out.println("Falando com a kafra pra remover os itens");
+			List<MatOfPoint> balao = bot.verificarBalaoNpcTeleport();
+			bot.sleep(200);
+
+			if (balao.size() == 1 || passosInteragirKafraRemoverItens == 1) {
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+			}
+			if (balao.size() == 2) {
+				bot.selecionarOpcao(2);
+				passosInteragirKafraRemoverItens = 1;
+			}
+			
+			if (balao.isEmpty()) {
+				passosInteragirKafraRemoverItens = 2;
+			}
+		}
+
+		if (passosInteragirKafraRemoverItens == 2) {
+			System.out.println("Procurando o armazém pra remover os itens");
+			rectArmazem = bot.getArmazem();
+			if (rectArmazem != null) {
+				System.out.println("Armazém encontrado pra remover os itens");
+				passosInteragirKafraRemoverItens = 3;
+			}
+		}
+
+		if (passosInteragirKafraRemoverItens == 3) {
+			System.out.println("Abrindo inventario pra remover os itens");
+			bot.getRobot().keyPress(KeyEvent.VK_ALT);
+			bot.sleep(50);
+			bot.getRobot().keyPress(KeyEvent.VK_E);
+			rectInventario = bot.getInventario();
+			bot.sleep(200);
+			if (rectInventario != null) {
+				System.out.println("Inventario aberto pra remover os itens!!!");
+				bot.getRobot().keyRelease(KeyEvent.VK_ALT);
+				bot.sleep(50);
+				bot.getRobot().keyRelease(KeyEvent.VK_E);
+				passosInteragirKafraRemoverItens = 4;
+			}
+		}
+
+		if (passosInteragirKafraRemoverItens == 4) {
+			System.out.println("Retirando itens do armazém");
+			bot.removerItensArmazem(rectArmazem);
+
+			System.out.println("Fechando o armazém");
+			int x = rectArmazem.x + 241;
+			int y = rectArmazem.y + 428;
+			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+			bot.sleep(100);
+			bot.clicarMouse();
+			bot.sleep(100);
+
+			System.out.println("Equipando os itens");
+			bot.equipandoItens(rectInventario);
+
+			bot.sleep(100);
+			System.out.println("Fechando o inventário");
+			x = rectInventario.x + rectInventario.width - 8;
+			y = rectInventario.y - 10;
+			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+			bot.sleep(100);
+			bot.clicarMouse();
+			bot.sleep(100);
+
+			passosInteragirKafraRemoverItens = 0;
+			pegarEquipsArmazem2 = false;
+			stateMachine.mudarEstado(Estado.ANDANDO);
+			resetandoVariaveisDeFinalInstancia();
+			iniciarInstancia();
+		}
+
+	}
+
+	public void resetandoVariaveisDeFinalInstancia() {
+		finalizandoInstancia = false;
+		guardandoEquipsArmazem = false;
+		passosInteragirKafra = 0;
+		stateMachine.mudarEstado(Estado.ANDANDO);
+		modoDesequiparEquips = false;
+		passosDesequiparEquips = 0;
+		pegarEquipsArmazem = false;
+		pegarEquipsArmazem2 = false;
+		passosInteragirKafraRemoverItens = 0;
+	}
+
+	public void interagirComAKafra() {
+		// passosInteragirKafra = 0;
+		bot.sleep(200);
+		System.out.println("passosInteragirKafra: " + passosInteragirKafra);
+		
+		if (passosInteragirKafra == 0 || passosInteragirKafra == 1) {
+			System.out.println("Falando com a kafra");
+			List<MatOfPoint> balao = bot.verificarBalaoNpcTeleport();
+			System.out.println("O balão está vazio? " + balao.isEmpty() + " Size: " + balao.size());
+			System.out.println("Estado: " + stateMachine.getEstadoAtual());
+			bot.sleep(200);
+
+			if (balao.size() == 1 || passosInteragirKafra == 1) {
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+			}
+			if (balao.size() == 2) {
+				bot.selecionarOpcao(2);
+				passosInteragirKafra = 1;
+			} 
+			
+			if (balao.isEmpty()) {
+				passosInteragirKafra = 2;
+			}
+		}
+
+		if (passosInteragirKafra == 2) {
+			System.out.println("Procurando o armazém");
+			rectArmazem = bot.getArmazem();
+			if (rectArmazem != null) {
+				System.out.println("Armazém encontrado");
+				passosInteragirKafra = 3;
+			}
+		}
+
+		if (passosInteragirKafra == 3) {
+			System.out.println("Abrindo inventario");
+			bot.getRobot().keyPress(KeyEvent.VK_ALT);
+			bot.sleep(50);
+			bot.getRobot().keyPress(KeyEvent.VK_E);
+			rectInventario = bot.getInventario();
+			bot.sleep(200);
+			if (rectInventario != null) {
+				System.out.println("Inventario aberto!!!");
+				bot.getRobot().keyRelease(KeyEvent.VK_ALT);
+				bot.sleep(50);
+				bot.getRobot().keyRelease(KeyEvent.VK_E);
+				passosInteragirKafra = 4;
+			}
+		}
+
+		if (passosInteragirKafra == 4) {
+			System.out.println("Passando itens para o armazém");
+			bot.guardarItensArmazem(rectInventario);
+			bot.sleep(100);
+			System.out.println("Fechando o inventário");
+			int x = rectInventario.x + rectInventario.width - 8;
+			int y = rectInventario.y - 10;
+			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+			bot.sleep(100);
+			bot.clicarMouse();
+			bot.sleep(100);
+
+			passosInteragirKafra = 0;
+			guardandoEquipsArmazem = false;
+			deslogarPersonagemContaIniciarInstancia();
+		}
+
+	}
+
+	public void desequiparEquips() {
+		// desequipar alt q
+		// falar com a kafra
+		// abrir armazem
+		// guardar os itens no armazem
+		// deslogarPersonagemContaInicarInstancia() mas ao logar o personagem antes de
+		// iniciar a instancia, abrir o armazem, pegar os itens, equipar os itens...
+
+		if (passosDesequiparEquips == 0) {
+			System.out.println("Abrir alt Q");
+			bot.getRobot().keyPress(KeyEvent.VK_ALT);
+			bot.sleep(50);
+			bot.getRobot().keyPress(KeyEvent.VK_Q);
+			rectAltQ = bot.getAltQ();
+			if (rectAltQ != null) {
+				System.out.println("Alt Q aberto!!!");
+				bot.getRobot().keyRelease(KeyEvent.VK_ALT);
+				bot.sleep(50);
+				bot.getRobot().keyRelease(KeyEvent.VK_Q);
+				passosDesequiparEquips = 1;
+			}
+		}
+
+		if (passosDesequiparEquips == 1) {
+			System.out.println("Clicando no botao de desequipar Hehe boy");
+			bot.sleep(100);
+			int x = rectAltQ.x + 253;
+			int y = rectAltQ.y + 159;
+			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+			bot.sleep(100);
+			bot.clicarMouse();
+			bot.sleep(100);
+			System.out.println("Clicando no botao de especial");
+			x = rectAltQ.x + 95;
+			y = rectAltQ.y + 10;
+			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+			bot.sleep(100);
+			bot.clicarMouse();
+			bot.sleep(100);
+			System.out.println("Clicando no botao de desequipar Hehe boy");
+			x = rectAltQ.x + 253;
+			y = rectAltQ.y + 159;
+			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+			bot.sleep(100);
+			bot.clicarMouse();
+			bot.sleep(100);
+			System.out.println("Clicando no botao de fechar o Alt Q");
+			x = rectAltQ.x + 273;
+			y = rectAltQ.y - 11;
+			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+			bot.sleep(100);
+			bot.clicarMouse();
+			bot.sleep(100);
+			passosDesequiparEquips = 0;
+			modoDesequiparEquips = false;
+			stateMachine.mudarEstado(Estado.NPC);
+			tentandoFalarComNpc = true;
+			finalizandoInstancia = true;
 		}
 
 	}

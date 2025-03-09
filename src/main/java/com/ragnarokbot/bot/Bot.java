@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -319,7 +320,219 @@ public class Bot {
         // O amarelo tem valores altos de R e G, e baixo de B
         return (r > 180 && g > 180 && b < 100);
     }
-	
+    
+    public int contarPixels(Color cor, int x, int y, int width, int height) {
+        try {
+            // Captura a área da tela com Robot
+            Robot robot = new Robot();
+            BufferedImage captura = robot.createScreenCapture(new Rectangle(x, y, width, height));
+
+            int contador = 0;
+
+            // Percorre cada pixel da imagem capturada
+            for (int i = 0; i < captura.getWidth(); i++) {
+                for (int j = 0; j < captura.getHeight(); j++) {
+                    Color pixel = new Color(captura.getRGB(i, j));
+                    // Se o pixel for da cor desejada, incrementa o contador
+                    if (coresSaoIguais(pixel, cor)) {
+                        contador++;
+                    }
+                }
+            }
+
+            return contador;
+        } catch (AWTException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    // Método auxiliar para comparar duas cores com tolerância
+    private boolean coresSaoIguais(Color c1, Color c2) {
+        int tolerancia = 10; // Pequena margem de variação
+        return Math.abs(c1.getRed() - c2.getRed()) <= tolerancia &&
+               Math.abs(c1.getGreen() - c2.getGreen()) <= tolerancia &&
+               Math.abs(c1.getBlue() - c2.getBlue()) <= tolerancia;
+    }
+    
+    public Rect getArmazem() {
+    	Rect m = null;
+		
+		boolean isArmazem = false;
+		do {
+			List<MatOfPoint> armazem = procurarArmazem();
+			System.out.println("Procurando armazem");
+			if (!armazem.isEmpty()) {
+				m = Imgproc.boundingRect(armazem.get(0));
+				isArmazem = true;
+			}
+			sleep(100);
+		} while(!isArmazem);
+		
+		return m;
+    }
+    
+    public Rect getAltQ() {
+    	Rect m = null;
+    	
+    	boolean isAltQ = false;
+    	do {
+			List<MatOfPoint> altQ = procurarAltQ();
+			System.out.println("Procurando Alt Q");
+			if (!altQ.isEmpty()) {
+				System.out.println("Achou com tamanho: " + altQ.size());
+				m = Imgproc.boundingRect(altQ.get(0));
+				isAltQ = true;
+			}
+			sleep(100);
+		} while(isAltQ == false);
+    	return m;
+    }
+    
+    public Rect getInventario() {
+    	Rect m = null;
+    	List<MatOfPoint> inventario = null;
+		boolean isInventario = false;
+		do {
+			inventario = procurarIventario();
+			System.out.println("Procurando inventario");
+			if (!inventario.isEmpty()) {
+				sleep(100);
+				 m = Imgproc.boundingRect(inventario.get(0));
+				int xEquip = m.x + 8;
+				int yEquip = m.y + 77;
+				moverMouse(getxJanela() + xEquip, getyJanela() + yEquip);
+				sleep(100);
+				clicarMouse();
+				System.out.println("x: " + m.x + " y: " + m.y);
+				isInventario = true;
+			}
+			
+			sleep(100);
+		} while(!isInventario);
+		return m;
+    }
+    
+    public void guardarItensArmazem(Rect m) {
+    	System.out.println("Guardando itens no armazem");
+		int x = m.x + 58;
+		int y = m.y + 21;
+		moverMouse(getxJanela() + x, getyJanela() + y);
+		sleep(100);
+		
+		getRobot().keyPress(KeyEvent.VK_ALT);
+		boolean isInventarioLimpo = false;
+		do {
+			clicarMouseDireito();
+			sleep(100);
+			int brancos = contarPixels(Color.WHITE, m.x + getxJanela(), m.y + getyJanela(), m.width, m.height);
+			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 45k? " + isInventarioLimpo); //45k
+			if (brancos > 45000) {
+				isInventarioLimpo = true;
+				getRobot().keyRelease(KeyEvent.VK_ALT);
+			}
+		} while(!isInventarioLimpo);
+		sleep(100);
+    }
+    
+    public void removerItensArmazem(Rect m) {
+    	System.out.println("Removendo itens do armazém");
+		int x = m.x + 10;
+		int y = m.y + 71;
+		moverMouse(getxJanela() + x, getyJanela() + y);
+		sleep(100);
+		clicarMouse();
+		sleep(100);
+		x = m.x + 54;
+		y = m.y + 21;
+		moverMouse(getxJanela() + x, getyJanela() + y);
+		sleep(50);
+		getRobot().keyPress(KeyEvent.VK_ALT);
+		System.out.println("Tirando ARMORS");
+		boolean isArmazemLimpo = false;
+		do {
+			clicarMouseDireito();
+			sleep(100);
+			int brancos = contarPixels(Color.WHITE, m.x +getxJanela(), m.y + getyJanela(), m.width, m.height);
+			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 102k? " + isArmazemLimpo); //45k
+			if (brancos > 102000) {
+				isArmazemLimpo = true;
+				getRobot().keyRelease(KeyEvent.VK_ALT);
+			}
+		} while(!isArmazemLimpo);
+		sleep(100);
+		
+		System.out.println("Tirando WEAPON");
+		boolean isWeaponLimpo = false;
+		x = m.x + 10;
+		y = m.y + 101;
+		moverMouse(getxJanela() + x, getyJanela() + y);
+		sleep(100);
+		clicarMouse();
+		sleep(100);
+		x = m.x + 54;
+		y = m.y + 21;
+		moverMouse(getxJanela() + x, getyJanela() + y);
+		getRobot().keyPress(KeyEvent.VK_ALT);
+		sleep(50);
+		do {
+			clicarMouseDireito();
+			sleep(100);
+			int brancos = contarPixels(Color.WHITE, m.x +getxJanela(), m.y + getyJanela(), m.width, m.height);
+			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 102k? " + isArmazemLimpo); //45k
+			if (brancos > 102000) {
+				isWeaponLimpo = true;
+				getRobot().keyRelease(KeyEvent.VK_ALT);
+			}
+		} while(!isWeaponLimpo);
+		
+		System.out.println("Tirando CASH");
+		boolean isCashLimpo = false;
+		x = m.x + 10;
+		y = m.y + 130;
+		moverMouse(getxJanela() + x, getyJanela() + y);
+		sleep(100);
+		clicarMouse();
+		sleep(100);
+		x = m.x + 54;
+		y = m.y + 21;
+		moverMouse(getxJanela() + x, getyJanela() + y);
+		getRobot().keyPress(KeyEvent.VK_ALT);
+		sleep(50);
+		do {
+			clicarMouseDireito();
+			sleep(100);
+			int brancos = contarPixels(Color.WHITE, m.x +getxJanela(), m.y + getyJanela(), m.width, m.height);
+			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 102k? " + isArmazemLimpo); //45k
+			if (brancos > 102000) {
+				isCashLimpo = true;
+				getRobot().keyRelease(KeyEvent.VK_ALT);
+			}
+		} while(!isCashLimpo);
+    }
+    
+    public void equipandoItens(Rect m) {
+    	System.out.println("Equipando os itens");
+		int x = m.x + 58;
+		int y = m.y + 21;
+		moverMouse(getxJanela() + x, getyJanela() + y);
+		sleep(100);
+		
+		boolean isInventarioLimpo = false;
+		do {
+			clicarMouse();
+			sleep(50);
+			clicarMouse();
+			int brancos = contarPixels(Color.WHITE, m.x + getxJanela(), m.y +getyJanela(), m.width, m.height);
+			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 45k? " + isInventarioLimpo); //45k
+			if (brancos > 45000) {
+				isInventarioLimpo = true;
+
+			}
+		} while(!isInventarioLimpo);
+		sleep(100);
+    }
+
 	public boolean compararImagens(BufferedImage imagem1, BufferedImage imagem2) {
 		// Converte para Mat (OpenCV)
         Mat matRef = bufferedImageToMat(imagem1);
@@ -378,7 +591,7 @@ public class Bot {
         return totalDiff < 5.0;
 	}
 	
-	private Mat bufferedImageToMat(BufferedImage image) {
+	public Mat bufferedImageToMat(BufferedImage image) {
 	    // Converter a imagem para o tipo compatível com OpenCV (TYPE_3BYTE_BGR)
 	    BufferedImage convertedImg = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
 	    Graphics2D g = convertedImg.createGraphics();
@@ -437,11 +650,11 @@ public class Bot {
 		try {
 			imagemTelaPin = ImageIO.read(new File(path));
 		} catch (IOException e) {
-			e.printStackTrace(); // 954 72 24 25
+			e.printStackTrace(); // 960 79 13 12
 		}
 		boolean imagensIguais = false;
 		do {
-			BufferedImage atual = printarParteTela(954, 72, 24, 25);
+			BufferedImage atual = printarParteTela(960, 79, 13, 12);
 			imagensIguais = compararImagens(atual, imagemTelaPin);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			sleep(500);
@@ -1001,18 +1214,24 @@ public class Bot {
 	        	return npcs;
 	        }
 			
-			// Altura máxima da imagem
-		    int imageHeight = analise.screen.rows();
-	        
 		    // Filtrar NPCs por tamanho e posição
 		    List<MatOfPoint> npcsFiltrados = npcs.stream()
 		        .filter(npc -> {
 		            Rect boundingBox = Imgproc.boundingRect(npc);
 		            
-		            return boundingBox.width >= 250 &&
-		                   boundingBox.height >= 50; // Abaixo de 80% da altura da imagem
+		            return (boundingBox.width >= 250) &&
+		                   (boundingBox.height > 56 && boundingBox.height <= 379); // Abaixo de 80% da altura da imagem
 		        })
 		        .toList();
+		    
+		    // Desenhar contornos na imagem original
+		    /*Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(analise.screen, npcsFiltrados, -1, greenColor, 2);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, analise.screen);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		    
 		    
 		    return npcsFiltrados;   
 	}
@@ -1291,7 +1510,147 @@ public class Bot {
 		    List<MatOfPoint> janelaEncerrarInstancia = janela.stream()
 		        .filter(npc -> {
 		            Rect boundingBox = Imgproc.boundingRect(npc);
-		            return boundingBox.width > 230 && boundingBox.height > 170;
+		            return boundingBox.width > 230 && (boundingBox.height > 170 && boundingBox.height < 231);
+		        })
+		        .toList();
+		    
+		    
+		    // Desenhar contornos na imagem original
+		    /*Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(screen, janelaEncerrarInstancia, -1, greenColor, 2);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, screen);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		    
+	
+		    return janelaEncerrarInstancia;   
+	    
+	}
+	
+	public List<MatOfPoint> procurarArmazem() {
+		Scalar lowerColor = new Scalar(0, 0, 215);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+	    
+	    // Capturar a tela da área definida
+	    BufferedImage inventario = printarParteTela(0, 0, width, height);
+	    
+	    
+	    Map<String, Scalar[]> colorRanges = Map.of("armazem", new Scalar[]{lowerColor, upperColor});
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(inventario);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Mapear os resultados
+	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	    
+	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+	        String colorName = entry.getKey();
+	        Scalar lowerColor2 = entry.getValue()[0];
+	        Scalar upperColor2 = entry.getValue()[1];
+
+	        // Criar máscara para identificar a cor dentro do intervalo
+	        Mat mask = new Mat();
+	        Core.inRange(hsvImage, lowerColor2, upperColor2, mask);
+
+	        // Encontrar contornos na máscara
+	        List<MatOfPoint> entidades = new ArrayList<>();
+	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	        
+	        // Armazenar os contornos filtrados associados à cor
+	        detectedEntities.put(colorName, entidades);
+	    }
+	    
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> janela = detectedEntities.getOrDefault("armazem", new ArrayList<>());
+	
+			if (janela.isEmpty()) {
+	        	return janela;
+	        }
+	        
+		    // Filtrar NPCs por tamanho e posição
+		    List<MatOfPoint> janelaEncerrarInstancia = janela.stream()
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            return boundingBox.width > 250 && (boundingBox.height > 350);
+		        })
+		        .toList();
+		    
+		    
+		    // Desenhar contornos na imagem original
+		    /*Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(screen, janelaEncerrarInstancia, -1, greenColor, 2);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, screen);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		    
+	
+		    return janelaEncerrarInstancia;   
+	    
+	}
+	
+	public List<MatOfPoint> procurarAltQ() {
+		Scalar lowerColor = new Scalar(0, 0, 215);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+	    
+	    // Capturar a tela da área definida
+	    BufferedImage inventario = printarParteTela(0, 0, width, height);
+	    
+	    
+	    Map<String, Scalar[]> colorRanges = Map.of("armazem", new Scalar[]{lowerColor, upperColor});
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(inventario);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Mapear os resultados
+	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	    
+	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+	        String colorName = entry.getKey();
+	        Scalar lowerColor2 = entry.getValue()[0];
+	        Scalar upperColor2 = entry.getValue()[1];
+
+	        // Criar máscara para identificar a cor dentro do intervalo
+	        Mat mask = new Mat();
+	        Core.inRange(hsvImage, lowerColor2, upperColor2, mask);
+
+	        // Encontrar contornos na máscara
+	        List<MatOfPoint> entidades = new ArrayList<>();
+	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	        
+	        // Armazenar os contornos filtrados associados à cor
+	        detectedEntities.put(colorName, entidades);
+	    }
+	    
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> janela = detectedEntities.getOrDefault("armazem", new ArrayList<>());
+	
+			if (janela.isEmpty()) {
+	        	return janela;
+	        }
+	        
+		    // Filtrar NPCs por tamanho e posição
+		    List<MatOfPoint> janelaEncerrarInstancia = janela.stream()
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            return boundingBox.width > 270 && (boundingBox.height > 130);
 		        })
 		        .toList();
 		    
@@ -1370,6 +1729,11 @@ public class Bot {
 		robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Pressionar o botão esquerdo
         sleep(50);
         robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Liberar o botão esquerdo*/
+	}
+	public void clicarMouseDireito() {
+		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK); // Pressionar o botão direito do mouse
+        sleep(50);
+        robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK); // Liberar o botão esquerdo*/
 	}
 	
 	public void clicarSegurarMouse() {
@@ -1814,8 +2178,10 @@ public class Bot {
 			int dy = destino.y - atual.y;
 
 			// Calcular a posição do mouse na tela com base no deslocamento
-			int mouseX = xJanela + 505 + dx * 18 + 9;
-			int mouseY = yJanela + 376 - dy * 18 + 9;
+			//int mouseX = xJanela + 505 + dx * 18 + 9;
+			int mouseX = xJanela + 505 + dx * 18 + 5; //(-5)
+			//int mouseY = yJanela + 376 - dy * 18 + 9;
+			int mouseY = yJanela + 376 - dy * 18 + 7; //(-2)
 
 			// Mover o mouse para a posição calculada
 			moverMouse(mouseX, mouseY);
@@ -2135,12 +2501,12 @@ public class Bot {
 		try {
 			imagemTelaPin = ImageIO.read(new File(path));
 		} catch (IOException e) {
-			e.printStackTrace(); // 954 72 24 25
+			e.printStackTrace(); // 960 79 13 12
 		}
 		boolean imagensIguais = false;
 		do {
 			
-			BufferedImage atual = printarParteTela(954, 72, 24, 25);
+			BufferedImage atual = printarParteTela(960, 79, 13, 12);
 			imagensIguais = compararImagens(atual, imagemTelaPin);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			sleep(1000);

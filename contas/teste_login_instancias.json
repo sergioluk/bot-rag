@@ -1,23 +1,23 @@
 {
     "contas": [
         { 
-            "usuario" : "-",
-            "senha" : "-!",
-            "pin" : "-",
+            "usuario" : "ursopolargay5",
+            "senha" : "Cofre246",
+            "pin" : "7790",
             "personagens" : [
                 {
                     "pagina" : 1,
-                    "indexPersonagem" : 3,
+                    "indexPersonagem" : 2,
                     "passarItens" : false,
                     "classe" : "mago",
                     "instancias" : ["Old Glast Heim"]
                 },
                 {
                     "pagina" : 4,
-                    "indexPersonagem" : 4,
+                    "indexPersonagem" : 3,
                     "passarItens" : false,
                     "classe" : "mago",
-                    "instancias" : ["teste_morroc1", "teste_morroc2"]
+                    "instancias" : ["Old Glast Heim"]
                 }
             ]
         },

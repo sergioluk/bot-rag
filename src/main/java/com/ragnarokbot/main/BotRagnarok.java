@@ -4,11 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.awt.AWTException;
+import java.awt.Color;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
+import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
@@ -82,7 +84,7 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		boolean dev = true;
+		boolean dev = false;
 		if (dev == false) {
 			try {
 				 // Lê a versão atual do bot
@@ -157,17 +159,65 @@ public class BotRagnarok {
 		System.out.println("Upper: " + limites[1]);
 		// Apagar
 		
-		/*do {
-			
-		} while();
-		List<MatOfPoint> inventario = bot.procurarIventario();
-		if (!inventario.isEmpty()) {
-			Rect m = Imgproc.boundingRect(inventario.get(0));
-			bot.moverMouse(bot.getxJanela() + m.x, bot.getyJanela() + m.y);
-			System.out.println("x: " + m.x + " y: " + m.y);
+		
+		//Rect m = bot.getArmazem();
+		//System.out.println("Armazem Altura: " + m.height + " Largura: " + m.width);
+		/*List<MatOfPoint> balao = null;
+		do {
+			balao = bot.verificarBalaoNpcTeleport();
+			System.out.print(balao.size());
+			if (!balao.isEmpty()) {
+				Rect m = Imgproc.boundingRect(balao.get(0));
+				System.out.println("Npc Altura: " + m.height + " Largura: " + m.width);
+				
+			}
+			System.out.println("Procurando balao");
+			bot.sleep(200);
+		} while(balao.isEmpty());*/
+	
+		
+		/*
+		Rect m = null;
+		
+		m = bot.getAltQ();
+		
+		m = bot.getArmazem();//Procurando o armazem
+		
+		
+		m = bot.getInventario();//procurando inventario
+		
+		
+		if (m != null) {
+			bot.guardarItensArmazem(m);//guardando os itens no armazem
+		}
+		
+		m = bot.getArmazem();//Procurando o armazem
+		
+		if (m != null) {
+			bot.removerItensArmazem( m); //pegando os itens devolta
+		}
+		
+		m = bot.getInventario();//procurando inventario
+		
+		if (m != null) {
+			bot.equipandoItens(m); //equipando os itens
 		}*/
 		
 		
+		
+		
+		/*Mat screen = bot.bufferedImageToMat(bot.printarParteTela( m.x, m.y, m.width, m.height));
+		Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+	    Imgproc.drawContours(screen, inventario, -1, greenColor, 2);
+	    // Salvar a imagem com os contornos desenhados
+	    String contouredImagePath = "imagem_com_contornos.png";
+	    Imgcodecs.imwrite(contouredImagePath, screen);
+	    System.out.println("Imagem com contornos salva em: " + contouredImagePath);
+		*/
+		
+		//MemoryScanner memoria = new MemoryScanner();
+		//Coordenadas atual = memoria.obterCoordenadas(9820, memoria.addressX, memoria.addressY);
+		//bot.setarMouseEmCoordenadaTela(atual, new Coordenadas(194,78));
 		//System.out.println("inventario: " + m.size());
 		//bot.executarInstancia("oi");
 		//bot.realizarLogin("asd","123");
