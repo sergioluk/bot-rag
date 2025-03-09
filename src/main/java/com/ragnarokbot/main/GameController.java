@@ -1496,6 +1496,7 @@ public class GameController implements Runnable {
 		bot.zoom(-28);
 		bot.sleep(100);
 		tentandoFalarComNpc = true;
+		andarForcado = false;//as vezes ativava o andar forçado e o personagem não falava com o npc
 		stateMachine.mudarEstado(Estado.NPC);
 	}
 
