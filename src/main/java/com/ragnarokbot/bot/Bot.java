@@ -533,7 +533,7 @@ public class Bot {
 		sleep(100);
     }
 
-	public boolean compararImagens(BufferedImage imagem1, BufferedImage imagem2) {
+	public boolean compararImagens(BufferedImage imagem1, BufferedImage imagem2, double limite) {
 		// Converte para Mat (OpenCV)
         Mat matRef = bufferedImageToMat(imagem1);
         Mat matAtual = bufferedImageToMat(imagem2);
@@ -559,7 +559,7 @@ public class Bot {
         System.out.println("Diferença detectada: " + totalDiff);
 
         // Se a diferença for menor que um certo limiar, consideramos que são iguais
-        return totalDiff < 30.0;
+        return totalDiff < limite;
 	}
 	
 	public boolean compararBalaoNpc(BufferedImage imagem1, BufferedImage imagem2) {
@@ -655,7 +655,7 @@ public class Bot {
 		boolean imagensIguais = false;
 		do {
 			BufferedImage atual = printarParteTela(960, 79, 13, 12);
-			imagensIguais = compararImagens(atual, imagemTelaPin);
+			imagensIguais = compararImagens(atual, imagemTelaPin, 30.0);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			sleep(500);
 		} while( imagensIguais == false);
@@ -1668,6 +1668,86 @@ public class Bot {
 	    
 	}
 	
+	public List<MatOfPoint> procurarBarraSkills() {
+		Scalar lowerColor = new Scalar(51, 215, 215);  // Limite inferior (Verde claro)
+	    Scalar upperColor = new Scalar(71, 255, 255);  // Limite superior (Verde claro)
+	    
+	    // Capturar a tela da área definida
+	    BufferedImage inventario = printarParteTela(0, 0, width, height);
+	    
+	    
+	    Map<String, Scalar[]> colorRanges = Map.of("barra", new Scalar[]{lowerColor, upperColor});
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(inventario);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Mapear os resultados
+	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	    
+	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+	        String colorName = entry.getKey();
+	        Scalar lowerColor2 = entry.getValue()[0];
+	        Scalar upperColor2 = entry.getValue()[1];
+
+	        // Criar máscara para identificar a cor dentro do intervalo
+	        Mat mask = new Mat();
+	        Core.inRange(hsvImage, lowerColor2, upperColor2, mask);
+
+	        // Encontrar contornos na máscara
+	        List<MatOfPoint> entidades = new ArrayList<>();
+	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	        
+	        // Armazenar os contornos filtrados associados à cor
+	        detectedEntities.put(colorName, entidades);
+	    }
+	    
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> janela = detectedEntities.getOrDefault("barra", new ArrayList<>());
+	
+			if (janela.isEmpty()) {
+	        	return janela;
+	        }
+	        
+		    // Filtrar NPCs por tamanho e posição
+		    List<MatOfPoint> janelaEncerrarInstancia = janela.stream()
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            return boundingBox.width > 250 ;
+		        })
+		        .toList();
+		    
+		    
+		    // Desenhar contornos na imagem original
+		    /*Scalar greenColor = new Scalar(255, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(screen, janelaEncerrarInstancia, -1, greenColor, 1);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, screen);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		    
+	
+		    return janelaEncerrarInstancia;   
+	    
+	}
+	
+	public BufferedImage abrirImagem(String path) {
+		BufferedImage imagem = null;
+		try {
+			imagem = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return imagem;
+	}
+	
 	public int calcularDistancia(Coordenadas atual, Coordenadas destino) {
 	    return (int) Math.sqrt(Math.pow(destino.x - atual.x, 2) + Math.pow(destino.y - atual.y, 2));
 	}
@@ -2037,7 +2117,7 @@ public class Bot {
 		boolean imagensIguais = false;
 		do {
 			BufferedImage atual = printarParteTela(550, 480, 127, 137);
-			imagensIguais = compararImagens(atual, imagemTelaLogin);
+			imagensIguais = compararImagens(atual, imagemTelaLogin, 30.0);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			sleep(500);
 		} while( imagensIguais == false);
@@ -2507,7 +2587,7 @@ public class Bot {
 		do {
 			
 			BufferedImage atual = printarParteTela(960, 79, 13, 12);
-			imagensIguais = compararImagens(atual, imagemTelaPin);
+			imagensIguais = compararImagens(atual, imagemTelaPin, 30.0);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			sleep(1000);
 			
@@ -2538,6 +2618,10 @@ public class Bot {
 		sleep(500);
 		clicarMouse();
 		sleep(500);
+	}
+	
+	public List<Integer> listarStatus() {
+		return memoria.listarStatus();
 	}
 
 	public int getWidth() {

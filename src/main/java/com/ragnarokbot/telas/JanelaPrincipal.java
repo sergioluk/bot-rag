@@ -56,6 +56,7 @@ import com.github.kwhat.jnativehook.NativeInputEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import com.ragnarokbot.bot.Bot;
+import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.main.GameController;
 import com.ragnarokbot.model.MemoryScanner;
 import com.sun.jna.platform.win32.User32;
@@ -93,8 +94,12 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     private JButton stopButton;
     private JButton pauseResumeButton;
     private Color corPadrao;
+    public static boolean isVelocidade = false;
+    public static boolean isChicleteGoma = false;
+    private Tela tela;
 
-    public JanelaPrincipal(GameController gameController) {
+    public JanelaPrincipal(GameController gameController, Tela tela) {
+    	this.tela = tela;
     	System.out.println("Criando JanelaPrincipal");
         setTitle("Stonks");
         //setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -228,6 +233,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
                 int selectedPid = Integer.parseInt(selectedItem.split(" - ")[0]);
                 MemoryScanner.processId = selectedPid;
                 System.out.println("Selecionou o " + MemoryScanner.processId);
+                mudarNome(obterNome());
             }
         });
         topLeftPanel.add(comboBox, BorderLayout.WEST);
@@ -735,6 +741,8 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 	                case "atalhoClose": gameController.fecharBot(); break;
 	                case "atalhoAdicionarCoords": gameController.modoSalvarCoordenadas(); break;
 	                case "atalhoAbrirTxtCoords": gameController.modoFecharCoordenadas(); break;
+	                case "atalhoModoVelocidade": toggleVelocidade(); break;
+	                case "atalhoModoChicleteGoma": toggleChicleteGoma(); break;
 	            }
 	        }
 	    }
@@ -748,6 +756,8 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 	    atalhos.put("atalhoClose", converterAtalho(config.getAtalhoClose()));
 	    atalhos.put("atalhoAdicionarCoords", converterAtalho(config.getAtalhoAdicionarCoords()));
 	    atalhos.put("atalhoAbrirTxtCoords", converterAtalho(config.getAtalhoAbrirTxtCoords()));
+	    atalhos.put("atalhoModoVelocidade", converterAtalho(config.getAtalhoModoVelocidade()));
+	    atalhos.put("atalhoModoChicleteGoma", converterAtalho(config.getAtalhoModoChicleteGoma()));
 	}
 	private Atalho converterAtalho(String atalhoStr) {
 	    if (atalhoStr == null || atalhoStr.isEmpty()) return null;
@@ -788,6 +798,32 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 	public static String obterClasseSelecionada() {
         return (String) comboBoxClasse.getSelectedItem();
     }
+	
+	public static String obterNome() {
+		int id = MemoryScanner.processId;
+		if (id == 0) {
+			return "";
+		}
+		String nome = MemoryScanner.obterStringMemoria(id, MemoryScanner.addressName);
+		return nome;
+	}
+	public void mudarNome(String nome) {
+		if (nome.isBlank() || nome.isEmpty()) {
+			setTitle("Stonks");
+		} else {
+			setTitle("Stonks - " + nome);
+		}
+	}
+	public void toggleVelocidade() {
+		isVelocidade = !isVelocidade;
+		tela.updateVeloGoma();
+		System.out.println("Modo de velocidade " + (isVelocidade?"ativado":"desativado") + "!!!");
+	}
+	public void toggleChicleteGoma() {
+		isChicleteGoma = !isChicleteGoma;
+		tela.updateVeloGoma();
+		System.out.println("Modo de Goma/Chiclete " + (isChicleteGoma?"ativado":"desativado") + "!!!");
+	}
 	
 }
 

@@ -35,14 +35,29 @@ public class Updater {
 	    URL url = new URL(downloadUrl);
 	    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 	    conn.setRequestMethod("GET");
+	    int fileSize = conn.getContentLength(); // Obtém o tamanho total do arquivo
 
 	    try (InputStream in = conn.getInputStream();
 	         FileOutputStream out = new FileOutputStream(BotRagnarok.DOWNLOAD_PATH)) {
 
 	        byte[] buffer = new byte[1024];
 	        int bytesRead;
+	        int totalBytesRead = 0;
+	        int progressBarSize = 20; // Define o tamanho da barra de progresso
+	        
 	        while ((bytesRead = in.read(buffer)) != -1) {
 	            out.write(buffer, 0, bytesRead);
+	            totalBytesRead += bytesRead;
+	            
+	            // Calcula a porcentagem concluída
+	            int percentComplete = (int) (((double) totalBytesRead / fileSize) * 100);
+	            
+	            // Calcula a quantidade de "I" na barra de progresso
+	            int filledBars = (int) ((percentComplete / 100.0) * progressBarSize);
+	            String progressBar = "[" + "|".repeat(filledBars) + " ".repeat(progressBarSize - filledBars) + "]";
+	            
+	            // Exibe o progresso
+	            System.out.printf("\r📥 %s %d%%", progressBar, percentComplete);
 	        }
 	    }
 

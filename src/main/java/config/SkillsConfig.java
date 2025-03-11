@@ -16,9 +16,45 @@ public class SkillsConfig {
 	private String atalhoClose;
 	private String atalhoAdicionarCoords;
 	private String atalhoAbrirTxtCoords;
+	private String atalhoModoVelocidade;
+	private String atalhoModoChicleteGoma;
+	private String atalhoVelocidade;
+	private String atalhoChicleteGoma;
 	private List<String> classesDisponiveis;
 
 	
+	public String getAtalhoModoVelocidade() {
+		return atalhoModoVelocidade;
+	}
+
+	public void setAtalhoModoVelocidade(String atalhoModoVelocidade) {
+		this.atalhoModoVelocidade = atalhoModoVelocidade;
+	}
+
+	public String getAtalhoModoChicleteGoma() {
+		return atalhoModoChicleteGoma;
+	}
+
+	public void setAtalhoModoChicleteGoma(String atalhoModoChicleteGoma) {
+		this.atalhoModoChicleteGoma = atalhoModoChicleteGoma;
+	}
+
+	public String getAtalhoVelocidade() {
+		return atalhoVelocidade;
+	}
+
+	public void setAtalhoVelocidade(String atalhoVelocidade) {
+		this.atalhoVelocidade = atalhoVelocidade;
+	}
+
+	public String getAtalhoChicleteGoma() {
+		return atalhoChicleteGoma;
+	}
+
+	public void setAtalhoChicleteGoma(String atalhoChicleteGoma) {
+		this.atalhoChicleteGoma = atalhoChicleteGoma;
+	}
+
 	public String getAtalhoPlay() {
 		return atalhoPlay;
 	}

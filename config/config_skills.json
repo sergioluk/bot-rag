@@ -11,6 +11,12 @@
   "atalhoClose": "SHIFT+CTRL+F",
   "atalhoAdicionarCoords" : "SHIFT+CTRL+S",
   "atalhoAbrirTxtCoords" : "SHIFT+CTRL+D",
+
+  "atalhoModoVelocidade": "SHIFT+CTRL+V",
+  "atalhoModoChicleteGoma": "SHIFT+CTRL+C",
+  "atalhoVelocidade": "F2",
+  "atalhoChicleteGoma": "F3",
+
   
   "classesDisponiveis" : ["sorc","mago","arqueiro","monk"],
   

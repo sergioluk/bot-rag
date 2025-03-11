@@ -17,6 +17,7 @@ import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.model.AStar;
 import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.GrafoMapa;
+import com.ragnarokbot.model.enums.Effects;
 import com.ragnarokbot.model.enums.Estado;
 import com.ragnarokbot.telas.JanelaPrincipal;
 import com.sun.jna.platform.win32.Wincon.COORD;
@@ -162,11 +163,18 @@ public class GameController implements Runnable {
 	private boolean pegarEquipsArmazem = false;
 	private boolean pegarEquipsArmazem2 = false;
 	private int passosInteragirKafraRemoverItens = 0;
+	
+	//public static boolean isVelocidade = false;
+	//public static boolean isChicleteGoma = false;
+	long tempoVeloGoma = System.currentTimeMillis();
+	
+	private BufferedImage cometa = null;
 
 	private Thread botThread;
 
 	public GameController(Bot bot) {
 		this.bot = bot;
+		cometa = bot.abrirImagem("config/skills/cometa.png");
 		// this.tela = tela;
 		/*
 		 * try { // Registrar o hook do teclado GlobalScreen.registerNativeHook();
@@ -260,7 +268,43 @@ public class GameController implements Runnable {
 			int timeRand = ThreadLocalRandom.current().nextInt(5000, 10001);
 			if (bot.tempoPassou(timeRand)) {
 				if (bot.getHpAtual() <= 1) {
+					System.out.println("Personagem morreu!!!");
+					System.out.println("Voltando valkiria e depois base");
 					voltarBase();
+				}
+			}
+
+			if (JanelaPrincipal.isVelocidade || JanelaPrincipal.isChicleteGoma) {
+				long tempoAtual = System.currentTimeMillis();
+				int tempoRandom = ThreadLocalRandom.current().nextInt(13000, 15001);
+				if (tempoAtual - tempoVeloGoma >= tempoRandom) {
+					tempoVeloGoma = tempoAtual;
+					
+					List<Integer> status = bot.listarStatus();
+					boolean gomaEncontrada = false;
+					boolean velocidadeEncontrada = false;
+					for (int buffs : status) {
+						if (buffs == Effects.CHICLETEGOMA.getId()) {
+							System.out.println("Ta com Chiclete/Goma...");
+							gomaEncontrada = true;
+						}
+						if (buffs == Effects.SPEED_POT.getId()) {
+							System.out.println("Ta com Velocidade...");
+							velocidadeEncontrada = true;
+						}
+					}
+					if (!gomaEncontrada && JanelaPrincipal.isChicleteGoma) {
+						System.out.println("Tá sem goma e o botão de goma está ativo... Potando goma");
+						int atalhoChicleteGoma = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoChicleteGoma());
+						bot.apertarTecla(atalhoChicleteGoma);
+						bot.sleep(500);
+					}
+					if (!velocidadeEncontrada && JanelaPrincipal.isVelocidade) {
+						System.out.println("Tá sem velocidade e o botão de velocidade está ativo... Potando velocidade");
+						int atalhoVelocidade = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVelocidade());
+						bot.apertarTecla(atalhoVelocidade);
+						bot.sleep(500);
+					}
 				}
 			}
 
@@ -950,7 +994,7 @@ public class GameController implements Runnable {
 				boolean imagensIguais = false;
 				do {
 					BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
-					imagensIguais = bot.compararImagens(atual, imagemTelaCanal);
+					imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
 					System.out.println("Verificando imagens: " + imagensIguais);
 					bot.sleep(500);
 				} while (imagensIguais == false);
@@ -1129,9 +1173,32 @@ public class GameController implements Runnable {
 		if (bot.calcularDistancia(atual, coord) <= skill.getRange()) {
 			bot.atacarMonstro(monstro, tecla);
 			skill.use();
+			verificarCooldownCometa(skill);
 			return true;
 		}
 		return false;
+	}
+	
+	private boolean verificarCooldownCometa(Skill skill) {
+		if (skill.getMain() == true && script.getMapa().equals("chef.png")) {
+			String[] partes = skill.getPosicao().split("-");
+			int barra = Integer.parseInt(partes[0]);
+			int pos = Integer.parseInt(partes[1]);
+			
+			Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
+			int x = r.x + 16 + (pos-1)*24 + (pos-1)*5;
+			int y = r.y + 4 + (barra-1)*19 + (barra-1)*14;
+			
+			BufferedImage verificarCometa = bot.printarParteTela(x, y, 24, 19);
+			
+			if (bot.compararImagens(cometa, verificarCometa, 2)) {
+				System.out.println("Não está em cooldown");
+			} else {
+				System.out.println("Está em cooldown");
+			}
+			
+		}
+		return true;
 	}
 
 	// Método auxiliar para obter a próxima habilidade disponível para uma cor
@@ -1252,7 +1319,7 @@ public class GameController implements Runnable {
 		boolean imagensIguais = false;
 		do {
 			BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
-			imagensIguais = bot.compararImagens(atual, imagemTelaCanal);
+			imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			bot.sleep(500);
 		} while (imagensIguais == false);
@@ -1451,7 +1518,7 @@ public class GameController implements Runnable {
 			Rectangle captureArea = new Rectangle(bot.getxJanela() + 880, bot.getyJanela() + 16, 128, 128);
 			BufferedImage imagemAtual = bot.getRobot().createScreenCapture(captureArea);
 
-			imagensIguais = bot.compararImagens(imagemRef, imagemAtual);
+			imagensIguais = bot.compararImagens(imagemRef, imagemAtual, 30.0);
 
 			System.out.println("As imagens são similares? " + imagensIguais);
 			bot.sleep(100);
@@ -2119,8 +2186,7 @@ public class GameController implements Runnable {
 					if (sk.isMain() != null) {
 						main = sk.isMain();
 					}
-					bot.skills
-							.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange(), sk.getPosicao(), main));
+					bot.skills.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange(), sk.getPosicao(), main));
 				}
 				if (c.getBuffs() != null) {
 					for (Buffs b : c.getBuffs()) {
@@ -2133,6 +2199,9 @@ public class GameController implements Runnable {
 			}
 		}
 	}
+	
+	
+	
 	/*
 	 * //notebook
 	 * 
@@ -2160,10 +2229,10 @@ public class GameController implements Runnable {
 	 * @Override public void nativeKeyTyped(NativeKeyEvent e) { // Não usado }
 	 */
 
+	
 	public Script getScript() {
 		return script;
 	}
-
 	public void setScript(Script script) {
 		this.script = script;
 	}

@@ -60,6 +60,7 @@ import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.GrafoMapa;
 import com.ragnarokbot.model.MemoryScanner;
 import com.ragnarokbot.model.MyUser32;
+import com.ragnarokbot.model.enums.Effects;
 import com.ragnarokbot.model.MemoryScanner.Kernel32;
 import com.ragnarokbot.telas.JanelaPrincipal;
 import com.sun.jna.Pointer;
@@ -84,7 +85,7 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		boolean dev = false;
+		boolean dev = true;
 		if (dev == false) {
 			try {
 				 // Lê a versão atual do bot
@@ -141,20 +142,23 @@ public class BotRagnarok {
 		Robot robot = new Robot();
 		Bot bot = new Bot(tesseract, robot, tesseractLetras);
 		//bot.printarTela();
-		// Tela tela = new Tela(bot);
-		// SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
-		// SwingUtilities.invokeLater( () -> new Tela(bot));
-
+		
+		Tela tela = new Tela(bot);
+		SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
+		SwingUtilities.invokeLater( () -> new Tela(bot));
+		//Tela.iniciarCronometro(1, 1, tela); // Cronômetro 1 conta 30 minutos
+		//Tela.iniciarCronometro(2, 30, tela);
+		
 		// GameController gameController = new GameController(bot, tela);
 		GameController gameController = new GameController(bot);
 		// gameController.run();
 
-		janelaPrincipal = new JanelaPrincipal(gameController);
+		janelaPrincipal = new JanelaPrincipal(gameController, tela);
 		janelaPrincipal.setVisible(true);
 
 
 		// Apagar
-		Scalar[] limites = calcularLimites(242, 255, 0);
+		Scalar[] limites = calcularLimites(0, 255, 8);
 		System.out.println("Lower: " + limites[0]);
 		System.out.println("Upper: " + limites[1]);
 		// Apagar
@@ -305,8 +309,8 @@ public class BotRagnarok {
 		String filePath = "C:\\Users\\Sérgio\\Desktop\\enderecos.txt";
 		findDuplicateAddresses(filePath);
 
-		int processId = 19336;
-		int valueToFind = 48136;
+		int processId = 4540;
+		int valueToFind = 445;
 		// short valueToFind = 68;
 		//procurarInt(processId,valueToFind);
 		// procurarShort(processId, valueToFind);
@@ -317,9 +321,31 @@ public class BotRagnarok {
 		// 0x5296F33D
 		System.out.println("entao");
 		//procurarString(processId, nome);
-		int soma = 0;
-		//mostrarValorMemoria(processId,0x15874D0 + soma,0x15874D4 + soma); //0x19D46C 0x156EC84 0x156FD4C 0x156EF68
-		//mostrarStringMemoria(processId, 0x70B0A070 + soma, 0x70B09968 + soma, 256);
+		int soma = 4;
+		
+		Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));//4b 133px, 3b 100px, 2b 67px, 1b 34px
+		System.out.println("Height: " + r.height);
+		// x + 16, y + 4 widht 24, heigh 19
+		int pos = 1;
+		int barra = 1;
+		int x = r.x + 16 + (pos-1)*24 + (pos-1)*5;
+		int y = r.y + 4 + (barra-1)*19 + (barra-1)*14;
+		//bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+		
+		BufferedImage cometa = bot.abrirImagem("config/skills/cometa.png");
+		BufferedImage verificarCometa = bot.printarParteTela(x, y, 24, 19);
+		
+		if (bot.compararImagens(cometa, verificarCometa, 2)) {
+			System.out.println("Não está em cooldown");
+		} else {
+			System.out.println("Está em cooldown");
+		}
+		
+		//bot.printarTela();
+		//bot.printarParteTela(x + bot.getxJanela(), y + bot.getyJanela(), 10, 10);
+		//System.exit(0);
+		//mostrarValorMemoria(processId,0x1883F40 + soma ,0x18332BC + soma); //0x19D46C 0x156EC84 0x156FD4C 0x156EF68
+		//mostrarStringMemoria(processId, 0x0158A120 + soma, 0x22488112 + soma, 256);
 		// buscarItemPorId(processId, valueToFind); nao funcionou
 		// obteve Moeda de Inst�ncia 0x19A9ED
 
@@ -592,6 +618,8 @@ public class BotRagnarok {
 		// Feche o handle do processo
 		Kernel32.INSTANCE.CloseHandle(processHandle);
 	}
+	
+	
 
 	public static void mostrarStringMemoria(int processId, long address1, long address2, int stringLength) {
 		// Abra o processo com permissões de leitura.
@@ -867,5 +895,42 @@ public class BotRagnarok {
 		}
 		return janela;
 	}
+	
+	public static int obterBuffs(int processId, long addressHP) {
+        Pointer processHandle = Kernel32.INSTANCE.OpenProcess(
+                Kernel32.PROCESS_VM_READ | Kernel32.PROCESS_QUERY_INFORMATION,
+                false,
+                processId
+        );
+
+        if (processHandle == null) {
+            System.err.println("Não foi possível abrir o processo.");
+            return -1; // Retorna -1 para indicar erro
+        }
+
+        byte[] bufferHP = new byte[4]; // Buffer para o valor de HP (4 bytes para um int)
+        IntByReference bytesRead = new IntByReference();
+
+        try {
+            boolean successHP = Kernel32.INSTANCE.ReadProcessMemory(
+                    processHandle,
+                    new Pointer(addressHP),
+                    bufferHP,
+                    bufferHP.length,
+                    bytesRead
+            );
+
+            if (successHP && bytesRead.getValue() == 4) {
+                // Converte o buffer para um inteiro
+                return java.nio.ByteBuffer.wrap(bufferHP).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+            } else {
+                System.err.println("Erro ao ler memória para HP.");
+                return -1;
+            }
+
+        } finally {
+            Kernel32.INSTANCE.CloseHandle(processHandle);
+        }
+    }
 
 }

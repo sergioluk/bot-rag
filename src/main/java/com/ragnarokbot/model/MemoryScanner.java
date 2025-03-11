@@ -1,5 +1,8 @@
 package com.ragnarokbot.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ragnarokbot.model.MemoryScanner.Kernel32;
 import com.sun.jna.*;
 import com.sun.jna.ptr.IntByReference; // Classe para manipular valores inteiros por referência.
@@ -19,6 +22,8 @@ public class MemoryScanner {
 	//public long addressHp = 0x156F798;
 	
 	public long addressString = 0x19A9ED - 5;
+	
+	public static long addressName = 0x0158A120;
 	
     public interface Kernel32 extends Library {
         Kernel32 INSTANCE = Native.load("kernel32", Kernel32.class);
@@ -124,7 +129,7 @@ public class MemoryScanner {
         }
     }
     
-    public String obterStringMemoria(int processId, long addressString) {
+    public static String obterStringMemoria(int processId, long addressString) {
         Pointer processHandle = Kernel32.INSTANCE.OpenProcess(
                 Kernel32.PROCESS_VM_READ | Kernel32.PROCESS_QUERY_INFORMATION,
                 false,
@@ -161,6 +166,52 @@ public class MemoryScanner {
         } finally {
             Kernel32.INSTANCE.CloseHandle(processHandle);
         }
+    }
+    
+    public List<Integer> listarStatus() {
+        List<Integer> buffs = new ArrayList<>();
+
+        Pointer processHandle = Kernel32.INSTANCE.OpenProcess(
+                Kernel32.PROCESS_VM_READ | Kernel32.PROCESS_QUERY_INFORMATION,
+                false,
+                processId
+        );
+
+        if (processHandle == null) {
+            System.err.println("Não foi possível abrir o processo.");
+            return buffs; // Retorna lista vazia se não puder abrir o processo
+        }
+
+        byte[] buffer = new byte[4]; // Buffer de 4 bytes para armazenar cada buff
+        IntByReference bytesRead = new IntByReference();
+
+        try {
+            for (int i = 0; i < 100; i++) {
+                long currentAddress = addressHp + 0x474 + i * 4; // Calcula o endereço do buff
+                
+                boolean success = Kernel32.INSTANCE.ReadProcessMemory(
+                        processHandle,
+                        new Pointer(currentAddress),
+                        buffer,
+                        buffer.length,
+                        bytesRead
+                );
+
+                if (!success || bytesRead.getValue() != 4) {
+                    break; // Para de adicionar se falhar na leitura
+                }
+
+                int buff = java.nio.ByteBuffer.wrap(buffer).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+                
+                if (buff != -1) {
+                    buffs.add(buff);
+                }
+            }
+        } finally {
+            Kernel32.INSTANCE.CloseHandle(processHandle);
+        }
+
+        return buffs;
     }
 
 

@@ -22,6 +22,32 @@ public class Skill {
 		this.main = main;
 	}
 	
+	
+	
+	public Boolean getMain() {
+		return main;
+	}
+
+
+
+	public void setMain(Boolean main) {
+		this.main = main;
+	}
+
+
+
+	public String getPosicao() {
+		return posicao;
+	}
+
+
+
+	public void setPosicao(String posicao) {
+		this.posicao = posicao;
+	}
+
+
+
 	public int getTecla() {
         return tecla;
     }
