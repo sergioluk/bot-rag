@@ -143,9 +143,10 @@ public class BotRagnarok {
 		Bot bot = new Bot(tesseract, robot, tesseractLetras);
 		//bot.printarTela();
 		
-		Tela tela = new Tela(bot);
-		SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
-		SwingUtilities.invokeLater( () -> new Tela(bot));
+		//Tela tela = new Tela(bot);
+		//SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
+		
+		//SwingUtilities.invokeLater( () -> new Tela(bot));
 		//Tela.iniciarCronometro(1, 1, tela); // Cronômetro 1 conta 30 minutos
 		//Tela.iniciarCronometro(2, 30, tela);
 		
@@ -153,7 +154,7 @@ public class BotRagnarok {
 		GameController gameController = new GameController(bot);
 		// gameController.run();
 
-		janelaPrincipal = new JanelaPrincipal(gameController, tela);
+		janelaPrincipal = new JanelaPrincipal(gameController);
 		janelaPrincipal.setVisible(true);
 
 
@@ -302,6 +303,48 @@ public class BotRagnarok {
 				}
 			});
 		});*/
+		
+		
+		//bot.printarTela();
+		/*Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0)); //x+4,y+18 w8 h11
+		int x = r.x + 4;
+		int y = r.y + 18;
+		BufferedImage barra = bot.abrirImagem("config/skills/barra.png");
+		BufferedImage verificarCometa = bot.printarParteTela(x, y, 8, 11);
+		
+		if (bot.compararImagens(barra, verificarCometa, 2)) {
+			System.out.println("Barra 1");
+		} else {
+			System.out.println("Barra 2");
+		}*/
+		/*bot.sleep(100);
+		bot.moverMouse(bot.getxJanela() + x + 4, bot.getyJanela() + y + 5);
+		bot.sleep(100);
+		bot.clicarMouse();
+		bot.sleep(100);
+		bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight()/2);
+		bot.sleep(100);*/
+		
+		/*BufferedImage verificarCometa2 = bot.printarParteTela(x, y, 8, 11);
+		
+		if (bot.compararImagens(barra, verificarCometa2, 2)) {
+			System.out.println("Barra 1");
+		} else {
+			System.out.println("Barra 2");
+		}*/
+		/*int id = 22992;
+		List<Integer> status = bot.listarStatus(id);
+		for (int buff : status) {
+			if (buff == Effects.ARMA_REMOVIDO.getId())
+				System.out.println("sem arma");
+			if (buff == Effects.ESCUDO_REMOVIDO.getId())
+				System.out.println("sem escudo");
+			if (buff == Effects.ELMO_REMOVIDO.getId())
+				System.out.println("sem elmo");
+			if (buff == Effects.ARMADURA_REMOVIDO.getId())
+				System.out.println("sem armadura");
+		}
+		System.out.println("Itens status: " + status.toString());*/
 
 		// gameController.run();
 		System.out.println("Iniciando...");
@@ -323,7 +366,7 @@ public class BotRagnarok {
 		//procurarString(processId, nome);
 		int soma = 4;
 		
-		Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));//4b 133px, 3b 100px, 2b 67px, 1b 34px
+		/*Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));//4b 133px, 3b 100px, 2b 67px, 1b 34px
 		System.out.println("Height: " + r.height);
 		// x + 16, y + 4 widht 24, heigh 19
 		int pos = 1;
@@ -339,7 +382,7 @@ public class BotRagnarok {
 			System.out.println("Não está em cooldown");
 		} else {
 			System.out.println("Está em cooldown");
-		}
+		}*/
 		
 		//bot.printarTela();
 		//bot.printarParteTela(x + bot.getxJanela(), y + bot.getyJanela(), 10, 10);

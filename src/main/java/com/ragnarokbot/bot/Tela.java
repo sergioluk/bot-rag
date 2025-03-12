@@ -35,6 +35,8 @@ public class Tela extends JFrame{
     
     private static boolean velocidade = false;
     private static boolean chicleteGoma = false;
+    private boolean ligarBot = true;
+    private boolean pausarBot;
     
     public Tela( Bot bot) {
         super("Stonks");
@@ -68,6 +70,17 @@ public class Tela extends JFrame{
                 g.drawString(velo, 561, 25);
                 String goma = "Chiclete/Goma: " + chicleteGoma;
                 g.drawString(goma, 561, 42);
+                
+                if (ligarBot == false) {
+                	 g.setColor(Color.RED);
+                	 g.drawString("STOP", 561, 59);
+                }
+                
+                if (pausarBot == true) {
+               	 g.setColor(Color.YELLOW);
+               	 g.drawString("PAUSE", 611, 59);
+               }
+                
             }
         };
         panel.setOpaque(false); // Deixa o painel transparente
@@ -98,6 +111,12 @@ public class Tela extends JFrame{
     public void updateVeloGoma() {
     	velocidade = JanelaPrincipal.isVelocidade;
     	chicleteGoma = JanelaPrincipal.isChicleteGoma;
+    	repaint();
+    }
+    
+    public void updateState(boolean ligarBot, boolean pausarBot) {
+    	this.ligarBot = ligarBot;
+    	this.pausarBot = pausarBot;
     	repaint();
     }
     

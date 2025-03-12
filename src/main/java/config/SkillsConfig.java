@@ -20,9 +20,27 @@ public class SkillsConfig {
 	private String atalhoModoChicleteGoma;
 	private String atalhoVelocidade;
 	private String atalhoChicleteGoma;
+	private List<String> atalhoEquipamento;
 	private List<String> classesDisponiveis;
+	private String atalhoVeneno;
 
 	
+	public String getAtalhoVeneno() {
+		return atalhoVeneno;
+	}
+
+	public void setAtalhoVeneno(String atalhoVeneno) {
+		this.atalhoVeneno = atalhoVeneno;
+	}
+
+	public List<String> getAtalhoEquipamento() {
+		return atalhoEquipamento;
+	}
+
+	public void setAtalhoEquipamento(List<String> atalhoEquipamento) {
+		this.atalhoEquipamento = atalhoEquipamento;
+	}
+
 	public String getAtalhoModoVelocidade() {
 		return atalhoModoVelocidade;
 	}

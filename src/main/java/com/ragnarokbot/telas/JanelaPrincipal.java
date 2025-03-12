@@ -49,6 +49,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JWindow;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
@@ -98,7 +99,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     public static boolean isChicleteGoma = false;
     private Tela tela;
 
-    public JanelaPrincipal(GameController gameController, Tela tela) {
+    public JanelaPrincipal(GameController gameController) {
     	this.tela = tela;
     	System.out.println("Criando JanelaPrincipal");
         setTitle("Stonks");
@@ -539,7 +540,14 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             }
         	
             //Focar no ragnarok
-            User32.INSTANCE.SetForegroundWindow(Bot.hwnd);
+            //User32.INSTANCE.SetForegroundWindow(Bot.hwnd);
+            gameController.getBot().inicializarBot();
+            if (this.tela == null) {
+            	this.tela = new Tela(gameController.getBot());
+        		SwingUtilities.invokeLater(() -> tela.setVisible(true));
+            }
+            gameController.tela = this.tela;
+            
             
             if (botThread == null || !botThread.isAlive()) {
             	 botThread = new Thread(gameController); // Cria a thread para o GameController
@@ -550,6 +558,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
                  playButton.setBackground(new Color(144, 238, 144));//Verde claro
                  resetarCor(pauseResumeButton);
                  resetarCor(stopButton);
+                 tela.updateState(true, gameController.pausarBot);
             }
 			//gameController.run();
 			
@@ -561,6 +570,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     public void stop() {
     	gameController.pararBot();
     	Bot bot = gameController.getBot();
+    	//GameController gc = new GameController(bot, tela);
     	GameController gc = new GameController(bot);
     	gameController = gc;
     	
@@ -824,7 +834,6 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 		tela.updateVeloGoma();
 		System.out.println("Modo de Goma/Chiclete " + (isChicleteGoma?"ativado":"desativado") + "!!!");
 	}
-	
 }
 
 

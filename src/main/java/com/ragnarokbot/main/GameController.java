@@ -39,6 +39,7 @@ import net.sourceforge.tess4j.TesseractException;
 import state.StateMachine;
 import utils.KeyMapper;
 
+import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Event;
 import java.awt.Rectangle;
@@ -70,8 +71,8 @@ public class GameController implements Runnable {
 
 	private final Bot bot;
 	// private final Tela tela;
-	private volatile boolean ligarBot = true;
-	private volatile boolean pausarBot = false;
+	public volatile boolean ligarBot = true;
+	public volatile boolean pausarBot = false;
 	// private Estado estado = Estado.ANDANDO;
 	// Contagens de acoes
 	private int passo = 0;
@@ -169,13 +170,17 @@ public class GameController implements Runnable {
 	long tempoVeloGoma = System.currentTimeMillis();
 	
 	private BufferedImage cometa = null;
+	BufferedImage barra = null;
+	private Rect barraSkills = null;
 
 	private Thread botThread;
+	public Tela tela;
 
 	public GameController(Bot bot) {
 		this.bot = bot;
 		cometa = bot.abrirImagem("config/skills/cometa.png");
-		// this.tela = tela;
+		barra = bot.abrirImagem("config/skills/barra.png");
+		//this.tela = tela;
 		/*
 		 * try { // Registrar o hook do teclado GlobalScreen.registerNativeHook();
 		 * GlobalScreen.addNativeKeyListener(this); } catch (Exception e) {
@@ -212,7 +217,12 @@ public class GameController implements Runnable {
 		// atalho padrao para bio chef
 		String classe = JanelaPrincipal.obterClasseSelecionada();
 		carregarAtalhosSkills(classe);
+		
+		
+		
 		bot.sleep(3000);
+		
+		barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
 
 		// Modo instancia
 		if (scriptContas != null) {
@@ -234,7 +244,7 @@ public class GameController implements Runnable {
 		// Testar se funcionou a programagem e desativar logar pela primeira vez pra
 		// testar...
 		//modoDesequiparEquips = true;
-		// voltarBase();
+		//voltarBase();
 
 		/* ligarBot = false; */
 
@@ -291,6 +301,11 @@ public class GameController implements Runnable {
 						if (buffs == Effects.SPEED_POT.getId()) {
 							System.out.println("Ta com Velocidade...");
 							velocidadeEncontrada = true;
+						}
+						if (buffs == Effects.ARMA_REMOVIDO.getId() || buffs == Effects.ESCUDO_REMOVIDO.getId()
+								|| buffs == Effects.ARMADURA_REMOVIDO.getId() || buffs == Effects.ELMO_REMOVIDO.getId()) {
+							int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVeneno());
+							bot.apertarTecla(atalho);
 						}
 					}
 					if (!gomaEncontrada && JanelaPrincipal.isChicleteGoma) {
@@ -599,6 +614,57 @@ public class GameController implements Runnable {
 				bot.clicarMouse();
 				bot.sleep(100);
 				falouComCurandeiro = true;
+				
+				//Equipar os itens caso esteja quebrados ou desequipados
+				int x = barraSkills.x + 4;
+				int y = barraSkills.y + 18;
+				boolean barra1 = true;
+				do {
+					System.out.println("Mudando pra segunda barra");
+					BufferedImage barraVerificada = bot.printarParteTela(x, y, 8, 11);
+					barra1 = bot.compararImagens(barra, barraVerificada, 2); //true barra1 | false barra2
+					if (barra1 == true) {
+						bot.sleep(100);
+						bot.moverMouse(bot.getxJanela() + x + 4, bot.getyJanela() + y + 5);
+						bot.sleep(100);
+						bot.clicarMouse();
+						bot.sleep(100);
+						bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight()/2);
+						bot.sleep(500);
+					}
+					System.out.println("barra1: " + barra1);
+				} while(barra1 == true);
+				
+				System.out.println("Equipando os itens... e verificando a quantidade de pixel verde pra saber se equipou tudo...");
+				int contador = 0;
+				Color verde = new Color(0,255,8);
+				do {
+					for (int i = 0; i < skillsConfig.getAtalhoEquipamento().size(); i++) {
+						System.out.println("Equipando o " + (i + 1));
+						int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoEquipamento().get(i));
+						bot.apertarTecla(atalho);
+						bot.sleep(200);
+					}
+					
+					contador = bot.contarPixels(verde, bot.getxJanela() + barraSkills.x, bot.getyJanela() + barraSkills.y, barraSkills.width, 34);
+					System.out.println("Quantidades de verde: " + contador + " é maior que 7450? " + (contador < 7450 ? false:true));
+				} while(contador < 7450);
+				
+				do {
+					System.out.println("Mudando pra primeira barra");
+					BufferedImage barraVerificada = bot.printarParteTela(x, y, 8, 11);
+					barra1 = bot.compararImagens(barra, barraVerificada, 2); //true barra1 | false barra2
+					if (barra1 == false) {
+						bot.sleep(100);
+						bot.moverMouse(bot.getxJanela() + x + 4, bot.getyJanela() + y + 5);
+						bot.sleep(100);
+						bot.clicarMouse();
+						bot.sleep(100);
+						bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight()/2);
+						bot.sleep(500);
+					}
+				} while(barra1 == false);
+				System.out.println("Equipamentos equipados com o sucesso de um equipador");
 			}
 
 			System.out.println("Tentando falar com npc teleporte");
@@ -1173,32 +1239,39 @@ public class GameController implements Runnable {
 		if (bot.calcularDistancia(atual, coord) <= skill.getRange()) {
 			bot.atacarMonstro(monstro, tecla);
 			skill.use();
-			verificarCooldownCometa(skill);
+			if (skill.getMain() == true && script.getMapa().equals("chef.png")) {
+				if (verificarCooldownCometa(skill)) {
+					System.out.println("Voltando base...");
+					System.out.println("Voltando base...");
+					System.out.println("Voltando base...");
+					voltarBase();
+				}
+			}
 			return true;
 		}
 		return false;
 	}
 	
 	private boolean verificarCooldownCometa(Skill skill) {
-		if (skill.getMain() == true && script.getMapa().equals("chef.png")) {
-			String[] partes = skill.getPosicao().split("-");
-			int barra = Integer.parseInt(partes[0]);
-			int pos = Integer.parseInt(partes[1]);
+		String[] partes = skill.getPosicao().split("-");
+		int barra = Integer.parseInt(partes[0]);
+		int pos = Integer.parseInt(partes[1]);
 			
-			Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
-			int x = r.x + 16 + (pos-1)*24 + (pos-1)*5;
-			int y = r.y + 4 + (barra-1)*19 + (barra-1)*14;
+		int x = barraSkills.x + 16 + (pos-1)*24 + (pos-1)*5;
+		int y = barraSkills.y + 4 + (barra-1)*19 + (barra-1)*14;
 			
-			BufferedImage verificarCometa = bot.printarParteTela(x, y, 24, 19);
+		BufferedImage verificarCometa = bot.printarParteTela(x, y, 24, 19);
 			
-			if (bot.compararImagens(cometa, verificarCometa, 2)) {
-				System.out.println("Não está em cooldown");
-			} else {
-				System.out.println("Está em cooldown");
-			}
-			
+		if (bot.compararImagens(cometa, verificarCometa, 2)) {
+			System.out.println("Não está em cooldown");
+			return false;
+		} else {
+			System.out.println("Está em cooldown");
+			System.out.println("Está em cooldown");
+			System.out.println("Está em cooldown");
+			System.out.println("Está em cooldown");
+			return true;
 		}
-		return true;
 	}
 
 	// Método auxiliar para obter a próxima habilidade disponível para uma cor
@@ -1385,6 +1458,7 @@ public class GameController implements Runnable {
 		} else {
 			System.out.println("Resumindo o bot...");
 		}
+		tela.updateState(ligarBot, pausarBot);
 		bot.clicarMouse();
 
 		// bot.soltarMouse();
@@ -1394,6 +1468,7 @@ public class GameController implements Runnable {
 	public void pararBot() {
 		System.out.println("Tecla 'O' pressionada. Parando o bot...");
 		ligarBot = false;
+		
 
 		resetarRotas();
 		resetarVariaveisVoltarFarme();
@@ -1402,6 +1477,7 @@ public class GameController implements Runnable {
 		if (pausarBot) {
 			pausarBot();
 		}
+		tela.updateState(ligarBot, pausarBot);
 		/*
 		 * try { GlobalScreen.unregisterNativeHook(); } catch (NativeHookException e) {
 		 * e.printStackTrace(); }

@@ -80,6 +80,7 @@ import config.SkillsConfig.Buffs;
 import com.sun.jna.platform.win32.WinDef.HWND;
 import com.sun.jna.platform.win32.WinDef.RECT;
 import com.sun.jna.platform.win32.WinDef.POINT;
+import com.sun.jna.ptr.IntByReference;
 
 public class Bot {
 	
@@ -88,6 +89,7 @@ public class Bot {
 	private ITesseract tesseractLetras;
 	
 	public static HWND hwnd;
+	public static User32 user32 = User32.INSTANCE;
 	
     private int coordenadasJogadorTelaX;
     private int coordenadasJogadorTelaY;
@@ -102,6 +104,8 @@ public class Bot {
 
     private MemoryScanner memoria = new MemoryScanner();
     
+    private static final int SW_RESTORE = 9;
+    
     //notebook
   	long tempoExecucao = System.currentTimeMillis();
     
@@ -115,10 +119,31 @@ public class Bot {
         this.robot = robot;
         this.configOCR = ConfigManager.loadConfig();
         
-        getWidthHeight();
+        //getWidthHeight();
+        //System.out.println("Testando com os novos metodos");
+        
+        //inicializarBot();
+        
+		
+	}
+	
+	public void inicializarBot() {
+		//hwnd = getWindowHandleByPID(3676);
+		hwnd = getWindowHandleByPID(memoria.processId);
+        if (hwnd != null) {
+        	getWindowSize(hwnd);
+        	if (isWindowInFocus(hwnd)) {
+                System.out.println("A janela do Ragnarok está em foco.");
+            } else {
+                System.out.println("A janela do Ragnarok NÃO está em foco.");
+                focarRagnarok(hwnd);
+            }
+        } else {
+            System.out.println("Janela do Ragnarok não encontrada.");
+        }
+        
         this.coordenadasJogadorTelaX = width / 2;
         this.coordenadasJogadorTelaY = height / 2;
-		
 	}
 	
 	/*
@@ -1733,7 +1758,9 @@ public class Bot {
 		    Imgcodecs.imwrite(contouredImagePath, screen);
 		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
 		    
-	
+		    if (!janelaEncerrarInstancia.isEmpty()) {
+		    	System.out.println("Barra de skills encontrada!!!");
+		    }
 		    return janelaEncerrarInstancia;   
 	    
 	}
@@ -1897,7 +1924,8 @@ public class Bot {
 	
 	private void getWidthHeight() {
 		try {
-			User32 user32 = User32.INSTANCE;
+			//User32 user32 = User32.INSTANCE;
+			
 	        //HWND hwnd = user32.FindWindow(null, "History Reborn | Gepard Shield 3.0 (^-_-^)"); // Nome da janela do Ragnarok
 			hwnd = user32.FindWindow(null, "History Reborn | Gepard Shield 3.0 (^-_-^)"); // Nome da janela do Ragnarok
 			MyUser32 myUser32 = MyUser32.INSTANCE; // Usar a interface personalizada
@@ -1935,6 +1963,78 @@ public class Bot {
 	        e.printStackTrace();
 	    }
 	}
+	
+	/**
+     * Obtém o HWND da janela do Ragnarok pelo número do processo (PID).
+     */
+    public static HWND getWindowHandleByPID(int pid) {
+        final HWND[] hwndFound = { null };
+
+        user32.EnumWindows((hWnd, data) -> {
+            IntByReference procId = new IntByReference();
+            user32.GetWindowThreadProcessId(hWnd, procId);
+
+            if (procId.getValue() == pid) {
+                hwndFound[0] = hWnd;
+                return false; // Parar a enumeração, pois já encontramos a janela
+            }
+            return true;
+        }, null);
+
+        return hwndFound[0]; // Retorna o HWND encontrado (ou null se não achou)
+    }
+    
+    public void focarRagnarok(HWND hwnd) {
+    	User32.INSTANCE.SetForegroundWindow(hwnd);
+    }
+    
+    public void getWindowSize(HWND hwnd) {
+        if (hwnd == null) {
+            System.out.println("Janela do Ragnarok não encontrada.");
+            return;
+        }
+        
+        MyUser32 myUser32 = MyUser32.INSTANCE;
+       
+        
+        // Verifica se a janela está minimizada
+        int state = MyUser32.INSTANCE.IsIconic(hwnd); // Retorna 1 se estiver minimizada
+        if (state == 1) {
+            System.out.println("Janela minimizada. Restaurando...");
+            User32.INSTANCE.ShowWindow(hwnd, SW_RESTORE); // Restaura a janela
+            try {
+                Thread.sleep(500); // Pequena pausa para garantir que a janela seja restaurada
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+ 
+        RECT rect = new RECT();
+        user32.GetClientRect(hwnd, rect);
+        
+        POINT topLeft = new POINT(0, 0);
+        myUser32.ClientToScreen(hwnd, topLeft);
+        
+        this.xJanela = topLeft.x;
+        this.yJanela = topLeft.y;
+        this.width = rect.right - rect.left;
+        this.height = rect.bottom - rect.top;
+
+        System.out.println("Resolução da janela do Ragnarok: " + width + "x" + height);
+        System.out.println("Posição da janela do Ragnarok: " + xJanela + " " + yJanela);
+    }
+    
+    /**
+     * Verifica se a janela do Ragnarok está em foco.
+     */
+    public static boolean isWindowInFocus(HWND hwnd) {
+    	if (hwnd != null) {
+    		if (user32.GetForegroundWindow().equals(hwnd)) {
+    			return true;
+    		}
+    	}
+        return false;
+    }
 	
 	private List<Point> raycast(Point start, Point end) {
 	    List<Point> points = new ArrayList<>();

@@ -17,6 +17,9 @@
   "atalhoVelocidade": "F2",
   "atalhoChicleteGoma": "F3",
 
+  "atalhoEquipamento": ["F1","F2","F3","F4"],
+  "atalhoVeneno": "F5",
+
   
   "classesDisponiveis" : ["sorc","mago","arqueiro","monk"],
   
@@ -29,7 +32,7 @@
             "cd" : 500,
             "cor" : "rosa",
             "range": 14,
-            "posicao": "1-2",
+            "posicao": "3-1",
             "main": true
           },
           {

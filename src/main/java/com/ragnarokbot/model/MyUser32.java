@@ -7,4 +7,6 @@ public interface MyUser32 extends com.sun.jna.Library {
 	MyUser32 INSTANCE = Native.load("user32", MyUser32.class);
 
     boolean ClientToScreen(HWND hWnd, POINT lpPoint);
+    int IsIconic(HWND hWnd);
+
 }

@@ -159,6 +159,12 @@ public enum Effects {
     //Scrolls
     INC_AGI(12),
     BLESSING(10),
+    
+    //Full Strip
+    ARMA_REMOVIDO(50),
+    ESCUDO_REMOVIDO(51),
+    ARMADURA_REMOVIDO(52),
+    ELMO_REMOVIDO(53),
 
     //3RD foods
     STR_3RD_FOOD(491),
