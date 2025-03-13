@@ -488,9 +488,13 @@ public class GameController implements Runnable {
 					}
 					stateMachine.mudarEstado(Estado.ANDANDO);
 				}
+				break;
 
 			case NPC:
 				bot.soltarMouse();
+				System.out.println("Desligando andar forçado no case NPC");
+				System.out.println("Desligando andar forçado no case NPC");
+				System.out.println("Desligando andar forçado no case NPC");
 				andarForcado = false;
 				if (tentandoFalarComNpc) {
 					System.out.println("Tentando falar com o npc...");
@@ -1272,6 +1276,13 @@ public class GameController implements Runnable {
 			System.out.println("Está em cooldown");
 			System.out.println("Está em cooldown");
 			System.out.println("Está em cooldown");
+			try {
+				File arquivo = new File("cometa.png");
+				ImageIO.write(verificarCometa, "png", arquivo);
+				System.out.println("Img cd cometa salva em: " + arquivo.getAbsolutePath());
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			return true;
 		}
 	}
@@ -1450,6 +1461,12 @@ public class GameController implements Runnable {
 
 	public synchronized void pausarBot() {
 		if (script.getMapa() == null) {
+			return;
+		}
+		
+		if (stateMachine.getEstadoAtual().equals(Estado.NPC)) {
+			System.out.println("Apertou pause durante fase de npc... PARANDO STONKS!!!");
+			pararBot();
 			return;
 		}
 
@@ -1641,6 +1658,9 @@ public class GameController implements Runnable {
 		bot.zoom(-28);
 		bot.sleep(100);
 		tentandoFalarComNpc = true;
+		System.out.println("Desligando andar forçado no voltarBase");
+		System.out.println("Desligando andar forçado no voltarBase");
+		System.out.println("Desligando andar forçado no voltarBase");
 		andarForcado = false;//as vezes ativava o andar forçado e o personagem não falava com o npc
 		stateMachine.mudarEstado(Estado.NPC);
 	}

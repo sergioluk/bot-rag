@@ -1829,13 +1829,8 @@ public class Bot {
         int centerX = xJanela + rect.x + rect.width / 2;
         int centerY = yJanela + rect.y + rect.height / 2;
         
-        String classe = JanelaPrincipal.obterClasseSelecionada();
-        
-        if (classe.equals("pala")) {
-        	
-        } 
         if (selfSkill) {
-        	if (classe.equals("pala")) {
+        	if (JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
         		apertarTecla(tecla);
         		sleep(250);
         		apertarTecla(tecla);
