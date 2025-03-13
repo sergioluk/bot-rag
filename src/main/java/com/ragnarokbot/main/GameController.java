@@ -488,7 +488,10 @@ public class GameController implements Runnable {
 						verificarSeLimpouOldGh = true;
 						tempoVerificacaoOldGH = System.currentTimeMillis();
 					}
-					stateMachine.mudarEstado(Estado.ANDANDO);
+					
+					if (!stateMachine.getEstadoAtual().equals(Estado.NPC)) {
+						stateMachine.mudarEstado(Estado.ANDANDO);
+					}
 				}
 				break;
 
