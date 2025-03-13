@@ -61,10 +61,12 @@ import com.ragnarokbot.model.MonstrosImagem;
 import com.ragnarokbot.model.MyUser32;
 import com.ragnarokbot.model.OcrResult;
 import com.ragnarokbot.model.enums.Estado;
+import com.ragnarokbot.telas.JanelaPrincipal;
 
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import utils.MouseClicker;
 
 import com.sun.jna.platform.win32.WinDef;
 import com.sun.jna.platform.win32.User32;
@@ -105,6 +107,8 @@ public class Bot {
     private MemoryScanner memoria = new MemoryScanner();
     
     private static final int SW_RESTORE = 9;
+    
+    public MouseClicker mouseClicker = new MouseClicker();
     
     //notebook
   	long tempoExecucao = System.currentTimeMillis();
@@ -1820,22 +1824,39 @@ public class Bot {
 	    }
 	}
 	
-	public void atacarMonstro(MatOfPoint monstro, int tecla) {
+	public void atacarMonstro(MatOfPoint monstro, int tecla, Boolean selfSkill) {
         Rect rect = Imgproc.boundingRect(monstro);
         int centerX = xJanela + rect.x + rect.width / 2;
         int centerY = yJanela + rect.y + rect.height / 2;
         
-        moverMouse(centerX, centerY + 10);
-        sleep(50);
-        apertarTecla(tecla);
-        sleep(50);
-        clicarMouse();
+        String classe = JanelaPrincipal.obterClasseSelecionada();
+        
+        if (classe.equals("pala")) {
+        	
+        } 
+        if (selfSkill) {
+        	if (classe.equals("pala")) {
+        		apertarTecla(tecla);
+        		sleep(250);
+        		apertarTecla(tecla);
+        		sleep(250);
+        		apertarTecla(tecla);
+        	}
+        	apertarTecla(tecla);
+        } else {
+        	moverMouse(centerX, centerY + 10);
+            sleep(50);
+            apertarTecla(tecla);
+            sleep(50);
+            clicarMouse();
+        }
     }
 	
 	public void clicarMouse() {
-		robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Pressionar o botão esquerdo
-        sleep(50);
-        robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Liberar o botão esquerdo*/
+		//robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Pressionar o botão esquerdo
+        //sleep(50);
+        //robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Liberar o botão esquerdo*/
+		MouseClicker.clicarMouse();
 	}
 	public void clicarMouseDireito() {
 		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK); // Pressionar o botão direito do mouse

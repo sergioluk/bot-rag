@@ -209,6 +209,15 @@ public class SkillsConfig {
 		private int range;
 		private String posicao;
 		private Boolean main;
+		private Boolean selfSkill;
+		
+		
+		public Boolean getSelfSkill() {
+			return selfSkill;
+		}
+		public void setSelfSkill(Boolean selfSkill) {
+			this.selfSkill = selfSkill;
+		}
 		public String getAtalho() {
 			return atalho;
 		}

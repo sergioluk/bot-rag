@@ -491,6 +491,7 @@ public class GameController implements Runnable {
 
 			case NPC:
 				bot.soltarMouse();
+				andarForcado = false;
 				if (tentandoFalarComNpc) {
 					System.out.println("Tentando falar com o npc...");
 					falarComNpc();
@@ -603,6 +604,7 @@ public class GameController implements Runnable {
 	}
 
 	private void falarComNpc() {
+		stateMachine.mudarEstado(Estado.NPC);
 		String mapa = script.getMapa();
 		if (mapa.equals("bio.png") || mapa.equals("chef.png")) { // mapas de farme
 			if (!falouComCurandeiro) {
@@ -1237,7 +1239,7 @@ public class GameController implements Runnable {
 		int centerY = m.y + m.height / 2 + 10;
 		Coordenadas coord = bot.getCoordenadasTelaDoBixo(atual, centerX, centerY);
 		if (bot.calcularDistancia(atual, coord) <= skill.getRange()) {
-			bot.atacarMonstro(monstro, tecla);
+			bot.atacarMonstro(monstro, tecla, skill.getSelfSkill());
 			skill.use();
 			if (skill.getMain() == true && script.getMapa().equals("chef.png")) {
 				if (verificarCooldownCometa(skill)) {
@@ -1694,7 +1696,6 @@ public class GameController implements Runnable {
 
 	private void interagirComNpcParaVoltarFarmar() {
 		bot.sleep(200);
-		resetarRotas();
 		System.out.println("--------------");
 		System.out.println("Interagindo com npc...");
 		System.out.println("Index: " + indexVoltarFarm);
@@ -1776,6 +1777,7 @@ public class GameController implements Runnable {
 	}
 
 	public void resetarVariaveisVoltarFarme() {
+		resetarRotas();
 		modoVoltarParaFarmar = false;
 		falouComCurandeiro = false;
 		tentandoFalarComNpc = false;
@@ -2259,10 +2261,14 @@ public class GameController implements Runnable {
 				for (Skills sk : c.getSkills()) {
 					int teclaAtalho = KeyMapper.getTeclaAtalho(sk.getAtalho());
 					Boolean main = false;
+					Boolean selfSkill = false;
 					if (sk.isMain() != null) {
 						main = sk.isMain();
 					}
-					bot.skills.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange(), sk.getPosicao(), main));
+					if (sk.getSelfSkill() != null) {
+						selfSkill = sk.getSelfSkill();
+					}
+					bot.skills.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange(), sk.getPosicao(), main, selfSkill));
 				}
 				if (c.getBuffs() != null) {
 					for (Buffs b : c.getBuffs()) {

@@ -11,8 +11,9 @@ public class Skill {
 	
 	private Boolean main;
 	private String posicao;
+	private Boolean selfSkill;
 	
-	public Skill(int tecla, String cor, int cd, int range, String posicao, Boolean main) {
+	public Skill(int tecla, String cor, int cd, int range, String posicao, Boolean main, Boolean selfSkill) {
 		this.tecla = tecla;
 		this.cor = cor;
 		this.cd = cd;
@@ -20,10 +21,23 @@ public class Skill {
 		this.lastUsedTime = 0;
 		this.posicao = posicao;
 		this.main = main;
+		this.selfSkill = selfSkill;
 	}
 	
 	
 	
+	public Boolean getSelfSkill() {
+		return selfSkill;
+	}
+
+
+
+	public void setSelfSkill(Boolean selfSkill) {
+		this.selfSkill = selfSkill;
+	}
+
+
+
 	public Boolean getMain() {
 		return main;
 	}

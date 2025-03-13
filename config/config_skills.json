@@ -21,7 +21,7 @@
   "atalhoVeneno": "F5",
 
   
-  "classesDisponiveis" : ["sorc","mago","arqueiro","monk"],
+  "classesDisponiveis" : ["sorc","mago","arqueiro","monk","pala"],
   
   "classes": [
       {
@@ -33,7 +33,7 @@
             "cor" : "rosa",
             "range": 14,
             "posicao": "3-1",
-            "main": true
+            "main": false
           },
           {
             "atalho": "E",
@@ -60,15 +60,15 @@
         ]
       },
       {
-        "classe": "mago x1",
+        "classe": "pala",
         "skills" : [
           {
             "atalho": "Q",
             "cd" : 500,
             "cor" : "rosa",
             "range": 14,
-            "posicao": "1-2",
-            "main": true
+            "posicao": "3-1",
+            "selfSkill": true
           },
           {
             "atalho": "E",
