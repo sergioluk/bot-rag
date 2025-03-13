@@ -837,12 +837,16 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 	}
 	public void toggleVelocidade() {
 		isVelocidade = !isVelocidade;
-		tela.updateVeloGoma();
+		if (tela != null) {
+			tela.updateVeloGoma();
+		}
 		System.out.println("Modo de velocidade " + (isVelocidade?"ativado":"desativado") + "!!!");
 	}
 	public void toggleChicleteGoma() {
 		isChicleteGoma = !isChicleteGoma;
-		tela.updateVeloGoma();
+		if (tela != null) {
+			tela.updateVeloGoma();
+		}
 		System.out.println("Modo de Goma/Chiclete " + (isChicleteGoma?"ativado":"desativado") + "!!!");
 	}
 }
