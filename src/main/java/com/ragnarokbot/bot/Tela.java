@@ -29,7 +29,7 @@ import config.ConfigManager;
 
 public class Tela extends JFrame{
     
-    private Bot bot;
+    //private Bot bot;
     
     private static Map<Integer, Cronometro> cronometros = new HashMap<>();
     
@@ -38,13 +38,13 @@ public class Tela extends JFrame{
     private boolean ligarBot = true;
     private boolean pausarBot;
     
-    public Tela( Bot bot) {
+    public Tela(int x, int y, int width, int height) {
         super("Stonks");
-        this.bot = bot;
+        //this.bot = bot;
         
         setUndecorated(true); // Remove bordas da janela
-        setSize(bot.getWidth(), bot.getHeight());
-        setLocation(bot.getxJanela(), bot.getyJanela());
+        setSize(width, height);
+        setLocation(x, y);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         
         // Tornar a janela sempre visível acima das outras

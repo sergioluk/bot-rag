@@ -1477,7 +1477,9 @@ public class GameController implements Runnable {
 		} else {
 			System.out.println("Resumindo o bot...");
 		}
-		tela.updateState(ligarBot, pausarBot);
+		if (skillsConfig.getTela() == true) {
+			tela.updateState(ligarBot, pausarBot);
+		}
 		bot.clicarMouse();
 
 		// bot.soltarMouse();
@@ -1496,7 +1498,9 @@ public class GameController implements Runnable {
 		if (pausarBot) {
 			pausarBot();
 		}
-		tela.updateState(ligarBot, pausarBot);
+		if (skillsConfig.getTela() == true) {
+			tela.updateState(ligarBot, pausarBot);
+		}
 		/*
 		 * try { GlobalScreen.unregisterNativeHook(); } catch (NativeHookException e) {
 		 * e.printStackTrace(); }

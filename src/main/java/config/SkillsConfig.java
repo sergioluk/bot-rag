@@ -23,8 +23,17 @@ public class SkillsConfig {
 	private List<String> atalhoEquipamento;
 	private List<String> classesDisponiveis;
 	private String atalhoVeneno;
+	private Boolean tela;
 
 	
+	public Boolean getTela() {
+		return tela;
+	}
+
+	public void setTela(Boolean tela) {
+		this.tela = tela;
+	}
+
 	public String getAtalhoVeneno() {
 		return atalhoVeneno;
 	}

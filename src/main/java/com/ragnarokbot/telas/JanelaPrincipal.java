@@ -511,6 +511,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             ScriptLoader scriptLoader = new ScriptLoader();
             Script script = null;
             ContasConfig conta = null;
+            SkillsConfig skillsConfig = scriptLoader.carregarSkills("config/config_skills.json");
             
             if (instanciaRadioButton.isSelected()) {//instancia
             	System.out.println("Modo Instância selecionado");
@@ -542,12 +543,19 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             //Focar no ragnarok
             //User32.INSTANCE.SetForegroundWindow(Bot.hwnd);
             gameController.getBot().inicializarBot();
-            if (this.tela == null) {
-            	this.tela = new Tela(gameController.getBot());
-        		SwingUtilities.invokeLater(() -> tela.setVisible(true));
-            }
-            gameController.tela = this.tela;
             
+            if (skillsConfig.getTela() == true) {
+            	if (this.tela == null) {
+                	int x = gameController.getBot().getxJanela();
+                	int y = gameController.getBot().getyJanela();
+                	int width = gameController.getBot().getWidth();
+                	int height = gameController.getBot().getHeight();
+                	
+                	this.tela = new Tela(x, y, width, height);
+            		SwingUtilities.invokeLater(() -> tela.setVisible(true));
+                }
+                gameController.tela = this.tela;
+            }
             
             if (botThread == null || !botThread.isAlive()) {
             	 botThread = new Thread(gameController); // Cria a thread para o GameController
@@ -558,7 +566,10 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
                  playButton.setBackground(new Color(144, 238, 144));//Verde claro
                  resetarCor(pauseResumeButton);
                  resetarCor(stopButton);
-                 tela.updateState(true, gameController.pausarBot);
+                 
+                 if (tela != null) {
+                	 tela.updateState(true, gameController.pausarBot);
+                 }
             }
 			//gameController.run();
 			

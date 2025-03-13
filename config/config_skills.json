@@ -20,6 +20,8 @@
   "atalhoEquipamento": ["F1","F2","F3","F4"],
   "atalhoVeneno": "F5",
 
+  "tela": false,
+
   
   "classesDisponiveis" : ["sorc","mago","arqueiro","monk","pala"],
   
