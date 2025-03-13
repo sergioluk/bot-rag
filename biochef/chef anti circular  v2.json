@@ -1,0 +1,46 @@
+{
+  "mapa" : "chef.png",
+  "rotas" : [ {
+    "descricao" : "Inverso - v2",
+    "passos" : [ 
+      { "coordenadas": [152, 199] },
+      { "coordenadas": [138, 181] },
+      { "coordenadas": [127, 164] },
+      { "coordenadas": [109, 170] },
+      { "coordenadas": [97, 195] },
+      { "coordenadas": [67, 196] },
+      { "coordenadas": [40, 200] },
+      { "coordenadas": [39, 177] },
+      { "coordenadas": [45, 158] },
+      { "coordenadas": [51, 140] },
+      { "coordenadas": [64, 128] },
+      { "coordenadas": [53, 117] },
+      { "coordenadas": [44, 90] },
+      { "coordenadas": [39, 48] },
+      { "coordenadas": [50, 31] },
+      { "coordenadas": [65, 31] },
+      { "coordenadas": [77, 41] },
+      { "coordenadas": [121, 46] },
+      { "coordenadas": [136, 59] },
+      { "coordenadas": [162, 50] },
+      { "coordenadas": [176, 37] },
+      { "coordenadas": [200, 35] },
+      { "coordenadas": [194, 51] },
+      { "coordenadas": [189, 82] },
+      { "coordenadas": [182, 96] },
+      { "coordenadas": [186, 114] },
+      { "coordenadas": [195, 139] },
+      { "coordenadas": [202, 176] },
+      { "coordenadas": [205, 202] }
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [ 205, 202 ]
+    }
+  }
+],
+  "finalizacao" : {
+    "descricao" : "Reiniciando Bio",
+    "coordenadas" : [ 205, 202 ]
+  }
+}

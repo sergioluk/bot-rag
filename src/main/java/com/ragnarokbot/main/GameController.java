@@ -1232,8 +1232,10 @@ public class GameController implements Runnable {
 			if (andarForcado) {
 				return;
 			}
-			System.out.println("Ativando andar forçado por 1 segundos!");
-			andarForcado = true;
+			if (!stateMachine.getEstadoAtual().equals(Estado.NPC)) {
+				System.out.println("Ativando andar forçado por 1 segundos!");
+				andarForcado = true;
+			}
 			tempoAndarForcado = System.currentTimeMillis();
 		}
 

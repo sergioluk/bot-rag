@@ -592,7 +592,7 @@ public class Bot {
 	}
 	
 	public boolean compararImagensCometa(BufferedImage imagem1, BufferedImage imagem2, BufferedImage cometaPreto, double limite) {
-		// Converte para Mat (OpenCV)
+		// Converte para Mat (OpenCV) //1 original 
         Mat matRef = bufferedImageToMat(imagem1);
         Mat matAtual = bufferedImageToMat(imagem2);
         
@@ -622,23 +622,34 @@ public class Bot {
         	isCd = true;
         } else {
         	System.out.println("Comparando com o cometa preto agora...");
-        	matAtual = bufferedImageToMat(cometaPreto);
-        	
-        	// Converter para tons de cinza
-            Imgproc.cvtColor(matAtual, img2Gray, Imgproc.COLOR_BGR2GRAY);
-            // Ajustar tamanho (caso tenha pequenas diferenças)
-            Imgproc.resize(img2Gray, img2Gray, img1Gray.size());
-            
-            Core.absdiff(img1Gray, img2Gray, diff);
-            
-            sumDiff = Core.sumElems(diff);
-            totalDiff = sumDiff.val[0] / (img1Gray.rows() * img1Gray.cols());
+        	 Mat matRefNovo = bufferedImageToMat(cometaPreto);
+             Mat matAtualNovo = bufferedImageToMat(imagem2);
+             
+             Mat img1GrayNovo = new Mat();
+             Mat img2GrayNovo = new Mat();
+             
+             // Converter para tons de cinza
+             Imgproc.cvtColor(matRefNovo, img1GrayNovo, Imgproc.COLOR_BGR2GRAY);
+             Imgproc.cvtColor(matAtualNovo, img2GrayNovo, Imgproc.COLOR_BGR2GRAY);
+             
+             // Ajustar tamanho (caso tenha pequenas diferenças)
+             Imgproc.resize(img2GrayNovo, img2GrayNovo, img1GrayNovo.size());
+
+             // Calcula diferença absoluta
+             Mat diffNovo = new Mat();
+             Core.absdiff(img1GrayNovo, img2GrayNovo, diffNovo);
+             
+             // Calcula o percentual de diferença
+             Scalar sumDiffNovo = Core.sumElems(diffNovo);
+             totalDiff = sumDiffNovo.val[0] / (img1GrayNovo.rows() * img1GrayNovo.cols());
             
             if (totalDiff < limite == true) {
             	System.out.println("Cometa tinha dado refresh, fazer nada");
+            	 System.out.println("Diferença detectada: " + totalDiff);
             	isCd = true;
             } else {
             	System.out.println("Cometa ta em cd mesmo");
+            	 System.out.println("Diferença detectada: " + totalDiff);
             	isCd = false;
             }
         }

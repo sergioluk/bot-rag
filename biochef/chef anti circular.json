@@ -1,0 +1,103 @@
+{
+  "mapa" : "chef.png",
+  "rotas" : [ {
+    "descricao" : "Inverso - ponto 8",
+    "passos" : [ 
+      {"coordenadas" : [ 181,206 ] }, 
+      {"coordenadas" : [ 157,200 ] }, 
+      {"coordenadas" : [ 96,195 ] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [ 96, 195 ]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 7",
+    "passos" : [  
+      {"coordenadas" : [ 63, 197 ] },
+      {"coordenadas" : [ 38, 199 ] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [ 38, 199 ]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 4",
+    "passos" : [ 
+      {"coordenadas" : [ 43, 172 ] }, 
+      {"coordenadas" : [ 40, 128 ] }, 
+      {"coordenadas" : [ 41, 86 ] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [ 41, 86 ]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 1",
+    "passos" : [ 
+      {"coordenadas" : [ 43, 65 ] }, 
+      {"coordenadas" : [ 42, 33 ] }, 
+      {"coordenadas" : [ 63, 41 ] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [ 63, 41 ]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 2",
+    "passos" : [ 
+      {"coordenadas" : [ 94, 42 ] }, 
+      {"coordenadas" : [ 126, 44 ] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [ 126, 44 ]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 3",
+    "passos" : [ 
+      {"coordenadas" : [ 165, 40 ] }, 
+      {"coordenadas" : [ 201, 34 ] }, 
+      {"coordenadas" : [ 195, 58 ] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [ 195, 58 ]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 6",
+    "passos" : [ 
+      {"coordenadas" : [ 191, 71 ] }, 
+      {"coordenadas" : [ 181, 101 ] }, 
+      {"coordenadas" : [ 194, 127 ] }, 
+      {"coordenadas" : [ 185, 149 ] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [ 185, 149 ]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 9",
+    "passos" : [ 
+      {"coordenadas" : [ 197, 158 ] }, 
+      {"coordenadas" : [ 196, 203 ] }, 
+      {"coordenadas" : [ 175, 205 ] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [ 175, 205 ]
+    }
+  } 
+],
+  "finalizacao" : {
+    "descricao" : "Reiniciando Bio",
+    "coordenadas" : [ 175, 205 ]
+  }
+}

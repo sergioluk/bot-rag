@@ -1,0 +1,82 @@
+{
+  "mapa" : "chef.png",
+  "rotas" : [ 
+    {
+    "descricao" : "Inverso - ponto 8",
+    "passos" : [ 
+      {"coordenadas": [181, 206] }, 
+      {"coordenadas": [157, 200] }, 
+      {"coordenadas": [145, 186] }
+  ],
+    "verificacao": {
+      "tipo" : "teleport",
+      "coordenadas": [145, 186]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 5",
+    "passos" : [ 
+      { "coordenadas": [148,174] },
+      { "coordenadas": [136,122] },
+      { "coordenadas": [116,123] },
+      { "coordenadas": [121,108] },
+      { "coordenadas": [139,111] }
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas": [139,111]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 2",
+    "passos" : [  
+      {"coordenadas": [144, 58] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas": [144,58]
+    }
+  },
+  {
+    "descricao" : "Inverso - ponto 3",
+    "passos" : [ 
+      {"coordenadas": [162, 48] }, 
+      {"coordenadas": [178, 35] }, 
+      {"coordenadas": [203, 36] }, 
+      {"coordenadas": [207, 53] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas": [207, 53]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 6",
+    "passos" : [ 
+      {"coordenadas": [197, 75] }, 
+      {"coordenadas": [195, 96] }, 
+      {"coordenadas": [192, 128] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas" : [192, 128]
+    }
+  }, 
+  {
+    "descricao" : "Inverso - ponto 9",
+    "passos" : [ 
+      {"coordenadas": [197, 158] }, 
+    {"coordenadas": [197, 182] }, 
+    {"coordenadas": [199, 197] } 
+  ],
+    "verificacao" : {
+      "tipo" : "teleport",
+      "coordenadas": [199,197]
+    }
+  } 
+],
+  "finalizacao" : {
+    "descricao": "Reiniciando Bio",
+    "coordenadas": [199, 197]
+  }
+}
