@@ -169,6 +169,9 @@ public class GameController implements Runnable {
 	//public static boolean isChicleteGoma = false;
 	long tempoVeloGoma = System.currentTimeMillis();
 	
+	long tempoCooldownRefresh = System.currentTimeMillis();
+	boolean aguardarCdRefresh = false;
+	
 	private BufferedImage cometa = null;
 	private BufferedImage cometaPreto = null;
 	BufferedImage barra = null;
@@ -283,6 +286,15 @@ public class GameController implements Runnable {
 					System.out.println("Personagem morreu!!!");
 					System.out.println("Voltando valkiria e depois base");
 					voltarBase();
+				}
+			}
+			
+			//Essa parte é só pra nao verificar o cd do cometa durante um refresh, pra dar um tempo de refreshar e depois olhar a imagem do cometa
+			if (aguardarCdRefresh) {
+				if (System.currentTimeMillis() - tempoCooldownRefresh >= 2000) {
+					aguardarCdRefresh = false;
+				} else {
+					System.out.println("Acabou de dar refrsh, só mantendo a variavel aguardarCdRefresh true");
 				}
 			}
 
@@ -461,6 +473,8 @@ public class GameController implements Runnable {
 						int refresh = skillsConfig.getRefresh();
 						bot.atalhoAltM(refresh);
 						ultimoUpdateTela = System.currentTimeMillis(); // Atualiza o tempo da última chamada
+						tempoCooldownRefresh = System.currentTimeMillis();
+						aguardarCdRefresh = true;
 						andar(script);
 					} else {
 						// Se a tela já foi atualizada recentemente, força o movimento
@@ -1223,6 +1237,8 @@ public class GameController implements Runnable {
 					contagemRefresh = 0;
 					int refresh = skillsConfig.getRefresh();
 					bot.atalhoAltM(refresh);
+					tempoCooldownRefresh = System.currentTimeMillis();
+					aguardarCdRefresh = true;
 				}
 			} else {
 				contagemRefresh = 0;
@@ -1253,7 +1269,7 @@ public class GameController implements Runnable {
 			bot.atacarMonstro(monstro, tecla, skill.getSelfSkill());
 			skill.use();
 			if (skill.getMain() == true && script.getMapa().equals("chef.png")) {
-				if (verificarCooldownCometa(skill)) {
+				if (aguardarCdRefresh == false && verificarCooldownCometa(skill)) {
 					System.out.println("Voltando base...");
 					System.out.println("Voltando base...");
 					System.out.println("Voltando base...");
