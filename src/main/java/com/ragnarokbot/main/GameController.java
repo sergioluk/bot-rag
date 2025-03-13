@@ -170,6 +170,7 @@ public class GameController implements Runnable {
 	long tempoVeloGoma = System.currentTimeMillis();
 	
 	private BufferedImage cometa = null;
+	private BufferedImage cometaPreto = null;
 	BufferedImage barra = null;
 	private Rect barraSkills = null;
 
@@ -179,6 +180,7 @@ public class GameController implements Runnable {
 	public GameController(Bot bot) {
 		this.bot = bot;
 		cometa = bot.abrirImagem("config/skills/cometa.png");
+		cometaPreto = bot.abrirImagem("config/skills/cometa preto.png");
 		barra = bot.abrirImagem("config/skills/barra.png");
 		//this.tela = tela;
 		/*
@@ -1268,7 +1270,7 @@ public class GameController implements Runnable {
 			
 		BufferedImage verificarCometa = bot.printarParteTela(x, y, 24, 19);
 			
-		if (bot.compararImagens(cometa, verificarCometa, 2)) {
+		if (bot.compararImagensCometa(cometa, verificarCometa, cometaPreto, 2)) {
 			System.out.println("Não está em cooldown");
 			return false;
 		} else {

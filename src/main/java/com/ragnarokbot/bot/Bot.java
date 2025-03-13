@@ -591,6 +591,62 @@ public class Bot {
         return totalDiff < limite;
 	}
 	
+	public boolean compararImagensCometa(BufferedImage imagem1, BufferedImage imagem2, BufferedImage cometaPreto, double limite) {
+		// Converte para Mat (OpenCV)
+        Mat matRef = bufferedImageToMat(imagem1);
+        Mat matAtual = bufferedImageToMat(imagem2);
+        
+        Mat img1Gray = new Mat();
+        Mat img2Gray = new Mat();
+        
+        // Converter para tons de cinza
+        Imgproc.cvtColor(matRef, img1Gray, Imgproc.COLOR_BGR2GRAY);
+        Imgproc.cvtColor(matAtual, img2Gray, Imgproc.COLOR_BGR2GRAY);
+        
+        // Ajustar tamanho (caso tenha pequenas diferenças)
+        Imgproc.resize(img2Gray, img2Gray, img1Gray.size());
+
+        // Calcula diferença absoluta
+        Mat diff = new Mat();
+        Core.absdiff(img1Gray, img2Gray, diff);
+
+        // Calcula o percentual de diferença
+        Scalar sumDiff = Core.sumElems(diff);
+        double totalDiff = sumDiff.val[0] / (img1Gray.rows() * img1Gray.cols());
+
+        System.out.println("Diferença detectada: " + totalDiff);
+        
+        boolean isCd = false;
+        
+        if (totalDiff < limite == true) {
+        	isCd = true;
+        } else {
+        	System.out.println("Comparando com o cometa preto agora...");
+        	matAtual = bufferedImageToMat(cometaPreto);
+        	
+        	// Converter para tons de cinza
+            Imgproc.cvtColor(matAtual, img2Gray, Imgproc.COLOR_BGR2GRAY);
+            // Ajustar tamanho (caso tenha pequenas diferenças)
+            Imgproc.resize(img2Gray, img2Gray, img1Gray.size());
+            
+            Core.absdiff(img1Gray, img2Gray, diff);
+            
+            sumDiff = Core.sumElems(diff);
+            totalDiff = sumDiff.val[0] / (img1Gray.rows() * img1Gray.cols());
+            
+            if (totalDiff < limite == true) {
+            	System.out.println("Cometa tinha dado refresh, fazer nada");
+            	isCd = true;
+            } else {
+            	System.out.println("Cometa ta em cd mesmo");
+            	isCd = false;
+            }
+        }
+
+        // Se a diferença for menor que um certo limiar, consideramos que são iguais
+        return isCd;
+	}
+	
 	public boolean compararBalaoNpc(BufferedImage imagem1, BufferedImage imagem2) {
 		// Converte para Mat (OpenCV)
         Mat matRef = bufferedImageToMat(imagem1);
