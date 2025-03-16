@@ -72,7 +72,12 @@ public class Updater {
 
 	    // Executa o BAT novamente
 	    new ProcessBuilder("cmd.exe", "/c", scriptBat).start();
-
+	    
+	    try {
+	        Thread.sleep(2000); // Espera 2 segundos antes de sair
+	    } catch (InterruptedException e) {
+	        e.printStackTrace();
+	    }
 	    // Fecha o processo atual
 	    System.exit(0);
 	}

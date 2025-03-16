@@ -109,8 +109,8 @@ public class Tela extends JFrame{
     }
     
     public void updateVeloGoma() {
-    	velocidade = JanelaPrincipal.isVelocidade;
-    	chicleteGoma = JanelaPrincipal.isChicleteGoma;
+    	velocidade = JanelaPrincipal.obterVelocidade();
+    	chicleteGoma = JanelaPrincipal.obterGoma();
     	repaint();
     }
     

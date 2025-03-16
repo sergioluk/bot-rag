@@ -284,6 +284,8 @@ public class GameController implements Runnable {
 			if (bot.tempoPassou(timeRand)) {
 				if (bot.getHpAtual() <= 1) {
 					System.out.println("Personagem morreu!!!");
+					System.out.println("Personagem morreu!!!");
+					System.out.println("Personagem morreu!!!");
 					System.out.println("Voltando valkiria e depois base");
 					voltarBase();
 				}
@@ -298,7 +300,7 @@ public class GameController implements Runnable {
 				}
 			}
 
-			if (JanelaPrincipal.isVelocidade || JanelaPrincipal.isChicleteGoma) {
+			if (JanelaPrincipal.obterVelocidade() == true || JanelaPrincipal.obterGoma() == true) {
 				long tempoAtual = System.currentTimeMillis();
 				int tempoRandom = ThreadLocalRandom.current().nextInt(13000, 15001);
 				if (tempoAtual - tempoVeloGoma >= tempoRandom) {
@@ -322,13 +324,13 @@ public class GameController implements Runnable {
 							bot.apertarTecla(atalho);
 						}
 					}
-					if (!gomaEncontrada && JanelaPrincipal.isChicleteGoma) {
+					if (!gomaEncontrada && JanelaPrincipal.obterGoma() == true) {
 						System.out.println("Tá sem goma e o botão de goma está ativo... Potando goma");
 						int atalhoChicleteGoma = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoChicleteGoma());
 						bot.apertarTecla(atalhoChicleteGoma);
 						bot.sleep(500);
 					}
-					if (!velocidadeEncontrada && JanelaPrincipal.isVelocidade) {
+					if (!velocidadeEncontrada && JanelaPrincipal.obterVelocidade() == true) {
 						System.out.println("Tá sem velocidade e o botão de velocidade está ativo... Potando velocidade");
 						int atalhoVelocidade = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVelocidade());
 						bot.apertarTecla(atalhoVelocidade);

@@ -39,6 +39,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -91,12 +92,14 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     private static JComboBox<String> comboBoxDificuldade;
     private static JComboBox<String> comboBoxClasse;
     private static JComboBox<String> comboBoxSala;
+    private static JCheckBox checkBoxVelocidade;
+    private static JCheckBox checkBoxGoma;
     private JButton playButton;
     private JButton stopButton;
     private JButton pauseResumeButton;
     private Color corPadrao;
-    public static boolean isVelocidade = false;
-    public static boolean isChicleteGoma = false;
+    //public static boolean isVelocidade = false;
+    //public static boolean isChicleteGoma = false;
     private Tela tela;
 
     public JanelaPrincipal(GameController gameController) {
@@ -139,6 +142,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             // Painel para os botões no topo
             JPanel topPanel = createTopPanel();
             background.add(topPanel, BorderLayout.NORTH);
+            
 
             // Painel abaixo dos botões
             JPanel belowTopPanel = createBelowTopPanel();
@@ -190,7 +194,9 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         		"23A12DC8-7866-11E7-6895-641C6789B626", //Notebook do lucas
         		"DAB38BF6-3E48-26F2-D1BA-7C10C942BDF7", //PC de Tulete47
         		"03000200-0400-0500-0006-000700080009", //Notebook antigo Saiaka
-        		"FEABFE60-ADC3-79BD-36A2-107C61A5EB2D" //Pc meu
+        		"FEABFE60-ADC3-79BD-36A2-107C61A5EB2D", //Pc meu
+        		"03000200-0400-0500-0006-000700080009", //Xeon do lucas
+        		"EC7BC152-5DAC-11EB-1DB2-706979ABEE0D" //Notebook do Luk
         		).collect(Collectors.toList());
         for (String id : uuidPermitidos) {
         	if (id.equals(UUID)) {
@@ -328,7 +334,35 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     private JPanel createBelowTopPanel() {
         JPanel belowTopPanel = new JPanel(new BorderLayout());
         belowTopPanel.setOpaque(false);
-        belowTopPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        belowTopPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
+        
+        JPanel container = new JPanel(new BorderLayout());
+        container.setOpaque(false);
+        
+        JPanel painelEsquerdaOpcoes = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        painelEsquerdaOpcoes.setOpaque(false);
+        checkBoxVelocidade = new JCheckBox("Velocidade");
+        checkBoxGoma = new JCheckBox("Goma");
+        painelEsquerdaOpcoes.add(checkBoxVelocidade);
+        painelEsquerdaOpcoes.add(checkBoxGoma);
+        
+        JPanel painelProfile = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        painelProfile.setOpaque(false);
+        
+        ImageIcon icon = new ImageIcon("config/engrenagem.png");
+        JButton botaoEngrenagem = new JButton(icon);
+        
+        botaoEngrenagem.addActionListener(e -> new PerfilCrud());
+        
+        painelProfile.add(botaoEngrenagem);
+        
+        
+        container.add(painelEsquerdaOpcoes, BorderLayout.WEST);
+        container.add(painelProfile, BorderLayout.EAST);
+        
+        belowTopPanel.add(container, BorderLayout.NORTH);
+        
+        
 
         // Criando o grupo de botões para garantir seleção única
         ButtonGroup radioButtonGroup = new ButtonGroup();
@@ -819,6 +853,18 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 	public static String obterClasseSelecionada() {
         return (String) comboBoxClasse.getSelectedItem();
     }
+	public static boolean obterVelocidade() {
+		return checkBoxVelocidade.isSelected();
+	}
+	public static boolean obterGoma() {
+        return checkBoxGoma.isSelected();
+    }
+    public static void setValorVelocidade(boolean valor) {
+        checkBoxVelocidade.setSelected(valor);
+    }
+    public static void setValorGoma(boolean valor) {
+        checkBoxGoma.setSelected(valor);
+    }
 	
 	public static String obterNome() {
 		int id = MemoryScanner.processId;
@@ -836,18 +882,24 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 		}
 	}
 	public void toggleVelocidade() {
-		isVelocidade = !isVelocidade;
+		//isVelocidade = !isVelocidade;
+		boolean estado = obterVelocidade();
+		setValorVelocidade(!estado);
+		
 		if (tela != null) {
 			tela.updateVeloGoma();
 		}
-		System.out.println("Modo de velocidade " + (isVelocidade?"ativado":"desativado") + "!!!");
+		System.out.println("Modo de velocidade " + (obterVelocidade()?"ativado":"desativado") + "!!!");
 	}
 	public void toggleChicleteGoma() {
-		isChicleteGoma = !isChicleteGoma;
+		//isChicleteGoma = !isChicleteGoma;
+		boolean estado = obterGoma();
+		setValorGoma(!estado);
+		
 		if (tela != null) {
 			tela.updateVeloGoma();
 		}
-		System.out.println("Modo de Goma/Chiclete " + (isChicleteGoma?"ativado":"desativado") + "!!!");
+		System.out.println("Modo de Goma/Chiclete " + (obterGoma()?"ativado":"desativado") + "!!!");
 	}
 }
 
