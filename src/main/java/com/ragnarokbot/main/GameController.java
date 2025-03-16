@@ -152,6 +152,7 @@ public class GameController implements Runnable {
 	private boolean jaEscolheuPrimeiraOpcao = false;
 	private boolean jaEscolheuSegundaBioOpcao = false;
 	private List<Integer> listaOpcoesFarmNpc = new ArrayList<>();
+	private boolean verificarFullStrip = false;
 
 	private boolean finalizandoInstancia = false;
 	private boolean guardandoEquipsArmazem = false;
@@ -264,7 +265,7 @@ public class GameController implements Runnable {
 			synchronized (this) {
 				while (pausarBot) {
 					try {
-						System.out.println("ta no wait");
+						System.out.println("Bot pausado");
 						wait(); // Aguarda até que `pausado` seja false
 					} catch (InterruptedException e) {
 						Thread.currentThread().interrupt();
@@ -272,14 +273,7 @@ public class GameController implements Runnable {
 					}
 				}
 			}
-			/*
-			 * if (pausarBot) { System.out.println("Bot pausado"); continue; }
-			 * 
-			 * if (bot.configOCR.rectangle.x == 0) {
-			 * System.out.println("Aguardando setar coordenadas"); continue; }
-			 */
 
-			// notebook
 			int timeRand = ThreadLocalRandom.current().nextInt(5000, 10001);
 			if (bot.tempoPassou(timeRand)) {
 				if (bot.getHpAtual() <= 1) {
@@ -318,11 +312,11 @@ public class GameController implements Runnable {
 							System.out.println("Ta com Velocidade...");
 							velocidadeEncontrada = true;
 						}
-						if (buffs == Effects.ARMA_REMOVIDO.getId() || buffs == Effects.ESCUDO_REMOVIDO.getId()
+						/*if (buffs == Effects.ARMA_REMOVIDO.getId() || buffs == Effects.ESCUDO_REMOVIDO.getId()
 								|| buffs == Effects.ARMADURA_REMOVIDO.getId() || buffs == Effects.ELMO_REMOVIDO.getId()) {
 							int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVeneno());
 							bot.apertarTecla(atalho);
-						}
+						}*/
 					}
 					if (!gomaEncontrada && JanelaPrincipal.obterGoma() == true) {
 						System.out.println("Tá sem goma e o botão de goma está ativo... Potando goma");
@@ -632,6 +626,34 @@ public class GameController implements Runnable {
 		stateMachine.mudarEstado(Estado.NPC);
 		String mapa = script.getMapa();
 		if (mapa.equals("bio.png") || mapa.equals("chef.png")) { // mapas de farme
+			bot.sleep(200);
+			if (!verificarFullStrip) {
+				System.out.println("Verificando se levou full strip...");
+				List<Integer> status = bot.listarStatus();
+				boolean isFullstrip = false;
+				for (int buffs : status) {
+					if (buffs == Effects.ARMA_REMOVIDO.getId() || buffs == Effects.ESCUDO_REMOVIDO.getId()
+							|| buffs == Effects.ARMADURA_REMOVIDO.getId() || buffs == Effects.ELMO_REMOVIDO.getId()) {
+						isFullstrip = true;
+					}
+				}
+				System.out.println("Full strip status: " + isFullstrip);
+				if (isFullstrip) {
+					int hp = 999;
+					do {
+						int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVeneno());
+						bot.apertarTecla(atalho);
+						bot.sleep(500);
+						hp = bot.getHpAtual();
+						bot.sleep(500);
+					} while(hp > 1);
+					System.out.println("Personagem morto...");
+					int base = skillsConfig.getGoBase();
+					bot.atalhoAltM(base);
+					bot.sleep(4000);
+				}
+				verificarFullStrip = true;
+			}
 			if (!falouComCurandeiro) {
 				System.out.println("Falando com o npc de cura");
 				bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(231, 202));
@@ -640,7 +662,18 @@ public class GameController implements Runnable {
 				bot.sleep(30);
 				bot.clicarMouse();
 				bot.sleep(100);
-				falouComCurandeiro = true;
+				
+				List<Integer> status = bot.listarStatus();
+				for (int buffs : status) {
+					if (buffs == Effects.BLESSING.getId()) {
+						System.out.println("Falou com a curandeira");
+						falouComCurandeiro = true;
+					}
+				}
+				
+				if (!falouComCurandeiro) {
+					return;
+				}
 				
 				//Equipar os itens caso esteja quebrados ou desequipados
 				int x = barraSkills.x + 4;
@@ -707,6 +740,7 @@ public class GameController implements Runnable {
 			if (!balao.isEmpty()) {
 				tentandoFalarComNpc = false;
 				falouComCurandeiro = false;
+				verificarFullStrip = false;
 				modoVoltarParaFarmar = true;
 			}
 			return;
@@ -1676,7 +1710,6 @@ public class GameController implements Runnable {
 		String path = "config/minimapas/valkiria.png";
 		verificarSeMudouMapa(path, labirinto);
 
-		// Voltar para morroc
 		path = "config/minimapas/base.png";
 		int base = skillsConfig.getGoBase();
 		isBase = verificarSeMudouMapa(path, base);

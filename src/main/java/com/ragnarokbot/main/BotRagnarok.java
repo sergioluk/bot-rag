@@ -85,7 +85,7 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		boolean dev = true;
+		boolean dev = false;
 		if (dev == false) {
 			try {
 				 // Lê a versão atual do bot
@@ -163,6 +163,8 @@ public class BotRagnarok {
 		System.out.println("Lower: " + limites[0]);
 		System.out.println("Upper: " + limites[1]);
 		// Apagar
+		
+		//System.out.println("Lista de status: " + bot.listarStatus());
 		
 		
 		//Rect m = bot.getArmazem();
