@@ -1898,10 +1898,14 @@ public class Bot {
         
         if (selfSkill) {
         	if (JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
+        		int asdp = 100;
+        		if (GameController.aspdPala > 0) {
+        			asdp = GameController.aspdPala;
+        		}
         		apertarTecla(tecla);
-        		sleep(250);
+        		sleep(asdp);
         		apertarTecla(tecla);
-        		sleep(250);
+        		sleep(asdp);
         		apertarTecla(tecla);
         	}
         	apertarTecla(tecla);

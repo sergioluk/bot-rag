@@ -24,8 +24,17 @@ public class SkillsConfig {
 	private List<String> classesDisponiveis;
 	private String atalhoVeneno;
 	private Boolean tela;
+	private Integer aspdPala;
 
 	
+	public Integer getAspdPala() {
+		return aspdPala;
+	}
+
+	public void setAspdPala(Integer aspdPala) {
+		this.aspdPala = aspdPala;
+	}
+
 	public Boolean getTela() {
 		return tela;
 	}

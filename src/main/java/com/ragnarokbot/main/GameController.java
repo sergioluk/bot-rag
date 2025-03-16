@@ -180,6 +180,7 @@ public class GameController implements Runnable {
 
 	private Thread botThread;
 	public Tela tela;
+	public static int aspdPala = 0;
 
 	public GameController(Bot bot) {
 		this.bot = bot;
@@ -208,6 +209,11 @@ public class GameController implements Runnable {
 
 		// notebook
 		skillsConfig = scriptLoader.carregarSkills("config/config_skills.json");
+		
+		if (skillsConfig.getAspdPala() != null) {
+			aspdPala = skillsConfig.getAspdPala();
+		}
+		
 		/*
 		 * for (Classes c : skillsConfig.getClasses()) { System.out.println("classe: " +
 		 * c.getClasse()); for (Skills sk : c.getSkills()) {
