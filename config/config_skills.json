@@ -35,7 +35,7 @@
             "cor" : "rosa",
             "range": 14,
             "posicao": "3-1",
-            "main": true
+            "main": false
           },
           {
             "atalho": "E",

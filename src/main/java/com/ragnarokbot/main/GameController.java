@@ -153,6 +153,7 @@ public class GameController implements Runnable {
 	private boolean jaEscolheuSegundaBioOpcao = false;
 	private List<Integer> listaOpcoesFarmNpc = new ArrayList<>();
 	private boolean verificarFullStrip = false;
+	private int contagemBalaoSizeZero = 0;
 
 	private boolean finalizandoInstancia = false;
 	private boolean guardandoEquipsArmazem = false;
@@ -318,11 +319,33 @@ public class GameController implements Runnable {
 							System.out.println("Ta com Velocidade...");
 							velocidadeEncontrada = true;
 						}
-						/*if (buffs == Effects.ARMA_REMOVIDO.getId() || buffs == Effects.ESCUDO_REMOVIDO.getId()
+						if (buffs == Effects.ARMA_REMOVIDO.getId() || buffs == Effects.ESCUDO_REMOVIDO.getId()
 								|| buffs == Effects.ARMADURA_REMOVIDO.getId() || buffs == Effects.ELMO_REMOVIDO.getId()) {
-							int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVeneno());
-							bot.apertarTecla(atalho);
-						}*/
+							boolean isMapaFarme = false;
+							BufferedImage imagemRef = null;
+							String path = "";
+							if (script.getMapa().equals("bio.png")) {
+								path = "config/minimapas/bio.png";
+							}
+							if (script.getMapa().equals("chef.png")) {
+								path = "config/minimapas/chef.png";
+							}
+							try {
+								imagemRef = ImageIO.read(new File(path));
+							} catch (IOException e) {
+								e.printStackTrace();
+							}
+							// Captura do minimapa atual
+							Rectangle captureArea = new Rectangle(bot.getxJanela() + 880, bot.getyJanela() + 16, 128, 128);
+							BufferedImage minimapaAtual = bot.getRobot().createScreenCapture(captureArea);
+							isMapaFarme = bot.compararImagens(imagemRef, minimapaAtual, 30.0);
+							System.out.println("Verificando se está no mapa de farme pra usar veneno: " + isMapaFarme);
+							
+							if (isMapaFarme) {
+								int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVeneno());
+								bot.apertarTecla(atalho);
+							}
+						}
 					}
 					if (!gomaEncontrada && JanelaPrincipal.obterGoma() == true) {
 						System.out.println("Tá sem goma e o botão de goma está ativo... Potando goma");
@@ -1860,6 +1883,24 @@ public class GameController implements Runnable {
 				bot.zoom(-28);
 				resetarVariaveisVoltarFarme();
 			}
+		} else if (balao.size() == 0) {
+			contagemBalaoSizeZero++;
+			System.out.println("Deu balão vazio... " + contagemBalaoSizeZero + "/30");
+			System.out.println("Se passar de 30 tentativas, voltar base e iniciar de novo");
+			if (contagemBalaoSizeZero == 30) {
+				System.out.println("Bateu as 30 tentativas...\n Voltando Base");
+				boolean isBase = false;
+				do {
+					int base = skillsConfig.getGoBase();
+					bot.atalhoAltM(base);
+					bot.sleep(2000);
+					isBase = bot.compararCoordenadas(new Coordenadas(242,211), bot.obterCoordenadasMemoria());
+				} while (isBase == false);
+				resetarVariaveisVoltarFarme();
+				System.out.println("Resetando pra falar com os npcs de novo...");
+				tentandoFalarComNpc = true;
+				stateMachine.mudarEstado(Estado.NPC);
+			}
 		}
 
 	}
@@ -1874,6 +1915,7 @@ public class GameController implements Runnable {
 		ultimoIndex = 0;
 		jaEscolheuSegundaBioOpcao = false;
 		jaEscolheuPrimeiraOpcao = false;
+		contagemBalaoSizeZero = 0;
 		stateMachine.mudarEstado(Estado.ANDANDO);
 	}
 
