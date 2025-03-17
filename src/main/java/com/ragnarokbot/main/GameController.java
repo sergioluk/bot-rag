@@ -235,6 +235,16 @@ public class GameController implements Runnable {
 		
 		bot.sleep(3000);
 		
+		//bot.printarTela();
+		/*List<MatOfPoint> msg = bot.procurarMensagemPrivada();
+		if (msg.isEmpty()) {
+			System.out.println("Não achei u pm");
+		} else {
+			Rect r = Imgproc.boundingRect(msg.get(0));
+			bot.moverMouse(bot.getxJanela() + r.x, bot.getyJanela() + r.y);
+		}*/
+		
+		
 		barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
 
 		// Modo instancia
@@ -727,13 +737,21 @@ public class GameController implements Runnable {
 				System.out.println("Equipando os itens... e verificando a quantidade de pixel verde pra saber se equipou tudo...");
 				int contador = 0;
 				Color verde = new Color(0,255,8);
+				int tentativas = 0;
 				do {
 					for (int i = 0; i < skillsConfig.getAtalhoEquipamento().size(); i++) {
 						System.out.println("Equipando o " + (i + 1));
 						int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoEquipamento().get(i));
 						bot.apertarTecla(atalho);
 						bot.sleep(200);
+						tentativas++;
 					}
+					
+					// Se atingir 3 tentativas, sai do loop
+			        if (tentativas >= 3) {
+			            System.out.println("Número máximo de tentativas atingido!");
+			            break;
+			        }
 					
 					contador = bot.contarPixels(verde, bot.getxJanela() + barraSkills.x, bot.getyJanela() + barraSkills.y, barraSkills.width, 34);
 					System.out.println("Quantidades de verde: " + contador + " é maior que 7450? " + (contador < 7450 ? false:true));

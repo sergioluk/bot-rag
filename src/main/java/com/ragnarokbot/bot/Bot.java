@@ -1694,6 +1694,76 @@ public class Bot {
 	    
 	}
 	
+	public List<MatOfPoint> procurarMensagemPrivada() {
+		Scalar lowerColor = new Scalar(80, 163, 214);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(100, 243, 255);  // Limite superior (bracno)
+	    
+	    // Capturar a tela da área definida
+	    BufferedImage inventario = printarParteTela(0, 0, width, height);
+	    
+	    
+	    Map<String, Scalar[]> colorRanges = Map.of("armazem", new Scalar[]{lowerColor, upperColor});
+
+	    // Converter BufferedImage para Mat diretamente
+	    Mat screen = bufferedImageToMat(inventario);
+	    if (screen.empty()) {
+	        System.out.println("Erro ao carregar a imagem.");
+	        return null;
+	    }
+
+	    // Converter a imagem para o espaço de cores HSV
+	    Mat hsvImage = new Mat();
+	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+
+	    // Mapear os resultados
+	    Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	    
+	    for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+	        String colorName = entry.getKey();
+	        Scalar lowerColor2 = entry.getValue()[0];
+	        Scalar upperColor2 = entry.getValue()[1];
+
+	        // Criar máscara para identificar a cor dentro do intervalo
+	        Mat mask = new Mat();
+	        Core.inRange(hsvImage, lowerColor2, upperColor2, mask);
+
+	        // Encontrar contornos na máscara
+	        List<MatOfPoint> entidades = new ArrayList<>();
+	        Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	        
+	        // Armazenar os contornos filtrados associados à cor
+	        detectedEntities.put(colorName, entidades);
+	    }
+	    
+	    // Obter a lista de balões de NPC usando a chave "baloesNpc"
+	    List<MatOfPoint> janela = detectedEntities.getOrDefault("armazem", new ArrayList<>());
+	
+			if (janela.isEmpty()) {
+	        	return janela;
+	        }
+	        
+		    // Filtrar NPCs por tamanho e posição
+		    List<MatOfPoint> janelaEncerrarInstancia = janela.stream()
+		        .filter(npc -> {
+		            Rect boundingBox = Imgproc.boundingRect(npc);
+		            return boundingBox.width == 13 && (boundingBox.height == 13);
+		        })
+		        .toList();
+		    
+		    
+		    // Desenhar contornos na imagem original
+		    /*Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+		    Imgproc.drawContours(screen, janelaEncerrarInstancia, -1, greenColor, 2);
+		    // Salvar a imagem com os contornos desenhados
+		    String contouredImagePath = "imagem_com_contornos.png";
+		    Imgcodecs.imwrite(contouredImagePath, screen);
+		    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		    
+	
+		    return janelaEncerrarInstancia;   
+	    
+	}
+	
 	public List<MatOfPoint> procurarAltQ() {
 		Scalar lowerColor = new Scalar(0, 0, 215);  // Limite inferior (branco)
 	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
@@ -1911,6 +1981,17 @@ public class Bot {
         	apertarTecla(tecla);
         } else {
         	moverMouse(centerX, centerY + 10);
+        	if (JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
+        		sleep(50);
+                apertarTecla(tecla);
+                sleep(50);
+                clicarMouse();
+                sleep(50);
+                apertarTecla(tecla);
+                sleep(50);
+                clicarMouse();
+        		return;
+        	}
             sleep(50);
             apertarTecla(tecla);
             sleep(50);

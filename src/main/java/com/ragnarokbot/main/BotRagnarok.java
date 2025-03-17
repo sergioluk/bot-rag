@@ -85,7 +85,7 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		boolean dev = true;
+		boolean dev = false;
 		if (dev == false) {
 			try {
 				 // Lê a versão atual do bot
@@ -159,7 +159,7 @@ public class BotRagnarok {
 
 
 		// Apagar
-		Scalar[] limites = calcularLimites(0, 255, 8);
+		Scalar[] limites = calcularLimites(52, 254, 254);
 		System.out.println("Lower: " + limites[0]);
 		System.out.println("Upper: " + limites[1]);
 		// Apagar
@@ -307,7 +307,6 @@ public class BotRagnarok {
 		});*/
 		
 		
-		//bot.printarTela();
 		/*Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0)); //x+4,y+18 w8 h11
 		int x = r.x + 4;
 		int y = r.y + 18;
