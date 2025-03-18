@@ -1841,6 +1841,8 @@ public class Bot {
 	    // Capturar a tela da área definida
 	    BufferedImage inventario = printarParteTela(0, 0, width, height);
 	    
+	    salvarImagem(inventario, "teste de print");
+	    
 	    
 	    Map<String, Scalar[]> colorRanges = Map.of("barra", new Scalar[]{lowerColor, upperColor});
 
@@ -2411,6 +2413,15 @@ public class Bot {
 	public BufferedImage printarParteTela(int x, int y, int width, int heigh) {
 		Rectangle captureArea = new Rectangle(xJanela + x, yJanela + y, width, heigh);
 		return robot.createScreenCapture(captureArea);
+	}
+	public void salvarImagem(BufferedImage imagem, String nomeArquivo) {
+	    try {
+	        File outputFile = new File(nomeArquivo + ".png"); // Salva na raiz do projeto
+	        ImageIO.write(imagem, "png", outputFile);
+	        System.out.println("Imagem salva como: " + outputFile.getAbsolutePath());
+	    } catch (IOException e) {
+	        e.printStackTrace();
+	    }
 	}
 	
 	public void escolherPersonagem(int num, int pagina) {
