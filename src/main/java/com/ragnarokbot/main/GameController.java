@@ -182,6 +182,8 @@ public class GameController implements Runnable {
 	private Thread botThread;
 	public Tela tela;
 	public static int aspdPala = 0;
+	
+	long tempoPm = System.currentTimeMillis();
 
 	public GameController(Bot bot) {
 		this.bot = bot;
@@ -234,16 +236,6 @@ public class GameController implements Runnable {
 		
 		
 		bot.sleep(3000);
-		
-		//bot.printarTela();
-		/*List<MatOfPoint> msg = bot.procurarMensagemPrivada();
-		if (msg.isEmpty()) {
-			System.out.println("Não achei u pm");
-		} else {
-			Rect r = Imgproc.boundingRect(msg.get(0));
-			bot.moverMouse(bot.getxJanela() + r.x, bot.getyJanela() + r.y);
-		}*/
-		
 		
 		barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
 
@@ -308,6 +300,24 @@ public class GameController implements Runnable {
 					aguardarCdRefresh = false;
 				} else {
 					System.out.println("Acabou de dar refrsh, só mantendo a variavel aguardarCdRefresh true");
+				}
+			}
+			
+			if (System.currentTimeMillis() - tempoPm >= 30000) {
+				tempoPm = System.currentTimeMillis();
+				System.out.println("Verificando se recebesse PMS");
+				List<MatOfPoint> msg = bot.procurarMensagemPrivada();
+				if (msg.isEmpty()) {
+					System.out.println("Nenhum pm identificado...");
+				} else {
+					for (MatOfPoint m : msg) {
+						Rect r = Imgproc.boundingRect(m);
+						Color c = bot.getRobot().getPixelColor(bot.getxJanela() + r.x - 40, bot.getyJanela() + r.y);
+						if (!c.equals(Color.WHITE)) {
+							System.out.println("PM ENCONTRADO, TIRA TIRA");
+							tocarSom("config/despertador.wav");
+						}
+					}
 				}
 			}
 
