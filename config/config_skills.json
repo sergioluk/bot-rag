@@ -62,6 +62,27 @@
         ]
       },
       {
+        "classe": "sorc",
+        "skills" : [
+          {
+            "atalho": "E",
+            "cd" : 500,
+            "cor" : "rosa",
+            "range": 14,
+            "posicao": "3-1",
+            "main": false
+          }
+        ],
+        "buffs" : [
+          {
+            "atalho": "X",
+            "cd": 500,
+            "self": false,
+            "icone": "config/buff_icone/lux.png"
+          }
+        ]
+      },
+      {
         "classe": "pala",
         "skills" : [
           {

@@ -255,6 +255,12 @@ public class GameController implements Runnable {
 
 		carregarMapa();
 		carregarOpcoesFarmNpc();
+		
+		//Verifica se vc ja está nos mapas de farme, se nao estiver, volta base e fala com o npc
+		if (!JanelaPrincipal.instanciaRadioButton.isSelected()) {
+			iniciarBotQualquerLugar();
+		}
+		
 
 		// Testar se funcionou a programagem e desativar logar pela primeira vez pra
 		// testar...
@@ -2409,6 +2415,38 @@ public class GameController implements Runnable {
 			finalizandoInstancia = true;
 		}
 
+	}
+	
+	public void iniciarBotQualquerLugar() {
+		System.out.println("Verificando mapa atual...");
+		BufferedImage imagem = null;
+		boolean bioChef = false;
+		String pathImagem = "config/minimapas/" + script.getMapa();
+		try {
+			imagem = ImageIO.read(new File(pathImagem));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Rectangle captureMinimapa = new Rectangle(bot.getxJanela() + 880, bot.getyJanela() + 16, 128, 128);
+		BufferedImage minimapa = bot.getRobot().createScreenCapture(captureMinimapa);
+		bioChef = bot.compararImagens(imagem, minimapa, 30.0);
+		if (!bioChef) {
+			System.out.println("Começando bot a partir da base...");
+			Coordenadas cordsBase = new Coordenadas(242, 211);
+			int base = skillsConfig.getGoBase();
+			boolean mesmaCoords = false;
+			do {
+				bot.atalhoAltM(base);
+				mesmaCoords = bot.compararCoordenadas(cordsBase, bot.obterCoordenadasMemoria());
+				System.out.println("Ja está na base? " + mesmaCoords);
+				bot.sleep(2000);
+			} while(mesmaCoords == false);
+			
+			tentandoFalarComNpc = true;
+			andarForcado = false;
+			stateMachine.mudarEstado(Estado.NPC);
+			
+		}
 	}
 
 	public void carregarAtalhosSkills(String classe) {
