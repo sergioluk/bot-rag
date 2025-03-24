@@ -1992,6 +1992,10 @@ public class Bot {
                 apertarTecla(tecla);
                 sleep(50);
                 clicarMouse();
+                sleep(50);
+                apertarTecla(tecla);
+                sleep(50);
+                clicarMouse();
         		return;
         	}
             sleep(50);
@@ -2624,8 +2628,12 @@ public class Bot {
 
 				// Pressionar o botão direito do mouse
 				robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-
-				moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY - 100);
+				
+				if (JanelaPrincipal.obterSalaSelecionada().equals("1")) {
+					moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY - 50);
+				} else {
+					moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY - 100);
+				}
 				sleep(20);
 
 				// Obter a posição atual do mouse
