@@ -1249,8 +1249,10 @@ public class Bot {
 	
 	public List<MatOfPoint> verificarBalaoNpc() {
 		// Definir os limites de cor
-	    Scalar lowerColor = new Scalar(0, 0, 207);  // Limite inferior (branco)
-	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+	    /*Scalar lowerColor = new Scalar(0, 0, 207);  // Limite inferior (branco)
+	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)*/
+		Scalar lowerColor = new Scalar(0, 215, 215); // Limite inferior (laranja)
+		Scalar upperColor = new Scalar(17, 255, 255); // Limite superior (laranja)
 	    
 	    //MonstrosImagem analise = analisarTela(lowerColor, upperColor);
 	    MonstrosImagem analise = analisarTela(Map.of("baloesNpc", new Scalar[]{lowerColor, upperColor}));
@@ -1294,8 +1296,8 @@ public class Bot {
 	
 	public List<MatOfPoint> verificarBalaoNpcTeleport() {
 		// Definir os limites de cor
-	    Scalar lowerColor = new Scalar(0, 0, 207);  // Limite inferior (branco)
-	    Scalar upperColor = new Scalar(10, 40, 255);  // Limite superior (bracno)
+		Scalar lowerColor = new Scalar(0, 215, 215); // Limite inferior (laranja)
+		Scalar upperColor = new Scalar(17, 255, 255); // Limite superior (laranja)
 	    
 	    //MonstrosImagem analise = analisarTela(lowerColor, upperColor);
 	    MonstrosImagem analise = analisarTela(Map.of("baloesNpc", new Scalar[]{lowerColor, upperColor}));
@@ -1330,6 +1332,10 @@ public class Bot {
 		    
 		    
 		    return npcsFiltrados;   
+	}
+	
+	public String obterMapa() {
+		return memoria.obterMapa();
 	}
 	
 	public MonstrosImagem analisarTelaBalao(Map<String, Scalar[]> colorRanges) {
@@ -1984,17 +1990,17 @@ public class Bot {
         } else {
         	moverMouse(centerX, centerY + 10);
         	if (JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
-        		sleep(50);
+        		int aspd = 100;
+        		if (GameController.aspdPalaTarget > 0) {
+        			aspd = GameController.aspdPalaTarget;
+        		}
+        		sleep(aspd);
                 apertarTecla(tecla);
-                sleep(50);
+                sleep(aspd);
                 clicarMouse();
-                sleep(50);
+                sleep(aspd);
                 apertarTecla(tecla);
-                sleep(50);
-                clicarMouse();
-                sleep(50);
-                apertarTecla(tecla);
-                sleep(50);
+                sleep(aspd);
                 clicarMouse();
         		return;
         	}
@@ -2552,7 +2558,7 @@ public class Bot {
 		}
 		
 		// notebook
-		public Coordenadas escolherProximaCoordenada(List<Coordenadas> caminhoCalculado, Coordenadas atual) {
+		/*public Coordenadas escolherProximaCoordenada(List<Coordenadas> caminhoCalculado, Coordenadas atual) {
 			if (caminhoCalculado.isEmpty() || caminhoCalculado.size() <= 1) {
 				System.out.println("Caiu aqui #####################################");
 				return atual;
@@ -2598,6 +2604,68 @@ public class Bot {
 
 			// Retornar a última coordenada válida dentro do limite de 10
 			return candidata;
+		}*/
+		
+		public Coordenadas escolherProximaCoordenada(List<Coordenadas> caminhoCalculado, Coordenadas atual) {
+		    if (caminhoCalculado.isEmpty() || caminhoCalculado.size() <= 1) {
+		        System.out.println("Caiu aqui #####################################");
+		        return atual;
+		    }
+
+		    // Ângulo máximo permitido (80 graus)
+		    double anguloMaximo = Math.toRadians(80);
+
+		    // Direção inicial
+		    Coordenadas inicial = caminhoCalculado.get(1);
+		    int direcaoInicialX = inicial.x - atual.x;
+		    int direcaoInicialY = inicial.y - atual.y;
+
+		    // Verifica se o movimento é em linha reta ou diagonal
+		    boolean movimentoReto = (direcaoInicialX == 0 || direcaoInicialY == 0);
+		    boolean movimentoDiagonal = (Math.abs(direcaoInicialX) == Math.abs(direcaoInicialY));
+
+		    // Define o limite baseado no tipo de movimento
+		    int limiteMovimento = 20; // Valor padrão era 14
+
+		    if (movimentoReto) {
+		        limiteMovimento = 12; // Caminho reto → máximo de 9 células
+		    } else if (movimentoDiagonal) {
+		        limiteMovimento = 12; // Caminho diagonal → máximo de 12 células
+		    }
+
+		    Coordenadas candidata = atual;
+
+		    for (int i = 1; i < caminhoCalculado.size() && i <= limiteMovimento; i++) {
+		        Coordenadas proxima = caminhoCalculado.get(i);
+
+		        // Direção para a próxima coordenada
+		        int direcaoProximaX = proxima.x - atual.x;
+		        int direcaoProximaY = proxima.y - atual.y;
+
+		        // Calcular o produto escalar
+		        int produtoEscalar = direcaoInicialX * direcaoProximaX + direcaoInicialY * direcaoProximaY;
+
+		        // Calcular as magnitudes dos vetores
+		        double magnitudeInicial = Math.sqrt(direcaoInicialX * direcaoInicialX + direcaoInicialY * direcaoInicialY);
+		        double magnitudeProxima = Math.sqrt(direcaoProximaX * direcaoProximaX + direcaoProximaY * direcaoProximaY);
+
+		        // Calcular o cosseno do ângulo
+		        double cosTheta = produtoEscalar / (magnitudeInicial * magnitudeProxima);
+
+		        // Calcular o ângulo em radianos
+		        double angulo = Math.acos(cosTheta);
+
+		        // Verificar se o ângulo excede o limite
+		        if (angulo > anguloMaximo) {
+		            return candidata; // Retorna a última coordenada válida antes da curva acentuada
+		        }
+
+		        // Atualizar a candidata se o ângulo estiver dentro do limite
+		        candidata = proxima;
+		    }
+
+		    // Retornar a última coordenada válida dentro do limite ajustado
+		    return candidata;
 		}
 	
 	public void voltarMoroc(int numero) {

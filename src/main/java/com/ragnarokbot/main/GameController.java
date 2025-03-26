@@ -19,6 +19,7 @@ import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.GrafoMapa;
 import com.ragnarokbot.model.enums.Effects;
 import com.ragnarokbot.model.enums.Estado;
+import com.ragnarokbot.model.enums.Mapa;
 import com.ragnarokbot.telas.JanelaPrincipal;
 import com.sun.jna.platform.win32.Wincon.COORD;
 
@@ -182,6 +183,7 @@ public class GameController implements Runnable {
 	private Thread botThread;
 	public Tela tela;
 	public static int aspdPala = 0;
+	public static int aspdPalaTarget = 0;
 	
 	long tempoPm = System.currentTimeMillis();
 
@@ -216,24 +218,15 @@ public class GameController implements Runnable {
 		if (skillsConfig.getAspdPala() != null) {
 			aspdPala = skillsConfig.getAspdPala();
 		}
-		
-		/*
-		 * for (Classes c : skillsConfig.getClasses()) { System.out.println("classe: " +
-		 * c.getClasse()); for (Skills sk : c.getSkills()) {
-		 * System.out.println("atalho: " + sk.getAtalho()); System.out.println("cd: " +
-		 * sk.getCd()); System.out.println("cor: " + sk.getCor());
-		 * System.out.println("range: " + sk.getRange()); int teclaAtalho =
-		 * KeyMapper.getTeclaAtalho(sk.getAtalho()); bot.skills.add(new
-		 * Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange())); } }
-		 */
+		if (skillsConfig.getAspdPalaTarget() != null) {
+			aspdPalaTarget = skillsConfig.getAspdPalaTarget();
+		}
 
 		// bot.encerrarInstancia();
 		//bot.printarTela();
 		// atalho padrao para bio chef
 		String classe = JanelaPrincipal.obterClasseSelecionada();
 		carregarAtalhosSkills(classe);
-		
-		
 		
 		bot.sleep(3000);
 		
@@ -302,7 +295,7 @@ public class GameController implements Runnable {
 			
 			//Essa parte é só pra nao verificar o cd do cometa durante um refresh, pra dar um tempo de refreshar e depois olhar a imagem do cometa
 			if (aguardarCdRefresh) {
-				if (System.currentTimeMillis() - tempoCooldownRefresh >= 2000) {
+				if (System.currentTimeMillis() - tempoCooldownRefresh >= 3000) {
 					aguardarCdRefresh = false;
 				} else {
 					System.out.println("Acabou de dar refrsh, só mantendo a variavel aguardarCdRefresh true");
@@ -348,7 +341,7 @@ public class GameController implements Runnable {
 						if (buffs == Effects.ARMA_REMOVIDO.getId() || buffs == Effects.ESCUDO_REMOVIDO.getId()
 								|| buffs == Effects.ARMADURA_REMOVIDO.getId() || buffs == Effects.ELMO_REMOVIDO.getId()) {
 							boolean isMapaFarme = false;
-							BufferedImage imagemRef = null;
+							/*BufferedImage imagemRef = null;
 							String path = "";
 							if (script.getMapa().equals("bio.png")) {
 								path = "config/minimapas/bio.png";
@@ -365,6 +358,17 @@ public class GameController implements Runnable {
 							Rectangle captureArea = new Rectangle(bot.getxJanela() + 880, bot.getyJanela() + 16, 128, 128);
 							BufferedImage minimapaAtual = bot.getRobot().createScreenCapture(captureArea);
 							isMapaFarme = bot.compararImagens(imagemRef, minimapaAtual, 30.0);
+							System.out.println("Verificando se está no mapa de farme pra usar veneno: " + isMapaFarme);
+							
+							if (isMapaFarme) {
+								int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVeneno());
+								bot.apertarTecla(atalho);
+							}*/
+							
+							String mapaScript = getNomeMapa();
+							String mapaMemoria = bot.obterMapa();
+							isMapaFarme = mapaScript.equals(mapaMemoria);
+							System.out.println("Mapa script: " + mapaScript + " | Mapa atual: " + mapaMemoria);
 							System.out.println("Verificando se está no mapa de farme pra usar veneno: " + isMapaFarme);
 							
 							if (isMapaFarme) {
@@ -456,10 +460,15 @@ public class GameController implements Runnable {
 			}
 
 			if (andarForcado) {
-				System.out.println("Andando Forçado!");
-				stateMachine.mudarEstado(Estado.ANDANDO);
-				if (System.currentTimeMillis() - tempoAndarForcado >= skillsConfig.getTempoAndarForcado()) {
+				//Pala não é pra andar forçado
+				if (JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
 					andarForcado = false;
+				} else {
+					System.out.println("Andando Forçado!");
+					stateMachine.mudarEstado(Estado.ANDANDO);
+					if (System.currentTimeMillis() - tempoAndarForcado >= skillsConfig.getTempoAndarForcado()) {
+						andarForcado = false;
+					}
 				}
 			}
 
@@ -521,8 +530,11 @@ public class GameController implements Runnable {
 				// Lógica de andar
 				if (personagemParado) {
 					if (System.currentTimeMillis() - ultimoUpdateTela >= 5000) {
-						int refresh = skillsConfig.getRefresh();
-						bot.atalhoAltM(refresh);
+						//Pala não é pra refrashar a tela
+						if (!JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
+							int refresh = skillsConfig.getRefresh();
+							bot.atalhoAltM(refresh);
+						}
 						ultimoUpdateTela = System.currentTimeMillis(); // Atualiza o tempo da última chamada
 						tempoCooldownRefresh = System.currentTimeMillis();
 						aguardarCdRefresh = true;
@@ -951,21 +963,9 @@ public class GameController implements Runnable {
 			}
 			return;
 		}
-		/*
-		 * if (verificarModoInstanciaProcura()) { List<MatOfPoint> monstrosIntancias =
-		 * monstros.getOrDefault("rosa", new ArrayList<>()); if
-		 * (!monstrosIntancias.isEmpty()) { Rect m =
-		 * Imgproc.boundingRect(monstrosIntancias.get(0)); int centerX = m.x +
-		 * m.width/2; int centerY = m.y + m.height/2; Coordenadas destinoBixo =
-		 * bot.getCoordenadasTelaPeloMouse(atual, centerX, centerY); List <Coordenadas>
-		 * caminhoAteOBixo = aStar.encontrarCaminho(grafo, atual, destinoBixo);
-		 * Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOBixo,
-		 * atual); bot.moverPersonagem(atual, coordDestino, mapaCarregado); } }
-		 */
-
 		// System.out.println("farm: " + farm + " | tamanho da lista: " +
 		// this.listaDeFarmBioChef.size());
-		System.out.println("descricao do script: " + script.getRotas().get(rota).getDescricao());
+		System.out.println("Rota atual: " + script.getRotas().get(rota).getDescricao());
 
 		// Processar verificação específica da rota
 		processarVerificacao(script, distanciaMinima);
@@ -976,6 +976,45 @@ public class GameController implements Runnable {
 		// caminhoAlternativo = aStar.calcularCaminhoComExpansao10(atual, destino,
 		// grafo);
 		caminhoCalculado = aStar.encontrarCaminho(grafo, atual, destino);
+		
+		//Modo BioChef
+		//Só testando mesmo... Codigo adicionado pra nao fazer o mouse focar nas coordenadsa finais fazendo o personagem parar algumas vezes
+		//Se ficar ruim so apagar
+		/*if (script.getMapa().equals("bio.png") || script.getMapa().equals("chef.png")) {
+		    if (caminhoCalculado.size() < 14) {
+		        int passoAlt = passo + 1;
+		        int rotaAlt = rota;
+
+		        // Verifica se 'rota' está dentro dos limites
+		        if (!script.getRotas().isEmpty() && rota < script.getRotas().size()) {
+		            if (passoAlt >= script.getRotas().get(rota).getPassos().size()) {
+		                passoAlt = 0;
+		                rotaAlt += 1;
+		                
+		                // Garante que 'rotaAlt' esteja dentro dos limites
+		                if (rotaAlt >= script.getRotas().size()) {
+		                    rotaAlt = 0;
+		                }
+		            }
+
+		            // Verifica se 'rotaAlt' está dentro dos limites e tem passos
+		            if (rotaAlt < script.getRotas().size() && 
+		                !script.getRotas().get(rotaAlt).getPassos().isEmpty() &&
+		                passoAlt < script.getRotas().get(rotaAlt).getPassos().size()) {
+		                
+		                List<Integer> coordenadas = script.getRotas().get(rotaAlt).getPassos().get(passoAlt).getCoordenadas();
+
+		                // Verifica se há pelo menos duas coordenadas
+		                if (coordenadas.size() >= 2) {
+		                    int xAlt = coordenadas.get(0);
+		                    int yAlt = coordenadas.get(1);
+		                    Coordenadas destinoAlt = new Coordenadas(xAlt, yAlt);
+		                    caminhoCalculado = aStar.encontrarCaminho(grafo, atual, destinoAlt);
+		                }
+		            }
+		        }
+		    }
+		}*/
 
 		Coordenadas destinoAlt = bot.escolherProximaCoordenada(caminhoCalculado, atual);
 
@@ -1092,9 +1131,10 @@ public class GameController implements Runnable {
 
 			System.out.println("voltando para base");
 			bot.sleep(1000);
-			String path = "config/minimapas/base.png";
+			//String path = "config/minimapas/base.png";
 			int voltarBase = skillsConfig.getGoBase();
-			verificarSeMudouMapa(path, voltarBase);
+			//verificarSeMudouMapa(path, voltarBase);
+			mudarMapa(Mapa.BASE.getNome(), voltarBase);
 			System.out.println("Aguardando 3 segundos");
 			bot.sleep(1000);
 			System.out.println("Aguardando 2 segundos");
@@ -1720,6 +1760,19 @@ public class GameController implements Runnable {
 		}
 		return false;
 	}
+	
+	public void mudarMapa(String mapa, int altOpcao) {
+		boolean mapasIguais = false;
+		do {
+			if (altOpcao != -1) {
+				bot.atalhoAltM(altOpcao);
+			}
+			String mapaAtual = bot.obterMapa();
+			mapasIguais = mapaAtual.equals(mapa);
+			System.out.println("Mapa atual: " + mapaAtual + " | Mapa destino: " + mapa + " | Status: " + mapasIguais);
+			bot.sleep(1000);
+		} while(mapasIguais == false);
+	}
 
 	public boolean verificarSeMudouMapa(String path, int altOpcao) {
 		BufferedImage imagemRef = null;
@@ -1770,12 +1823,14 @@ public class GameController implements Runnable {
 
 	private void voltarBase() {
 		int labirinto = skillsConfig.getLabirintovalk();
-		String path = "config/minimapas/valkiria.png";
-		verificarSeMudouMapa(path, labirinto);
+		//String path = "config/minimapas/valkiria.png";
+		//verificarSeMudouMapa(path, labirinto);
+		mudarMapa(Mapa.VALKIRIA.getNome(), labirinto);
 
-		path = "config/minimapas/base.png";
+		//path = "config/minimapas/base.png";
 		int base = skillsConfig.getGoBase();
-		isBase = verificarSeMudouMapa(path, base);
+		//isBase = verificarSeMudouMapa(path, base);
+		mudarMapa(Mapa.BASE.getNome(), base);
 		bot.sleep(2000);
 		// visao de cima
 		bot.visaoDeCima();
@@ -2417,20 +2472,51 @@ public class GameController implements Runnable {
 
 	}
 	
-	public void iniciarBotQualquerLugar() {
-		System.out.println("Verificando mapa atual...");
-		BufferedImage imagem = null;
-		boolean bioChef = false;
-		String pathImagem = "config/minimapas/" + script.getMapa();
-		try {
-			imagem = ImageIO.read(new File(pathImagem));
-		} catch (Exception e) {
-			e.printStackTrace();
+	public String getNomeMapa() {
+		String mapa = "";
+		String dificuldade = JanelaPrincipal.obterDificuldadeSelecionada();
+		String sala = JanelaPrincipal.obterSalaSelecionada();
+		switch (script.getMapa()) {
+		case "chef.png":
+			if (dificuldade.equals("hard")) {
+				if (sala.equals("1")) {
+					mapa = Mapa.CHEFHARD1.getNome();
+				} else if (sala.equals("2")) {
+					mapa = Mapa.CHEFHARD2.getNome();
+				}
+			} else if (dificuldade.equals("normal")) {
+				if (sala.equals("1")) {
+					mapa = Mapa.CHEFNORMAL1.getNome();
+				} else if (sala.equals("2")) {
+					mapa = Mapa.CHEFNORMAL2.getNome();
+				}
+			}
+			break;
+		case "bio.png":
+			if (dificuldade.equals("hard")) {
+				if (sala.equals("1")) {
+					mapa = Mapa.BIOHARD1.getNome();
+				} else if (sala.equals("2")) {
+					mapa = Mapa.BIOHARD2.getNome();
+				}
+			} else if (dificuldade.equals("normal")) {
+				if (sala.equals("1")) {
+					mapa = Mapa.BIONORMAL1.getNome();
+				} else if (sala.equals("2")) {
+					mapa = Mapa.BIONORMAL2.getNome();
+				}
+			}
+			break;
 		}
-		Rectangle captureMinimapa = new Rectangle(bot.getxJanela() + 880, bot.getyJanela() + 16, 128, 128);
-		BufferedImage minimapa = bot.getRobot().createScreenCapture(captureMinimapa);
-		bioChef = bot.compararImagens(imagem, minimapa, 30.0);
-		if (!bioChef) {
+		return mapa;
+	}
+	
+	public void iniciarBotQualquerLugar() {
+		String mapa = getNomeMapa();
+		String mapaMemoria = bot.obterMapa();
+		System.out.println("Verificando mapa atual: " + mapaMemoria + " e mapa de destino: " + mapa);
+		
+		if (!mapa.equals(mapaMemoria)) {
 			System.out.println("Começando bot a partir da base...");
 			Coordenadas cordsBase = new Coordenadas(242, 211);
 			int base = skillsConfig.getGoBase();
@@ -2445,7 +2531,6 @@ public class GameController implements Runnable {
 			tentandoFalarComNpc = true;
 			andarForcado = false;
 			stateMachine.mudarEstado(Estado.NPC);
-			
 		}
 	}
 

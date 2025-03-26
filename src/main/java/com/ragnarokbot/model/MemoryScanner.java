@@ -23,6 +23,8 @@ public class MemoryScanner {
 	
 	public long addressString = 0x19A9ED - 5;
 	
+	public long addressMapa = 0x1583574;
+	
 	public static long addressName = 0x0158A120;
 	
     public interface Kernel32 extends Library {
@@ -148,6 +150,45 @@ public class MemoryScanner {
             boolean success = Kernel32.INSTANCE.ReadProcessMemory(
                     processHandle,
                     new Pointer(addressString),
+                    buffer,
+                    buffer.length,
+                    bytesRead
+            );
+
+            if (success && bytesRead.getValue() > 0) {
+                // Converter bytes para String, cortando no primeiro '\0' (caso seja uma string C-style)
+                return new String(buffer, 0, bytesRead.getValue(), "UTF-8").split("\0")[0];
+            } else {
+                System.err.println("Erro ao ler memória para a string.");
+                return null;
+            }
+        } catch (Exception e) {
+            System.err.println("Erro ao processar string: " + e.getMessage());
+            return null;
+        } finally {
+            Kernel32.INSTANCE.CloseHandle(processHandle);
+        }
+    }
+    
+    public String obterMapa() {
+        Pointer processHandle = Kernel32.INSTANCE.OpenProcess(
+                Kernel32.PROCESS_VM_READ | Kernel32.PROCESS_QUERY_INFORMATION,
+                false,
+                processId
+        );
+
+        if (processHandle == null) {
+            System.err.println("Não foi possível abrir o processo.");
+            return null;
+        }
+
+        byte[] buffer = new byte[256]; // Tamanho máximo da string a ser lida
+        IntByReference bytesRead = new IntByReference();
+
+        try {
+            boolean success = Kernel32.INSTANCE.ReadProcessMemory(
+                    processHandle,
+                    new Pointer(addressMapa),
                     buffer,
                     buffer.length,
                     bytesRead

@@ -85,7 +85,7 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		boolean dev = false;
+		boolean dev = true;
 		if (dev == false) {
 			try {
 				 // Lê a versão atual do bot
@@ -353,7 +353,7 @@ public class BotRagnarok {
 		String filePath = "C:\\Users\\Sérgio\\Desktop\\enderecos.txt";
 		findDuplicateAddresses(filePath);
 
-		int processId = 4540;
+		int processId = 9920;
 		int valueToFind = 445;
 		// short valueToFind = 68;
 		//procurarInt(processId,valueToFind);
@@ -361,11 +361,11 @@ public class BotRagnarok {
 		// String nome = "Moeda de Inst";
 		// String nome = "obteve Moeda de Inst�ncia";
 		 //String nome = "Servidor desligado, reinicialize o jogo.";//enrederos encontrados 0x5B3BB5D0 0x6E6087F8
-		 String nome = "Desconectado do servidor.";//enrederos encontrados 0x2628608 0x70B09968 0x70B0A070
+		 String nome = "prt_fild08";//enrederos encontrados 0x2628608 0x70B09968 0x70B0A070
 		// 0x5296F33D
 		System.out.println("entao");
 		//procurarString(processId, nome);
-		int soma = 4;
+		int soma = 0;
 		
 		/*Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));//4b 133px, 3b 100px, 2b 67px, 1b 34px
 		System.out.println("Height: " + r.height);
@@ -389,7 +389,7 @@ public class BotRagnarok {
 		//bot.printarParteTela(x + bot.getxJanela(), y + bot.getyJanela(), 10, 10);
 		//System.exit(0);
 		//mostrarValorMemoria(processId,0x1883F40 + soma ,0x18332BC + soma); //0x19D46C 0x156EC84 0x156FD4C 0x156EF68
-		//mostrarStringMemoria(processId, 0x0158A120 + soma, 0x22488112 + soma, 256);
+		//mostrarStringMemoria(processId, 0x60ECCE7C + soma, 0x1583574 + soma, 256);// 0x1583574   //0x119FE30  0x6456170C
 		// buscarItemPorId(processId, valueToFind); nao funcionou
 		// obteve Moeda de Inst�ncia 0x19A9ED
 

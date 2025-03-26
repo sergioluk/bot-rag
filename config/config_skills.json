@@ -22,6 +22,11 @@
 
   "tela": false,
 
+  "aspdPala": 100,
+  "aspdPalaTarget": 100,
+
+  "basePath": "C:/Users/Sérgio/Desktop/History Reborn 3.0/",
+
   
   "classesDisponiveis" : ["sorc","mago","arqueiro","monk","pala"],
   

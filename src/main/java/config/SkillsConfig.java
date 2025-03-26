@@ -25,8 +25,26 @@ public class SkillsConfig {
 	private String atalhoVeneno;
 	private Boolean tela;
 	private Integer aspdPala;
-
+	private Integer aspdPalaTarget;
+	private String basePath;
 	
+	
+	public String getBasePath() {
+		return basePath;
+	}
+
+	public void setBasePath(String basePath) {
+		this.basePath = basePath;
+	}
+
+	public Integer getAspdPalaTarget() {
+		return aspdPalaTarget;
+	}
+
+	public void setAspdPalaTarget(Integer aspdPalaTarget) {
+		this.aspdPalaTarget = aspdPalaTarget;
+	}
+
 	public Integer getAspdPala() {
 		return aspdPala;
 	}
