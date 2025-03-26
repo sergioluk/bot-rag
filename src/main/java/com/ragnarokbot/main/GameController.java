@@ -2511,12 +2511,36 @@ public class GameController implements Runnable {
 		return mapa;
 	}
 	
+	private boolean estaEmMapaDeFarm(String mapaMemoria) {
+	    return mapaMemoria.equals(Mapa.CHEFHARD1.getNome()) ||
+	           mapaMemoria.equals(Mapa.CHEFHARD2.getNome()) ||
+	           mapaMemoria.equals(Mapa.CHEFNORMAL1.getNome()) ||
+	           mapaMemoria.equals(Mapa.CHEFNORMAL2.getNome()) ||
+	           mapaMemoria.equals(Mapa.BIOHARD1.getNome()) ||
+	           mapaMemoria.equals(Mapa.BIOHARD2.getNome()) ||
+	           mapaMemoria.equals(Mapa.BIONORMAL1.getNome()) ||
+	           mapaMemoria.equals(Mapa.BIONORMAL2.getNome());
+	}
+	
 	public void iniciarBotQualquerLugar() {
 		String mapa = getNomeMapa();
 		String mapaMemoria = bot.obterMapa();
 		System.out.println("Verificando mapa atual: " + mapaMemoria + " e mapa de destino: " + mapa);
 		
 		if (!mapa.equals(mapaMemoria)) {
+			 // Se estiver em um mapa de farm, vá para Valkiria primeiro
+	        if (estaEmMapaDeFarm(mapaMemoria)) {
+	            System.out.println("Saindo do mapa de farm e indo para Valkiria...");
+	            boolean isValk = false;
+	            do {
+	            	int valkiria = skillsConfig.getLabirintovalk();
+		            bot.atalhoAltM(valkiria);
+		            if (bot.obterMapa().equals(Mapa.VALKIRIA.getNome())) {
+		            	isValk = true;
+		            }
+		            bot.sleep(2000);
+	            } while(isValk == false);
+	        }
 			System.out.println("Começando bot a partir da base...");
 			Coordenadas cordsBase = new Coordenadas(242, 211);
 			int base = skillsConfig.getGoBase();
