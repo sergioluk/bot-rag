@@ -185,6 +185,8 @@ public class GameController implements Runnable {
 	public static int aspdPala = 0;
 	public static int aspdPalaTarget = 0;
 	
+	private boolean horaDeBuffar = false;
+	
 	long tempoPm = System.currentTimeMillis();
 
 	public GameController(Bot bot) {
@@ -282,6 +284,37 @@ public class GameController implements Runnable {
 				}
 			}
 
+			if (horaDeBuffar) {
+				System.out.println("Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar");
+				System.out.println("Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar");
+				System.out.println("Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar");
+				
+				if (!bot.buffs.isEmpty()) {
+					int contador = 1;
+					for (Buff b : bot.buffs) {
+						System.out.println("Buffando o " + contador + " buff");
+						int tecla = b.getTecla();
+						bot.apertarTecla(tecla);
+						if (!b.isSelf()) {
+							bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight() / 2);
+							bot.sleep(50);
+							bot.clicarMouse();
+						}
+						bot.sleep(200);
+						contador++;
+					}
+				}
+				horaDeBuffar = false;
+				System.out.println("Rota aumentada !");
+				rota++;
+				elseAcoes = 0;
+				passo = 0;
+				passoAlternativo = 0;
+				if (rota >= script.getRotas().size()) {
+					finalizarRota(script, 5);
+				}
+			}
+			
 			int timeRand = ThreadLocalRandom.current().nextInt(5000, 10001);
 			if (bot.tempoPassou(timeRand)) {
 				if (bot.getHpAtual() <= 1) {
@@ -460,15 +493,10 @@ public class GameController implements Runnable {
 			}
 
 			if (andarForcado) {
-				//Pala não é pra andar forçado
-				if (JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
+				System.out.println("Andando Forçado!");
+				stateMachine.mudarEstado(Estado.ANDANDO);
+				if (System.currentTimeMillis() - tempoAndarForcado >= skillsConfig.getTempoAndarForcado()) {
 					andarForcado = false;
-				} else {
-					System.out.println("Andando Forçado!");
-					stateMachine.mudarEstado(Estado.ANDANDO);
-					if (System.currentTimeMillis() - tempoAndarForcado >= skillsConfig.getTempoAndarForcado()) {
-						andarForcado = false;
-					}
 				}
 			}
 
@@ -532,6 +560,14 @@ public class GameController implements Runnable {
 					if (System.currentTimeMillis() - ultimoUpdateTela >= 5000) {
 						//Pala não é pra refrashar a tela
 						if (!JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
+							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
+							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
+							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
+							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
+							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
+							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
+							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
+							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
 							int refresh = skillsConfig.getRefresh();
 							bot.atalhoAltM(refresh);
 						}
@@ -1054,14 +1090,23 @@ public class GameController implements Runnable {
 		case "sleep":
 			delayProBoss();
 			break;
+		case "buffs":
+			ativarBuff();
+			break;
 		default:
 			System.out.println("Tipo de verificação desconhecido: " + verificacao);
 		}
 	}
+	
+	private void ativarBuff() {
+		System.out.println("Buffando Buffando Buffando Buffando Buffando Buffando Buffando Buffando Buffando ");
+		System.out.println("Buffando Buffando Buffando Buffando Buffando Buffando Buffando Buffando Buffando ");
+		horaDeBuffar = true;
+		bot.sleep(1000);
+	}
 
 	private void delayProBoss() {
-		System.out
-				.println("Mimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindo");
+		System.out.println("Mimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindo");
 		bot.sleep(2000);
 		System.out.println("Rota aumentada !");
 		rota++;
@@ -1372,7 +1417,11 @@ public class GameController implements Runnable {
 			Coordenadas coordBixo = bot.getCoordenadasTelaDoBixo(atual, centerX, centerY);
 			if (bot.compararCoordenadas(coordBixo, coordsUltimoMonstro)) {
 				contagemRefresh++;
-				if (contagemRefresh > 3) {
+				int quantidadeMax = 3;
+				if (JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
+					quantidadeMax = 15;
+				}
+				if (contagemRefresh > quantidadeMax) {
 					contagemRefresh = 0;
 					int refresh = skillsConfig.getRefresh();
 					bot.atalhoAltM(refresh);
@@ -1956,17 +2005,48 @@ public class GameController implements Runnable {
 		} else if (indexVoltarFarm == 99 && balao.isEmpty()) {
 			System.out.println("Acabou o dialogo");
 			String path = "";
+			String dificuldade = JanelaPrincipal.obterDificuldadeSelecionada();
+			String sala = JanelaPrincipal.obterSalaSelecionada();
+			String mapa = "";
 			if (script.getMapa().equals("bio.png")) {
-				path = "config/minimapas/bio.png";
-				verificarSeMudouMapa(path, -1);
+				if (dificuldade.equals("hard")) {
+					if (sala.equals("1")) {
+						mapa = Mapa.BIOHARD1.getNome();
+					} else if (sala.equals("2")) {
+						mapa = Mapa.BIOHARD2.getNome();
+					}
+				} else if (dificuldade.equals("normal")) {
+					if (sala.equals("1")) {
+						mapa = Mapa.BIONORMAL1.getNome();
+					} else if (sala.equals("2")) {
+						mapa = Mapa.BIONORMAL2.getNome();
+					}
+				}
+				//path = "config/minimapas/bio.png";
+				//verificarSeMudouMapa(path, -1);
+				mudarMapa(mapa, -1);
 				bot.sleep(1000);
 				bot.visaoDeCima();
 				bot.zoom(-28);
 				resetarVariaveisVoltarFarme();
 			}
 			if (script.getMapa().equals("chef.png")) {
-				path = "config/minimapas/chef.png";
-				verificarSeMudouMapa(path, -1);
+				if (dificuldade.equals("hard")) {
+					if (sala.equals("1")) {
+						mapa = Mapa.CHEFHARD1.getNome();
+					} else if (sala.equals("2")) {
+						mapa = Mapa.CHEFHARD2.getNome();
+					}
+				} else if (dificuldade.equals("normal")) {
+					if (sala.equals("1")) {
+						mapa = Mapa.CHEFNORMAL1.getNome();
+					} else if (sala.equals("2")) {
+						mapa = Mapa.CHEFNORMAL2.getNome();
+					}
+				}
+				//path = "config/minimapas/chef.png";
+				//verificarSeMudouMapa(path, -1);
+				mudarMapa(mapa, -1);
 				bot.sleep(1000);
 				bot.visaoDeCima();
 				bot.zoom(-28);
@@ -2578,7 +2658,7 @@ public class GameController implements Runnable {
 				if (c.getBuffs() != null) {
 					for (Buffs b : c.getBuffs()) {
 						int teclaAtalho = KeyMapper.getTeclaAtalho(b.getAtalho());
-						bot.buffs.add(new Buff(teclaAtalho, b.getCd(), b.isSelf(), b.getIcone()));
+						bot.buffs.add(new Buff(teclaAtalho, b.getCd(), b.isSelf()));
 					}
 				}
 

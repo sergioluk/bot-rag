@@ -296,7 +296,6 @@ public class SkillsConfig {
 		private String atalho;
 		private int cd;
 		private boolean self;
-		private String icone;
 		public String getAtalho() {
 			return atalho;
 		}
@@ -315,13 +314,6 @@ public class SkillsConfig {
 		public void setSelf(boolean self) {
 			this.self = self;
 		}
-		public String getIcone() {
-			return icone;
-		}
-		public void setIcone(String icone) {
-			this.icone = icone;
-		}
-		
 	}
 	
 }

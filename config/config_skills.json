@@ -23,7 +23,7 @@
   "tela": false,
 
   "aspdPala": 100,
-  "aspdPalaTarget": 100,
+  "aspdPalaTarget": 50,
 
   "basePath": "C:/Users/Sérgio/Desktop/History Reborn 3.0/",
 
@@ -59,10 +59,9 @@
         ],
         "buffs" : [
           {
-            "atalho": "X",
+            "atalho": "F9",
             "cd": 500,
-            "self": false,
-            "icone": "config/buff_icone/lux.png"
+            "self": true
           }
         ]
       },
@@ -82,8 +81,7 @@
           {
             "atalho": "X",
             "cd": 500,
-            "self": false,
-            "icone": "config/buff_icone/lux.png"
+            "self": false
           }
         ]
       },
@@ -91,25 +89,18 @@
         "classe": "pala",
         "skills" : [
           {
-            "atalho": "Q",
-            "cd" : 500,
+            "atalho": "F1",
+            "cd" : 100,
             "cor" : "rosa",
-            "range": 14,
-            "posicao": "3-1",
+            "range": 6,
+            "posicao": "1-1",
             "selfSkill": true
           },
           {
-            "atalho": "E",
-            "cd" : 7000,
+            "atalho": "F2",
+            "cd" : 100,
             "cor" : "azul",
             "range": 9,
-            "posicao": "1-2"
-          },
-          {
-            "atalho": "R",
-            "cd" : 5000,
-            "cor" : "azul",
-            "range": 10,
             "posicao": "1-2"
           }
         ],
@@ -117,8 +108,7 @@
           {
             "atalho": "X",
             "cd": 500,
-            "self": false,
-            "icone": "config/buff_icone/lux.png"
+            "self": false
           }
         ]
       }

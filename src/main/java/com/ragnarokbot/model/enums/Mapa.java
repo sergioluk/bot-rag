@@ -10,7 +10,9 @@ public enum Mapa {
     BIOHARD1("lhz_dun_n2"),
     BIOHARD2("lhz_dun_n5"),
     BIONORMAL1("lhz_dun_n"),
-    BIONORMAL2("lhz_dun_n6");
+    BIONORMAL2("lhz_dun_n6"),
+    OLDGH("1@gl_he"),
+    TOMB("1@spa2");
 
     private final String nome;
 

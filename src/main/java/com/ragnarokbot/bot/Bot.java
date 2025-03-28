@@ -61,6 +61,7 @@ import com.ragnarokbot.model.MonstrosImagem;
 import com.ragnarokbot.model.MyUser32;
 import com.ragnarokbot.model.OcrResult;
 import com.ragnarokbot.model.enums.Estado;
+import com.ragnarokbot.model.enums.Mapa;
 import com.ragnarokbot.telas.JanelaPrincipal;
 
 import net.sourceforge.tess4j.ITesseract;
@@ -2880,6 +2881,20 @@ public class Bot {
 		clicarMouse();
 		sleep(300);
 		
+		boolean chegou = false;
+		if (dg == 33) {
+			do {
+				chegou = obterMapa().equals(Mapa.OLDGH.getNome());
+				System.out.println("Chegou em Old Glast Heim? " + chegou);
+				sleep(1000);
+			} while (chegou == false);
+		} else if (dg == 43) {
+			do {
+				chegou = obterMapa().equals(Mapa.TOMB.getNome());
+				System.out.println("Chegou em Tomb of Remorse? " + chegou);
+				sleep(1000);
+			} while (chegou == false);
+		}
 		sleep(3000);
 		visaoDeCima();
 		sleep(100);

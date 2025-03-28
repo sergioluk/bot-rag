@@ -877,7 +877,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 		return nome;
 	}
 	public void mudarNome(String nome) {
-		if (nome.isBlank() || nome.isEmpty()) {
+		if (nome.isBlank() || nome.isEmpty() || nome == null) {
 			setTitle("Stonks");
 		} else {
 			setTitle("Stonks - " + nome);
