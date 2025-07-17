@@ -1925,13 +1925,27 @@ public class GameController implements Runnable {
 			} while(!verificarMapa.equals(mapaAtual));
 			
 		}
-		
+			
 		
 
 		//path = "config/minimapas/base.png";
 		int base = skillsConfig.getGoBase();
 		//isBase = verificarSeMudouMapa(path, base);
 		mudarMapa(Mapa.BASE.getNome(), base);
+		
+		String mapaAtual = bot.obterMapa();
+		if (mapaAtual.equals(Mapa.BASE.getNome())) {
+			Coordenadas cordsBase = new Coordenadas(242, 211);
+			boolean mesmaCoords = false;
+			do {
+				bot.atalhoAltM(base);
+				mesmaCoords = bot.compararCoordenadas(cordsBase, bot.obterCoordenadasMemoria());
+				System.out.println("Ja está na base? " + mesmaCoords);
+				bot.sleep(2000);
+			} while(mesmaCoords == false);
+		}
+		
+		
 		bot.sleep(2000);
 		// visao de cima
 		bot.visaoDeCima();
