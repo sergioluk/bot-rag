@@ -1892,6 +1892,10 @@ public class GameController implements Runnable {
 				bot.moverMouse(bot.getxJanela() + 515, bot.getyJanela() + 492);
 				bot.sleep(100);
 				bot.clicarMouse();
+				bot.sleep(300);
+				bot.moverMouse(bot.getxJanela() + 584, bot.getyJanela() + 407);
+				bot.sleep(100);
+				bot.clicarMouse();
 				bot.sleep(100);
 				verificarMapa = bot.obterMapa();
 			} while(verificarMapa.equals(mapaAtual));
