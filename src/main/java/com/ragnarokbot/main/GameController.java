@@ -1893,7 +1893,7 @@ public class GameController implements Runnable {
 				bot.sleep(100);
 				bot.clicarMouse();
 				bot.sleep(300);
-				bot.moverMouse(bot.getxJanela() + 584, bot.getyJanela() + 407);
+				bot.moverMouse(bot.getxJanela() + 584, bot.getyJanela() + 415);
 				bot.sleep(100);
 				bot.clicarMouse();
 				bot.sleep(100);
