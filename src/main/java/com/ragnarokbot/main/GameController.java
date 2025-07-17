@@ -1885,16 +1885,16 @@ public class GameController implements Runnable {
 		  //mudarMapa(Mapa.VALKIRIA.getNome(), labirinto); tulete
 		if (bot.getHpAtual() <= 1) {
 			System.out.println("Como ta morrido, clicando no botao de voltar");
-			
+			System.out.println("Loop do clique!!!");
 			String mapaAtual = bot.obterMapa();
 			String verificarMapa = "";
 			do {
-				bot.moverMouse(bot.getxJanela() + 515, bot.getyJanela() + 515);
+				bot.moverMouse(bot.getxJanela() + 515, bot.getyJanela() + 492);
 				bot.sleep(100);
 				bot.clicarMouse();
 				bot.sleep(100);
 				verificarMapa = bot.obterMapa();
-			} while(!verificarMapa.equals(mapaAtual));
+			} while(verificarMapa.equals(mapaAtual));
 			
 			
 		} else {
