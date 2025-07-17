@@ -7,38 +7,17 @@
             "personagens" : [
                 {
                     "pagina" : 1,
-                    "indexPersonagem" : 2,
-                    "passarItens" : false,
-                    "classe" : "mago",
-                    "instancias" : ["Old Glast Heim"]
-                },
-                {
-                    "pagina" : 4,
                     "indexPersonagem" : 3,
                     "passarItens" : false,
                     "classe" : "mago",
                     "instancias" : ["Old Glast Heim"]
-                }
-            ]
-        },
-        {
-            "usuario" : "-",
-            "senha" : "-",
-            "pin" : "-",
-            "personagens" : [
-                {
-                    "pagina" : 1,
-                    "indexPersonagem" : 1,
-                    "passarItens" : false,
-                    "classe" : "mago",
-                    "instancias" : ["teste_morroc1"]
                 },
                 {
                     "pagina" : 1,
                     "indexPersonagem" : 2,
                     "passarItens" : false,
                     "classe" : "mago",
-                    "instancias" : ["teste_morroc1", "teste_morroc2"]
+                    "instancias" : ["Old Glast Heim"]
                 }
             ]
         }

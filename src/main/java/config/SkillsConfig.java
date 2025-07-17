@@ -23,12 +23,21 @@ public class SkillsConfig {
 	private List<String> atalhoEquipamento;
 	private List<String> classesDisponiveis;
 	private String atalhoVeneno;
+	private String atalhoCartaoVip;
 	private Boolean tela;
 	private Integer aspdPala;
 	private Integer aspdPalaTarget;
 	private String basePath;
 	
 	
+	public String getAtalhoCartaoVip() {
+		return atalhoCartaoVip;
+	}
+
+	public void setAtalhoCartaoVip(String atalhoCartaoVip) {
+		this.atalhoCartaoVip = atalhoCartaoVip;
+	}
+
 	public String getBasePath() {
 		return basePath;
 	}

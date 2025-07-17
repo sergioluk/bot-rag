@@ -140,6 +140,15 @@ public class Script {
 
 	public static class Passo {
 	    private List<Integer> coordenadas;
+	    private Boolean portal;
+
+		public Boolean getPortal() {
+			return portal;
+		}
+
+		public void setPortal(Boolean portal) {
+			this.portal = portal;
+		}
 
 		public List<Integer> getCoordenadas() {
 			return coordenadas;

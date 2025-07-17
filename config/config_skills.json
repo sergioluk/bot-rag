@@ -19,6 +19,7 @@
 
   "atalhoEquipamento": ["F1","F2","F3","F4"],
   "atalhoVeneno": "F5",
+  "atalhoCartaoVip": "F6",
 
   "tela": false,
 
@@ -60,6 +61,16 @@
         "buffs" : [
           {
             "atalho": "F9",
+            "cd": 500,
+            "self": true
+          },
+          {
+            "atalho": "F7",
+            "cd": 500,
+            "self": true
+          },
+          {
+            "atalho": "F8",
             "cd": 500,
             "self": true
           }
@@ -109,6 +120,31 @@
             "atalho": "X",
             "cd": 500,
             "self": false
+          }
+        ]
+      },
+      {
+        "classe": "arqueiro",
+        "skills" : [
+          {
+            "atalho": "Q",
+            "cd" : 500,
+            "cor" : "rosa",
+            "range": 14,
+            "posicao": "3-1",
+            "main": false
+          }
+        ],
+        "buffs" : [
+          {
+            "atalho": "F5",
+            "cd": 500,
+            "self": true
+          },
+          {
+            "atalho": "F7",
+            "cd": 500,
+            "self": true
           }
         ]
       }

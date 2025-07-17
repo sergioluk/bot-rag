@@ -96,7 +96,7 @@
           { "coordenadas": [116, 108] },
           { "coordenadas": [128, 96] },
           { "coordenadas": [124, 76] },
-          { "coordenadas": [135, 82] }          
+          { "coordenadas": [135, 82], "portal": true }          
         ],
         "verificacao": {
           "tipo": "teleport",
@@ -258,13 +258,23 @@
         }
       },
       {
+        "descricao": "esperando um pouco",
+        "passos": [
+          { "coordenadas": [149, 235] }
+        ],
         "verificacao": {
-          "tipo": "sleep"
+          "tipo": "sleep",
+          "coordenadas": [149, 235]
         }
       },
       {
+        "descricao": "Começando a buffar",
+        "passos": [
+          { "coordenadas": [149, 235] }
+        ],
         "verificacao": {
-          "tipo": "buffs"
+          "tipo": "buffs",
+          "coordenadas": [149, 235]
         }
       },
       {

@@ -232,7 +232,10 @@ public class GameController implements Runnable {
 		
 		bot.sleep(3000);
 		
-		barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
+		//Modo de instancia não pode ler isso pq começa da pagina de login
+		if (!JanelaPrincipal.instanciaRadioButton.isSelected()) {
+			barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
+		}
 
 		// Modo instancia
 		if (scriptContas != null) {
@@ -261,8 +264,9 @@ public class GameController implements Runnable {
 		// testar...
 		//modoDesequiparEquips = true;
 		//voltarBase();
+		
 
-		/* ligarBot = false; */
+		/*ligarBot = false;*/
 
 		bot.visaoDeCima();
 		bot.sleep(100);
@@ -1056,6 +1060,10 @@ public class GameController implements Runnable {
 
 		// Verificar se o destino foi alcançado
 		if (bot.calcularDistancia(atual, destino) <= distanciaMinima) {
+			if (script.getRotas().get(rota).getPassos().get(passo).getPortal() != null) {
+				System.out.println("Dormindo por 3s para dar tempo de entrar no portal");
+				bot.sleep(3000);
+			}
 			passo++;
 			System.out.println("Destino alcançado, mudando para a próxima rota.");
 
@@ -1871,10 +1879,50 @@ public class GameController implements Runnable {
 	}
 
 	private void voltarBase() {
-		int labirinto = skillsConfig.getLabirintovalk();
+		  //int labirinto = skillsConfig.getLabirintovalk();
 		//String path = "config/minimapas/valkiria.png";
 		//verificarSeMudouMapa(path, labirinto);
-		mudarMapa(Mapa.VALKIRIA.getNome(), labirinto);
+		  //mudarMapa(Mapa.VALKIRIA.getNome(), labirinto); tulete
+		if (bot.getHpAtual() <= 1) {
+			System.out.println("Como ta morrido, clicando no botao de voltar");
+			
+			String mapaAtual = bot.obterMapa();
+			String verificarMapa = "";
+			do {
+				bot.moverMouse(bot.getxJanela() + 515, bot.getyJanela() + 515);
+				bot.sleep(100);
+				bot.clicarMouse();
+				bot.sleep(100);
+				verificarMapa = bot.obterMapa();
+			} while(!verificarMapa.equals(mapaAtual));
+			
+			
+		} else {
+			List<MatOfPoint> balao = new ArrayList<MatOfPoint>();
+			System.out.println("Usando o cartao vip");
+			do {
+				int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoCartaoVip());
+				bot.apertarTecla(atalho);
+				bot.sleep(200);
+				//sai dowhile loop caso morra durante esse teste
+				if (bot.getHpAtual() <= 1) {
+					return;
+				}
+				balao = bot.verificarBalaoNpcTeleport();
+				
+			} while (balao.size() <= 0);
+			
+			System.out.println("npc teleporte vip aberto... apertando enter");
+			String mapaAtual = bot.obterMapa();
+			String verificarMapa = "";
+			do {
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+				verificarMapa = bot.obterMapa();
+			} while(!verificarMapa.equals(mapaAtual));
+			
+		}
+		
+		
 
 		//path = "config/minimapas/base.png";
 		int base = skillsConfig.getGoBase();
@@ -2610,7 +2658,7 @@ public class GameController implements Runnable {
 		if (!mapa.equals(mapaMemoria)) {
 			 // Se estiver em um mapa de farm, vá para Valkiria primeiro
 	        if (estaEmMapaDeFarm(mapaMemoria)) {
-	            System.out.println("Saindo do mapa de farm e indo para Valkiria...");
+	            /*System.out.println("Saindo do mapa de farm e indo para Valkiria...");
 	            boolean isValk = false;
 	            do {
 	            	int valkiria = skillsConfig.getLabirintovalk();
@@ -2619,7 +2667,30 @@ public class GameController implements Runnable {
 		            	isValk = true;
 		            }
 		            bot.sleep(2000);
-	            } while(isValk == false);
+	            } while(isValk == false);*/
+	        	
+	        	List<MatOfPoint> balao = new ArrayList<MatOfPoint>();
+				System.out.println("Usando o cartao vip");
+				do {
+					int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoCartaoVip());
+					bot.apertarTecla(atalho);
+					bot.sleep(200);
+					//sai dowhile loop caso morra durante esse teste
+					if (bot.getHpAtual() <= 1) {
+						return;
+					}
+					balao = bot.verificarBalaoNpcTeleport();
+					
+				} while (balao.size() <= 0);
+				
+				System.out.println("npc teleporte vip aberto... apertando enter");
+				String mapaAtual = bot.obterMapa();
+				String verificarMapa = "";
+				do {
+					bot.apertarTecla(KeyEvent.VK_ENTER);
+					verificarMapa = bot.obterMapa();
+				} while(!verificarMapa.equals(mapaAtual));
+				
 	        }
 			System.out.println("Começando bot a partir da base...");
 			Coordenadas cordsBase = new Coordenadas(242, 211);
