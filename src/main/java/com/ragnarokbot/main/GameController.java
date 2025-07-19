@@ -3,6 +3,7 @@ package com.ragnarokbot.main;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
+import org.opencv.core.Scalar;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
@@ -265,8 +266,11 @@ public class GameController implements Runnable {
 		//modoDesequiparEquips = true;
 		//voltarBase();
 		
-
-		/*ligarBot = false;*/
+		//bot.printarTela();
+		
+		//bot.teste();
+		
+		//ligarBot = false;
 
 		bot.visaoDeCima();
 		bot.sleep(100);
@@ -325,7 +329,7 @@ public class GameController implements Runnable {
 					System.out.println("Personagem morreu!!!");
 					System.out.println("Personagem morreu!!!");
 					System.out.println("Personagem morreu!!!");
-					System.out.println("Voltando valkiria e depois base");
+					System.out.println("Voltando ultimo mapa e depois base");
 					voltarBase();
 				}
 			}
@@ -1884,23 +1888,68 @@ public class GameController implements Runnable {
 		//verificarSeMudouMapa(path, labirinto);
 		  //mudarMapa(Mapa.VALKIRIA.getNome(), labirinto); tulete
 		if (bot.getHpAtual() <= 1) {
+			
 			System.out.println("Como ta morrido, clicando no botao de voltar");
 			System.out.println("Loop do clique!!!");
+			
+			Scalar[] limites = bot.calcularLimites(255, 72, 0);//Cor laranja
+			Scalar minLaranja = limites[0];
+			Scalar maxLaranja = limites[1];
+			
 			String mapaAtual = bot.obterMapa();
 			String verificarMapa = "";
+			
+			//Procurando o botao de voltar quando o personagem morre
+			List<MatOfPoint> btnRetorno = new ArrayList<MatOfPoint>();
 			do {
-				bot.moverMouse(bot.getxJanela() + 515, bot.getyJanela() + 492);
+				btnRetorno = bot.encontrarCor(minLaranja, maxLaranja, 200, 250, 15, 25, false);
+				System.out.println("Lista está vazia? " + btnRetorno.isEmpty());
+				if (btnRetorno.isEmpty()) {
+					bot.apertarTecla(KeyEvent.VK_ESCAPE);
+				} else {
+					Rect ma = Imgproc.boundingRect(btnRetorno.get(0));
+					bot.moverMouse(bot.getxJanela() + ma.x + ma.width/2, bot.getyJanela() + ma.y + ma.height/2);
+					bot.sleep(50);
+					bot.clicarMouse();
+				}
 				bot.sleep(100);
-				bot.clicarMouse();
-				bot.sleep(300);
-				bot.moverMouse(bot.getxJanela() + 584, bot.getyJanela() + 415);
+			} while(btnRetorno.isEmpty());
+			bot.sleep(1000);
+			//Procurando o botao de Ok para confirmar a volta pra base
+			List<MatOfPoint> btnOk = new ArrayList<MatOfPoint>();
+			do {
+				btnOk = bot.encontrarCor(minLaranja, maxLaranja, 35, 45, 17, 22, false);
+				System.out.println("Lista está do quadrado pequeno ta vazia? " + btnOk.isEmpty());
+				if (btnOk.isEmpty()) {
+					Rect ma = Imgproc.boundingRect(btnRetorno.get(0));
+					bot.moverMouse(bot.getxJanela() + ma.x + ma.width/2, bot.getyJanela() + ma.y + ma.height/2);
+					bot.sleep(50);
+					bot.clicarMouse();
+				} else {
+					Rect btn = Imgproc.boundingRect(btnOk.get(0));
+					bot.moverMouse(bot.getxJanela() + btn.x + btn.width/2, bot.getyJanela() + btn.y + btn.height/2);
+					bot.sleep(50);
+					bot.clicarMouse();
+				}
 				bot.sleep(100);
-				bot.clicarMouse();
-				bot.sleep(100);
+			} while(btnOk.isEmpty());
+			
+			bot.sleep(100);
+			
+			//verifica se está no mesmo mapa ainda, se estiver clica no botao ok
+			//else sai do loop
+			do {
 				verificarMapa = bot.obterMapa();
+				if (verificarMapa.equals(mapaAtual)) {
+					Rect btn = Imgproc.boundingRect(btnOk.get(0));
+					bot.moverMouse(bot.getxJanela() + btn.x + btn.width/2, bot.getyJanela() + btn.y + btn.height/2);
+					bot.sleep(50);
+					bot.clicarMouse();
+				} else {
+					break;
+				}
 			} while(verificarMapa.equals(mapaAtual));
-			
-			
+				
 		} else {
 			List<MatOfPoint> balao = new ArrayList<MatOfPoint>();
 			System.out.println("Usando o cartao vip");

@@ -1029,6 +1029,48 @@ public class Bot {
 	
 		return new MonstrosImagem(detectedEntities, screen);
 	}
+	
+	public MonstrosImagem analisarTelaInteira(Map<String, Scalar[]> colorRanges) {
+	
+		// Capturar a tela da área definida
+		Rectangle captureArea = null;
+		captureArea = new Rectangle(xJanela, yJanela, width, height);
+		BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
+	
+		// Converter BufferedImage para Mat diretamente
+		Mat screen = bufferedImageToMat(screenFullImage);
+		if (screen.empty()) {
+			System.out.println("Erro ao carregar a imagem.");
+			return null;
+		}
+		//Mat screenApagar = bufferedImageToMat(robot.createScreenCapture(new Rectangle(xJanela, yJanela, width, height)));
+		//GameController.screen = screenApagar;
+		// Converter a imagem para o espaço de cores HSV
+		Mat hsvImage = new Mat();
+		Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+	
+		// Mapear os resultados
+		Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	
+		for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+			String colorName = entry.getKey();
+			Scalar lowerColor = entry.getValue()[0];
+			Scalar upperColor = entry.getValue()[1];
+	
+			// Criar máscara para identificar a cor dentro do intervalo
+			Mat mask = new Mat();
+			Core.inRange(hsvImage, lowerColor, upperColor, mask);
+	
+			// Encontrar contornos na máscara
+			List<MatOfPoint> entidades = new ArrayList<>();
+			Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	
+			// Armazenar os contornos filtrados associados à cor
+			detectedEntities.put(colorName, entidades);
+		}
+	
+		return new MonstrosImagem(detectedEntities, screen);
+	}
 
 /*
 	public List<MatOfPoint> listaMonstros() throws IOException {
@@ -1334,6 +1376,48 @@ public class Bot {
 		    
 		    return npcsFiltrados;   
 	}
+	
+	public List<MatOfPoint> encontrarCor(
+	        Scalar lowerColor,
+	        Scalar upperColor,
+	        int minWidth,
+	        int maxWidth,
+	        int minHeight,
+	        int maxHeight,
+	        boolean salvarImagem) {
+
+	    // Criar mapa com as cores a serem analisadas
+	    Map<String, Scalar[]> cores = Map.of("alvo", new Scalar[]{lowerColor, upperColor});
+
+	    // Analisar a tela
+	    MonstrosImagem analise = analisarTelaInteira(cores);
+
+	    // Obter a lista de entidades da cor analisada
+	    List<MatOfPoint> encontrados = analise.listaEntidades.getOrDefault("alvo", new ArrayList<>());
+
+	    // Filtrar por tamanho
+	    List<MatOfPoint> filtrados = encontrados.stream()
+	        .filter(entidade -> {
+	            Rect boundingBox = Imgproc.boundingRect(entidade);
+	            return boundingBox.width >= minWidth &&
+	                   boundingBox.width <= maxWidth &&
+	                   boundingBox.height >= minHeight &&
+	                   boundingBox.height <= maxHeight;
+	        })
+	        .toList();
+
+	    // Se solicitado, salvar imagem com contornos
+	    if (salvarImagem) {
+	        Scalar corContorno = new Scalar(0, 255, 0); // verde
+	        Imgproc.drawContours(analise.screen, filtrados, -1, corContorno, 2);
+	        String caminho = "imagem_contornada.png";
+	        Imgcodecs.imwrite(caminho, analise.screen);
+	        System.out.println("Imagem salva em: " + caminho);
+	    }
+
+	    return filtrados;
+	}
+
 	
 	public String obterMapa() {
 		return memoria.obterMapa();
@@ -3050,5 +3134,49 @@ public class Bot {
 		this.tesseractLetras = tesseractLetras;
 	}
 
+	public void teste() {
+		Mat tela = Imgcodecs.imread("teste de print.png");
+		Mat template = Imgcodecs.imread("testeopencv.png");
+		Mat resultado = new Mat();
+
+		Imgproc.matchTemplate(tela, template, resultado, Imgproc.TM_CCOEFF_NORMED);
+
+		// Encontrar ponto de maior correspondência
+		Core.MinMaxLocResult mmr = Core.minMaxLoc(resultado);
+		if (mmr.maxVal > 0.8) { // Threshold de confiança
+		    org.opencv.core.Point matchLoc = mmr.maxLoc;
+		    System.out.println("Imagem encontrada em: " + matchLoc);
+		    moverMouse(getxJanela() + (int)matchLoc.x, getyJanela() + (int)matchLoc.y);
+		}
+	}
+	
+	public Scalar[] calcularLimites(int r, int g, int b) {
+		// Criar Mat para a cor RGB
+		Mat rgbColor = new Mat(1, 1, CvType.CV_8UC3, new Scalar(b, g, r)); // Usa 3 canais
+		Mat hsvColor = new Mat();
+
+		// Converter de BGR para HSV
+		Imgproc.cvtColor(rgbColor, hsvColor, Imgproc.COLOR_BGR2HSV);
+		double[] hsvValues = hsvColor.get(0, 0);
+
+		// Definir tolerância para a cor
+		int hue = (int) hsvValues[0]; // Hue
+		int sat = (int) hsvValues[1]; // Saturation
+		int val = (int) hsvValues[2]; // Value
+
+		// Definir tolerâncias (ajuste conforme necessário)
+		int hueTolerance = 10;
+		int satTolerance = 40;
+		int valTolerance = 40;
+
+		// Limites inferior e superior
+		Scalar lower = new Scalar(Math.max(hue - hueTolerance, 0), Math.max(sat - satTolerance, 0),
+				Math.max(val - valTolerance, 0));
+
+		Scalar upper = new Scalar(Math.min(hue + hueTolerance, 180), Math.min(sat + satTolerance, 255),
+				Math.min(val + valTolerance, 255));
+
+		return new Scalar[] { lower, upper };
+	}
 	
 }

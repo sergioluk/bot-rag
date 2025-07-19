@@ -159,7 +159,7 @@ public class BotRagnarok {
 
 
 		// Apagar
-		Scalar[] limites = calcularLimites(52, 254, 254);
+		Scalar[] limites = calcularLimites(255, 72, 0);
 		System.out.println("Lower: " + limites[0]);
 		System.out.println("Upper: " + limites[1]);
 		// Apagar
