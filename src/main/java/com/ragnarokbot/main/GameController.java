@@ -1956,6 +1956,7 @@ public class GameController implements Runnable {
 			do {
 				int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoCartaoVip());
 				bot.apertarTecla(atalho);
+				System.out.println("Apertando atalho do cartao vip");
 				bot.sleep(200);
 				//sai dowhile loop caso morra durante esse teste
 				if (bot.getHpAtual() <= 1) {
@@ -1965,14 +1966,15 @@ public class GameController implements Runnable {
 				
 			} while (balao.size() <= 0);
 			
-			System.out.println("npc teleporte vip aberto... apertando enter");
-			String mapaAtual = bot.obterMapa();
-			String verificarMapa = "";
-			do {
-				bot.apertarTecla(KeyEvent.VK_ENTER);
-				verificarMapa = bot.obterMapa();
-			} while(!verificarMapa.equals(mapaAtual));
+			bot.sleep(1000);
 			
+			System.out.println("npc teleporte vip aberto... apertando enter");
+			do {
+				System.out.println("Apertando enter pra sair do mapa de farme");
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+				bot.sleep(100);
+			} while(estaEmMapaDeFarm(bot.obterMapa()));
+			bot.sleep(1000);
 		}
 			
 		
@@ -2750,13 +2752,14 @@ public class GameController implements Runnable {
 					
 				} while (balao.size() <= 0);
 				
+				bot.sleep(1000);
+				
 				System.out.println("npc teleporte vip aberto... apertando enter");
-				String mapaAtual = bot.obterMapa();
-				String verificarMapa = "";
 				do {
 					bot.apertarTecla(KeyEvent.VK_ENTER);
-					verificarMapa = bot.obterMapa();
-				} while(!verificarMapa.equals(mapaAtual));
+					bot.sleep(100);
+				} while(estaEmMapaDeFarm(bot.obterMapa()));
+				bot.sleep(1000);
 				
 	        }
 			System.out.println("Começando bot a partir da base...");
