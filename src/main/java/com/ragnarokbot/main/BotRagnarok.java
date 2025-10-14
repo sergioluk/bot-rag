@@ -16,7 +16,10 @@ import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +55,7 @@ import utils.RagnarokMemoryScanner;
 import com.sun.jna.platform.win32.WinDef;
 
 import com.ragnarokbot.bot.Bot;
+import com.ragnarokbot.bot.Mestre;
 import com.ragnarokbot.bot.ProcessSelector;
 import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.bot.Updater;
@@ -60,6 +64,7 @@ import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.GrafoMapa;
 import com.ragnarokbot.model.MemoryScanner;
 import com.ragnarokbot.model.MyUser32;
+import com.ragnarokbot.model.enums.Comando;
 import com.ragnarokbot.model.enums.Effects;
 import com.ragnarokbot.model.MemoryScanner.Kernel32;
 import com.ragnarokbot.telas.JanelaPrincipal;
@@ -141,18 +146,8 @@ public class BotRagnarok {
 
 		Robot robot = new Robot();
 		Bot bot = new Bot(tesseract, robot, tesseractLetras);
-		//bot.printarTela();
 		
-		//Tela tela = new Tela(bot);
-		//SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
-		
-		//SwingUtilities.invokeLater( () -> new Tela(bot));
-		//Tela.iniciarCronometro(1, 1, tela); // Cronômetro 1 conta 30 minutos
-		//Tela.iniciarCronometro(2, 30, tela);
-		
-		// GameController gameController = new GameController(bot, tela);
 		GameController gameController = new GameController(bot);
-		// gameController.run();
 
 		janelaPrincipal = new JanelaPrincipal(gameController);
 		janelaPrincipal.setVisible(true);
@@ -163,6 +158,7 @@ public class BotRagnarok {
 		System.out.println("Lower: " + limites[0]);
 		System.out.println("Upper: " + limites[1]);
 		// Apagar
+		
 		
 		//System.out.println("Lista de status: " + bot.listarStatus());
 		
@@ -353,18 +349,31 @@ public class BotRagnarok {
 		String filePath = "C:\\Users\\Sérgio\\Desktop\\enderecos.txt";
 		findDuplicateAddresses(filePath);
 
-		int processId = 9920;
-		int valueToFind = 445;
+		int processId = 22880;
+		int valueToFind = 115;
+		System.out.println("-----------Memoria----------");
+		/*MemoryScanner.processId = 22880;
+		System.out.println("HP tales: " + bot.getHpAtual());
+		System.out.println("Coordenadas: " + bot.obterCoordenadasMemoria().toString());
+		
+		List<Integer> status = bot.listarStatus();
+		System.out.println("Status: " + status.toString());
+		
+		System.out.println("Mapa: " + bot.obterMapa()); */
+		
+		
 		// short valueToFind = 68;
 		//procurarInt(processId,valueToFind);
+		//mostrarValorMemoria(processId, 0xE77288, 0xE77288 + 4); //x: 0xE77288
 		// procurarShort(processId, valueToFind);
-		// String nome = "Moeda de Inst";
+		String nome = "alberta";
 		// String nome = "obteve Moeda de Inst�ncia";
 		 //String nome = "Servidor desligado, reinicialize o jogo.";//enrederos encontrados 0x5B3BB5D0 0x6E6087F8
-		 String nome = "prt_fild08";//enrederos encontrados 0x2628608 0x70B09968 0x70B0A070
+		 //String nome = "Sejo";//enrederos encontrados 0x2628608 0x70B09968 0x70B0A070
 		// 0x5296F33D
 		System.out.println("entao");
 		//procurarString(processId, nome);
+		//mostrarStringMemoria(processId, 0xE89BD4, 0x3BD82260, 256);
 		int soma = 0;
 		
 		/*Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));//4b 133px, 3b 100px, 2b 67px, 1b 34px

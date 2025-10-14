@@ -1,0 +1,23 @@
+{
+  "servidores": [
+    {
+      "serverName": "Ragnarok.exe",
+      "nomeJogo": "History",
+      "addressX": 22478156,
+      "addressY": 22478160,
+      "addressHp": 22574288,
+      "addressMapa": 22558068,
+      "addressName": 22585632
+    },
+    {
+      "serverName": "rtales.bin",
+      "nomeJogo": "Ragnatales",
+      "addressX": 15168136,
+      "addressY": 15168140,
+      "addressHp": 15262772,
+      "addressMapa": 15244244,
+      "addressName": 15272960
+    }
+  ] 
+}
+  

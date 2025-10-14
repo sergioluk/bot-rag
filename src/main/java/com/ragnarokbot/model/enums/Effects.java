@@ -1,6 +1,14 @@
 package com.ragnarokbot.model.enums;
 
 public enum Effects {
+	
+	ARMAPROTECAO(57),
+	SHADOWPROTECAO(1247),
+	SPELLENCHANT(1271),
+	MYST_AMPLIFY(113),
+	FURACAO(112),
+	FADINHA(554),
+	
 	POISON(883),
     SILENCE(885),
     BLIND(887),
@@ -182,8 +190,8 @@ public enum Effects {
     THURISAZ(319),
     LUX_AMINA(1154),
 
-    TELEKINESIS_INTENSE(717),
-    MYST_AMPLIFY(113);
+    TELEKINESIS_INTENSE(717);
+    
     
 	private final int id;
 

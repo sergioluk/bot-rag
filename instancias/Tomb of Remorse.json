@@ -1,0 +1,203 @@
+{
+    "mapa": "tomb_of_remorse.png",
+    "rotas": [
+      {
+        "descricao": "Matando os bixos iniciais",
+        "passos": [
+          { "coordenadas": [50, 207] },
+          { "coordenadas": [38, 206] },
+          { "coordenadas": [20, 206] },
+          { "coordenadas": [52, 206] },
+          { "coordenadas": [85, 206] },
+          { "coordenadas": [51, 207] },
+          { "coordenadas": [51, 230] },
+          { "coordenadas": [39, 227] },
+          { "coordenadas": [22, 235] },
+          { "coordenadas": [20, 221] },
+          { "coordenadas": [34, 221] },
+          { "coordenadas": [42, 227] },
+          { "coordenadas": [62, 227] },
+          { "coordenadas": [84, 227] },
+          { "coordenadas": [51, 228] },
+          { "coordenadas": [48, 253] },
+          { "coordenadas": [41, 249] },
+          { "coordenadas": [18, 249] },
+          { "coordenadas": [44, 250] },
+          { "coordenadas": [64, 250] },
+          { "coordenadas": [84, 248] },
+          { "coordenadas": [58, 249] },
+          { "coordenadas": [51, 259], "portal": true }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [216, 202]
+        }
+      },
+      {
+        "descricao": "Matar os bixos da segunda parte",
+        "passos": [
+          { "coordenadas": [215, 214] },
+          { "coordenadas": [199, 215] },
+          { "coordenadas": [202, 254] },
+          { "coordenadas": [204, 240] },
+          { "coordenadas": [233, 242] },
+          { "coordenadas": [234, 254] },
+          { "coordenadas": [230, 216] },
+          { "coordenadas": [216, 226] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "verificarFinal": true,
+          "coordenadas": [216, 226]
+        }
+      },
+      {
+        "descricao": "Buffar para o primeiro boss",
+        "passos": [
+            { "coordenadas": [216, 226] }
+        ],
+        "verificacao": {
+          "tipo": "buffs",
+          "coordenadas": [216, 226]
+        }
+      },
+      {
+        "descricao": "Esperando o boss nascer",
+        "passos": [
+            { "coordenadas": [216, 226] }
+        ],
+        "verificacao": {
+          "tipo": "sleep",
+          "tempo": 2000,
+          "coordenadas": [216, 226]
+        }
+      },
+      {
+        "descricao": "matar o primeiro chefe",
+        "passos": [
+          { "coordenadas": [216, 226] }
+        ],
+        "verificacao": {
+          "boss": true,
+          "terminaNoBoss": false,
+          "tipo": "teleport",
+          "coordenadas": [216, 226]
+        }
+      },
+      {
+        "descricao": "Chefe morto, andando até o portal",
+        "passos": [
+          { "coordenadas": [201, 238] },
+          { "coordenadas": [202, 253] },
+          { "coordenadas": [213, 253], "portal": true }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [58, 18]
+        }
+      },
+      {
+        "descricao": "Matando os bixos na terceira parte",
+        "passos": [
+          { "coordenadas": [57, 30] },
+          { "coordenadas": [45, 25] },
+          { "coordenadas": [26, 26] },
+          { "coordenadas": [48, 25] },
+          { "coordenadas": [66, 26] },
+          { "coordenadas": [88, 26] },
+          { "coordenadas": [70, 25] },
+          { "coordenadas": [57, 31] },
+          { "coordenadas": [57, 59] },
+          { "coordenadas": [45, 54] },
+          { "coordenadas": [25, 54] },
+          { "coordenadas": [47, 53] },
+          { "coordenadas": [58, 58] },
+          { "coordenadas": [71, 53] },
+          { "coordenadas": [89, 53] },
+          { "coordenadas": [66, 54] },
+          { "coordenadas": [57, 59] },
+          { "coordenadas": [58, 83] },
+          { "coordenadas": [57, 47] },
+          { "coordenadas": [58, 41], "portal": true }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [213, 51]
+        }
+      },
+      {
+        "descricao": "Andando pra perto do boss",
+        "passos": [
+          { "coordenadas": [208, 57] },
+          { "coordenadas": [209, 66] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [209, 66]
+        }
+      },
+      {
+        "descricao": "Esperar so pra usar o proteger terreno",
+        "passos": [
+            { "coordenadas": [209, 66] }
+        ],
+        "verificacao": {
+          "tipo": "sleep",
+          "tempo": 1000,
+          "coordenadas": [209, 66]
+        }
+      },
+      {
+        "descricao": "Buffar para o ultimo boss",
+        "passos": [
+            { "coordenadas": [209, 66] }
+        ],
+        "verificacao": {
+          "tipo": "buffs",
+          "coordenadas": [209, 66]
+        }
+      },
+      {
+        "descricao": "Falar com o npc do boss",
+        "passos": [
+          { "coordenadas": [209, 66] }
+        ],
+        "verificacao": {
+          "tipo": "npcClickManual",
+          "npccoordenadas": [212,71],
+          "coordenadas": [209, 66],
+          "acoes": [
+            {"balaoUnico": false, "opcao": 99 }
+          ]
+        }
+      },
+      {
+        "descricao": "Esperando o ultimo boss nascer",
+        "passos": [
+            { "coordenadas": [209, 66] }
+        ],
+        "verificacao": {
+          "tipo": "sleep",
+          "tempo": 1000,
+          "coordenadas": [209, 66]
+        }
+      },
+      {
+        "descricao": "Matar o ultimo chefe",
+        "passos": [
+          { "coordenadas": [209, 66] }
+        ],
+        "verificacao": {
+          "boss": true,
+          "terminaNoBoss": true,
+          "tipo": "teleport",
+          "coordenadas": [209, 66]
+        }
+      }
+    ],
+    "finalizacao": {
+      "descricao": "Encerrar rota",
+      "coordenadas": [156, 93]
+    }
+  }
+  

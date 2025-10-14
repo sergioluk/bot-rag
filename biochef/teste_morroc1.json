@@ -7,18 +7,36 @@
             { "coordenadas": [161, 84] },
             { "coordenadas": [167, 68] },
             { "coordenadas": [181, 65] },
-            { "coordenadas": [186, 49] }
+            { "coordenadas": [186, 49], "portal": true }
         ],
         "verificacao": {
           "tipo": "teleport",
-          "coordenadas": [186, 49],
-          "elseAcoes": [
-            { "coordenadas": [186, 49] }
-          ]
+          "coordenadas": [186, 49]
         }
       },
       {
-        "descricao": "indo pra direita",
+        "descricao": "testando buffs",
+        "passos": [
+            { "coordenadas": [186, 49] }
+        ],
+        "verificacao": {
+          "tipo": "buffs",
+          "coordenadas": [186, 49]
+        }
+      },
+      {
+        "descricao": "testando sleep",
+        "passos": [
+            { "coordenadas": [186, 49] }
+        ],
+        "verificacao": {
+          "tipo": "sleep",
+          "tempo": 5000,
+          "coordenadas": [186, 49]
+        }
+      },
+      {
+        "descricao": "boss true",
         "passos": [
             { "coordenadas": [201, 49] },
             { "coordenadas": [219, 36] },
@@ -26,10 +44,23 @@
         ],
         "verificacao": {
           "tipo": "teleport",
-          "coordenadas": [234, 48],
-          "elseAcoes": [
-            { "coordenadas": [234, 48] }
-          ]
+          "boss": true,
+          "terminaNoBoss": false,
+          "coordenadas": [234, 48]
+        }
+      },
+      {
+        "descricao": "boss true e instancia true",
+        "passos": [
+            { "coordenadas": [235, 63] },
+            { "coordenadas": [228, 84] },
+            { "coordenadas": [217, 95] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "boss": true,
+          "terminaNoBoss": false,
+          "coordenadas": [217, 95]
         }
       },
       {
@@ -52,14 +83,40 @@
         "passos": [
             { "coordenadas": [207, 104] },
             { "coordenadas": [196, 101] },
-            { "coordenadas": [190, 88] }
+            { "coordenadas": [190, 88] },
+            { "coordenadas": [146, 93] }
         ],
         "verificacao": {
           "tipo": "teleport",
-          "coordenadas": [190, 88],
-          "elseAcoes": [
-            { "coordenadas": [190, 88] }
+          "coordenadas": [146, 93]
+        }
+      },
+      {
+        "descricao": "Falar com a kafra e ir pra alberta, lembrando que o personagem tem que estar na visao do npc, ou seja, a ultima acao tem que levar para o npc",
+        "passos": [
+          { "coordenadas": [156, 91] }
+        ],
+        "verificacao": {
+          "tipo": "npcClickManual",
+          "npccoordenadas": [156,97],
+          "coordenadas": [117, 56],
+          "acoes": [
+            {"balaoUnico": false, "opcao": 3 },
+            {"balaoUnico": false, "opcao": 3 }
           ]
+        }
+      },
+      {
+        "descricao": "lalalalalalo",
+        "passos": [
+            { "coordenadas": [207, 104] },
+            { "coordenadas": [196, 101] },
+            { "coordenadas": [190, 88] },
+            { "coordenadas": [156, 91] }
+        ],
+        "verificacao": {
+          "tipo": "teleport",
+          "coordenadas": [156, 91]
         }
       }
     ],

@@ -1,27 +1,27 @@
 {
     "contas": [
         { 
-            "usuario" : "ursopolargay5",
-            "senha" : "Cofre246",
-            "pin" : "7790",
+            "usuario" : "login",
+            "senha" : "senha",
+            "pin" : "pin",
             "personagens" : [
                 {
                     "pagina" : 1,
-                    "indexPersonagem" : 3,
+                    "indexPersonagem" : 1,
                     "passarItens" : false,
-                    "classe" : "mago",
-                    "instancias" : ["Old Glast Heim"]
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
                 },
                 {
                     "pagina" : 1,
                     "indexPersonagem" : 2,
                     "passarItens" : false,
-                    "classe" : "mago",
-                    "instancias" : ["Old Glast Heim"]
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
                 }
             ]
         }
     ],
-    "instanciasDisponiveis" : ["Old Glast Heim"],
+    "instanciasDisponiveis" : ["Old Glast Heim","Tomb of Remorse"],
     "classesDisponiveis" : ["sorc","mago","arqueiro","monk"]
 }

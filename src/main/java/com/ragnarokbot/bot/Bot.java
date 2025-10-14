@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsDevice;
 import java.awt.GraphicsEnvironment;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Robot;
@@ -104,6 +105,8 @@ public class Bot {
     
     public List<Skill> skills = new ArrayList<>();
     public List<Buff> buffs = new ArrayList<>();
+    
+    private boolean interception = false;
 
     private MemoryScanner memoria = new MemoryScanner();
     
@@ -116,6 +119,29 @@ public class Bot {
     
     //Variaveis para coordenadas mini mapa
     public Config configOCR;
+    
+    
+    static String dependencia = new File("libs/interception.dll").getAbsolutePath();
+    static String libPath = new File("libs/InterceptionDemo.dll").getAbsolutePath();
+
+    static {
+    	System.load(dependencia);
+        System.load(libPath);
+    }
+
+    public native static void iniciarInterception();
+    public native static void apertarTeclaInter(int vk);
+    public native static void moverMouseInter(int x, int y);
+    public native static void clickInter();
+    public native static void encerrarInterception();
+    public native static void scrollMouseInter(int x);
+    public native static void apertarSegurarTeclaInter(int vk);
+    public native static void soltarTeclaInter(int vk);
+    public native static void clicarMouseDireitoInter();
+    public native static void clicarSegurarMouseInter();
+    public native static void soltarMouseInter();
+    public native static void segurarMouseDireitoInter();
+    public native static void soltarMouseDireitoInter();
 
 	public Bot(ITesseract tesseract, Robot robot, ITesseract tesseractLetras) {
 		
@@ -149,6 +175,12 @@ public class Bot {
         
         this.coordenadasJogadorTelaX = width / 2;
         this.coordenadasJogadorTelaY = height / 2;
+        
+        interception = JanelaPrincipal.obterInterception();
+        if (interception) {
+        	System.out.println("Interception ligado!");
+        	iniciarInterception();
+        }
 	}
 	
 	/*
@@ -376,6 +408,7 @@ public class Bot {
         }
         return 0;
     }
+   
 
     // Método auxiliar para comparar duas cores com tolerância
     private boolean coresSaoIguais(Color c1, Color c2) {
@@ -384,6 +417,8 @@ public class Bot {
                Math.abs(c1.getGreen() - c2.getGreen()) <= tolerancia &&
                Math.abs(c1.getBlue() - c2.getBlue()) <= tolerancia;
     }
+    
+ 
     
     public Rect getArmazem() {
     	Rect m = null;
@@ -450,7 +485,11 @@ public class Bot {
 		moverMouse(getxJanela() + x, getyJanela() + y);
 		sleep(100);
 		
-		getRobot().keyPress(KeyEvent.VK_ALT);
+		if (interception) {
+			apertarSegurarTeclaInter(KeyEvent.VK_ALT);
+		} else {
+			getRobot().keyPress(KeyEvent.VK_ALT);			
+		}
 		boolean isInventarioLimpo = false;
 		do {
 			clicarMouseDireito();
@@ -459,7 +498,11 @@ public class Bot {
 			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 45k? " + isInventarioLimpo); //45k
 			if (brancos > 45000) {
 				isInventarioLimpo = true;
-				getRobot().keyRelease(KeyEvent.VK_ALT);
+				if (interception) {
+					soltarTeclaInter(KeyEvent.VK_ALT);
+				} else {
+					getRobot().keyRelease(KeyEvent.VK_ALT);
+				}
 			}
 		} while(!isInventarioLimpo);
 		sleep(100);
@@ -477,7 +520,11 @@ public class Bot {
 		y = m.y + 21;
 		moverMouse(getxJanela() + x, getyJanela() + y);
 		sleep(50);
-		getRobot().keyPress(KeyEvent.VK_ALT);
+		if (interception) {
+			apertarSegurarTeclaInter(KeyEvent.VK_ALT);
+		} else {
+			getRobot().keyPress(KeyEvent.VK_ALT);
+		}
 		System.out.println("Tirando ARMORS");
 		boolean isArmazemLimpo = false;
 		do {
@@ -487,7 +534,11 @@ public class Bot {
 			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 102k? " + isArmazemLimpo); //45k
 			if (brancos > 102000) {
 				isArmazemLimpo = true;
-				getRobot().keyRelease(KeyEvent.VK_ALT);
+				if (interception) {
+					soltarTeclaInter(KeyEvent.VK_ALT);
+				} else {
+					getRobot().keyRelease(KeyEvent.VK_ALT);	
+				}
 			}
 		} while(!isArmazemLimpo);
 		sleep(100);
@@ -503,7 +554,11 @@ public class Bot {
 		x = m.x + 54;
 		y = m.y + 21;
 		moverMouse(getxJanela() + x, getyJanela() + y);
-		getRobot().keyPress(KeyEvent.VK_ALT);
+		if (interception) {
+			apertarSegurarTeclaInter(KeyEvent.VK_ALT);
+		} else {
+			getRobot().keyPress(KeyEvent.VK_ALT);
+		}
 		sleep(50);
 		do {
 			clicarMouseDireito();
@@ -512,7 +567,11 @@ public class Bot {
 			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 102k? " + isArmazemLimpo); //45k
 			if (brancos > 102000) {
 				isWeaponLimpo = true;
-				getRobot().keyRelease(KeyEvent.VK_ALT);
+				if (interception) {
+					soltarTeclaInter(KeyEvent.VK_ALT);
+				} else {
+					getRobot().keyRelease(KeyEvent.VK_ALT);	
+				}
 			}
 		} while(!isWeaponLimpo);
 		
@@ -527,7 +586,11 @@ public class Bot {
 		x = m.x + 54;
 		y = m.y + 21;
 		moverMouse(getxJanela() + x, getyJanela() + y);
-		getRobot().keyPress(KeyEvent.VK_ALT);
+		if (interception) {
+			apertarSegurarTeclaInter(KeyEvent.VK_ALT);
+		} else {
+			getRobot().keyPress(KeyEvent.VK_ALT);
+		}
 		sleep(50);
 		do {
 			clicarMouseDireito();
@@ -536,7 +599,11 @@ public class Bot {
 			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 102k? " + isArmazemLimpo); //45k
 			if (brancos > 102000) {
 				isCashLimpo = true;
-				getRobot().keyRelease(KeyEvent.VK_ALT);
+				if (interception) {
+					soltarTeclaInter(KeyEvent.VK_ALT);
+				} else {
+					getRobot().keyRelease(KeyEvent.VK_ALT);	
+				}
 			}
 		} while(!isCashLimpo);
     }
@@ -547,6 +614,7 @@ public class Bot {
 		int y = m.y + 21;
 		moverMouse(getxJanela() + x, getyJanela() + y);
 		sleep(100);
+		String classe = JanelaPrincipal.obterClasseSelecionada();
 		
 		boolean isInventarioLimpo = false;
 		do {
@@ -555,7 +623,9 @@ public class Bot {
 			clicarMouse();
 			int brancos = contarPixels(Color.WHITE, m.x + getxJanela(), m.y +getyJanela(), m.width, m.height);
 			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 45k? " + isInventarioLimpo); //45k
-			if (brancos > 45000) {
+			if (classe.equals("sorc") && brancos > 44130) {
+				isInventarioLimpo = true;
+			} else if (brancos > 45000) {
 				isInventarioLimpo = true;
 
 			}
@@ -1377,6 +1447,74 @@ public class Bot {
 		    return npcsFiltrados;   
 	}
 	
+	public List<MatOfPoint> balaoNpc() {
+		
+		Scalar lowerColor = new Scalar(0, 215, 215); // Limite inferior (laranja)
+		Scalar upperColor = new Scalar(17, 255, 255); // Limite superior (laranja)
+		Map<String, Scalar[]> colorRanges = Map.of("baloesNpc", new Scalar[]{lowerColor, upperColor});
+		
+		Rectangle captureArea = new Rectangle(xJanela, yJanela, width, height);
+		BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
+		
+		Mat screen = bufferedImageToMat(screenFullImage);
+		if (screen.empty()) {
+			System.out.println("Erro ao carregar a imagem.");
+			return null;
+		}
+		
+		Mat hsvImage = new Mat();
+		Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
+	
+		Map<String, List<MatOfPoint>> detectedEntities = new HashMap<>();
+	
+		for (Map.Entry<String, Scalar[]> entry : colorRanges.entrySet()) {
+			String colorName = entry.getKey();
+			Scalar lowerColor2 = entry.getValue()[0];
+			Scalar upperColor2 = entry.getValue()[1];
+	
+			// Criar máscara para identificar a cor dentro do intervalo
+			Mat mask = new Mat();
+			Core.inRange(hsvImage, lowerColor2, upperColor2, mask);
+	
+			// Encontrar contornos na máscara
+			List<MatOfPoint> entidades = new ArrayList<>();
+			Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
+	
+			// Armazenar os contornos filtrados associados à cor
+			detectedEntities.put(colorName, entidades);
+		}
+		
+		List<MatOfPoint> npcs = detectedEntities.getOrDefault("baloesNpc", new ArrayList<>());
+		
+		if (npcs.isEmpty()) {
+        	return npcs;
+        }
+		
+	    // Filtrar NPCs por tamanho e posição
+	    List<MatOfPoint> npcsFiltrados = npcs.stream()
+	        .filter(npc -> {
+	            Rect boundingBox = Imgproc.boundingRect(npc);
+	            
+	            return (boundingBox.width >= 250) &&
+	                   (boundingBox.height > 56 && boundingBox.height <= 379); // Abaixo de 80% da altura da imagem
+	        })
+	        .toList();
+	    
+	    // Desenhar contornos na imagem original
+	    /*Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
+	    Imgproc.drawContours(screen, npcsFiltrados, -1, greenColor, 2);
+	    // Salvar a imagem com os contornos desenhados
+	    String contouredImagePath = "imagem_com_contornos.png";
+	    Imgcodecs.imwrite(contouredImagePath, screen);
+	    System.out.println("Imagem com contornos salva em: " + contouredImagePath);*/
+		
+		return npcsFiltrados;
+	}
+	
+	
+	
+	
+	
 	public List<MatOfPoint> encontrarCor(
 	        Scalar lowerColor,
 	        Scalar upperColor,
@@ -1557,7 +1695,7 @@ public class Bot {
 		    List<MatOfPoint> janelaEncerrarInstancia = janela.stream()
 		        .filter(npc -> {
 		            Rect boundingBox = Imgproc.boundingRect(npc);
-		            return boundingBox.width <= 210 && (boundingBox.height >= 100 && boundingBox.height <= 140);
+		            return (boundingBox.width >= 190 && boundingBox.width <= 210) && (boundingBox.height >= 120 && boundingBox.height <= 140);
 		        })
 		        .toList();
 		    
@@ -1932,7 +2070,7 @@ public class Bot {
 	    // Capturar a tela da área definida
 	    BufferedImage inventario = printarParteTela(0, 0, width, height);
 	    
-	    salvarImagem(inventario, "teste de print");
+	    //salvarImagem(inventario, "teste de print");
 	    
 	    
 	    Map<String, Scalar[]> colorRanges = Map.of("barra", new Scalar[]{lowerColor, upperColor});
@@ -2041,14 +2179,22 @@ public class Bot {
 	
 	public void segurarW() {
 		try {
-	        robot.keyPress(KeyEvent.VK_W); // Pressiona e segura a tecla W
+			if (interception) {
+				apertarSegurarTeclaInter(KeyEvent.VK_W);
+			} else {
+				robot.keyPress(KeyEvent.VK_W); // Pressiona e segura a tecla W				
+			}
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
 	}
 	public void soltarW() {
 		try {
-	        robot.keyRelease(KeyEvent.VK_W); // Solta a tecla W
+			if (interception) {
+				soltarTeclaInter(KeyEvent.VK_W);
+			} else {
+				robot.keyRelease(KeyEvent.VK_W); // Solta a tecla W				
+			}
 	    } catch (Exception e) {
 	        e.printStackTrace();
 	    }
@@ -2097,42 +2243,93 @@ public class Bot {
     }
 	
 	public void clicarMouse() {
+		if (interception) {
+			clickInter();
+			return;
+		}
 		//robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Pressionar o botão esquerdo
         //sleep(50);
         //robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Liberar o botão esquerdo*/
+		
 		MouseClicker.clicarMouse();
+		
+		//clickInter();
 	}
 	public void clicarMouseDireito() {
+		if (interception) {
+			clicarMouseDireitoInter();
+			return;
+		}
 		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK); // Pressionar o botão direito do mouse
         sleep(50);
         robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK); // Liberar o botão esquerdo*/
 	}
 	
 	public void clicarSegurarMouse() {
-	    robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+		if (interception) {
+			clicarSegurarMouseInter();
+			return;
+		}
+		robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
 	}
 	public void soltarMouse() {
+		if (interception) {
+			soltarMouseInter();
+			return;
+		}
 		robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
 	}
 	
 	public void moverMouse(int x, int y) {
 		if (x >= getxJanela() + getWidth() || y >= getyJanela() + getHeight() ) {
-			robot.mouseMove(coordenadasJogadorTelaX, coordenadasJogadorTelaY);
+			if (interception) {
+				moverMouseInter(coordenadasJogadorTelaX, coordenadasJogadorTelaY);
+			} else {
+				robot.mouseMove(coordenadasJogadorTelaX, coordenadasJogadorTelaY);
+			}
 			System.out.println("Mouse ia sair do limite da tela do ragnarok!!!");
 			return;
 		}
-		 robot.mouseMove(x, y);
+		if (interception) {
+			moverMouseInter(x, y);
+			return;
+		}
+		robot.mouseMove(x, y);
+		//moverMouseInter(x, y);
 	}
 	
 	public void apertarTecla(int tecla) {
+		if (interception) {
+			apertarTeclaInter(tecla);
+			return;
+		}
 		 robot.keyPress(tecla); // Pressionar a tecla
 		 sleep(50);
          robot.keyRelease(tecla); // Liberar a tecla
 	}
 	
+	public void apertarSegurarTecla( int tecla ) {
+		if (interception) {
+			apertarSegurarTeclaInter(tecla);
+			return;
+		}
+		robot.keyPress(tecla); // Pressionar a tecla
+	}
+	public void soltarTecla( int tecla ) {
+		if (interception) {
+			soltarTeclaInter(tecla);
+			return;
+		}
+		robot.keyRelease(tecla); // Liberar a tecla
+	}
+	
 	private void scrollMouse(int scrollAmount) {
 	    // scrollAmount positivo = scroll up, scrollAmount negativo = scroll down
-	    robot.mouseWheel(scrollAmount);
+		if (interception) {
+			scrollMouseInter(scrollAmount);
+		} else {
+			robot.mouseWheel(scrollAmount);			
+		}
 	    try {
 			Thread.sleep(70);
 		} catch (InterruptedException e) {
@@ -2439,15 +2636,27 @@ public class Bot {
 	        
 	        if (isUpperCase || requiresShift) {
 	            // Pressiona Shift para letras maiúsculas
-	            robot.keyPress(KeyEvent.VK_SHIFT);
+	        	if (interception) {
+	        		apertarSegurarTeclaInter(KeyEvent.VK_SHIFT);
+	        	} else {
+	        		robot.keyPress(KeyEvent.VK_SHIFT);
+	        	}
 	        }
 	        
-	        robot.keyPress(keyCode);
-	        robot.keyRelease(keyCode);
+	        if (interception) {
+	        	apertarTeclaInter(keyCode);
+	        } else {
+	        	robot.keyPress(keyCode);
+	        	robot.keyRelease(keyCode);	        	
+	        }
 	        
 	        if (isUpperCase || requiresShift) {
 	            // Solta Shift após a letra maiúscula
-	            robot.keyRelease(KeyEvent.VK_SHIFT);
+	        	if (interception) {
+	        		soltarTeclaInter(KeyEvent.VK_SHIFT);
+	        	} else {
+	        		robot.keyRelease(KeyEvent.VK_SHIFT);	        		
+	        	}
 	        }
 	        try {
 				Thread.sleep(100);
@@ -2477,13 +2686,13 @@ public class Bot {
 		try {
 			imagemTelaLogin = ImageIO.read(new File(path));
 		} catch (IOException e) {
-			e.printStackTrace(); // 550 480 127 137
+			e.printStackTrace(); // 573, 537, 76, 35
 		}
 		boolean imagensIguais = false;
 		do {
-			BufferedImage atual = printarParteTela(550, 480, 127, 137);
+			BufferedImage atual = printarParteTela(573, 537, 76, 35);
 			imagensIguais = compararImagens(atual, imagemTelaLogin, 30.0);
-			System.out.println("Verificando imagens: " + imagensIguais);
+			System.out.println("Verificando imagens realizar login: " + imagensIguais);
 			sleep(500);
 		} while( imagensIguais == false);
 		System.out.println("Realizando login");
@@ -2692,6 +2901,7 @@ public class Bot {
 		}*/
 		
 		public Coordenadas escolherProximaCoordenada(List<Coordenadas> caminhoCalculado, Coordenadas atual) {
+			
 		    if (caminhoCalculado.isEmpty() || caminhoCalculado.size() <= 1) {
 		        System.out.println("Caiu aqui #####################################");
 		        return atual;
@@ -2759,51 +2969,87 @@ public class Bot {
 	    }
 
 	    // Pressionar Alt
-	    robot.keyPress(KeyEvent.VK_ALT);
+	    if (interception) {
+	    	apertarSegurarTeclaInter(KeyEvent.VK_ALT);
+	    } else {
+	    	robot.keyPress(KeyEvent.VK_ALT);	    	
+	    }
 
 	    // Obter a tecla correspondente ao número
 	    int keyCode = KeyEvent.VK_0 + numero;
 
 	    // Pressionar o número
-	    robot.keyPress(keyCode);
-	    robot.keyRelease(keyCode);
+	    if (interception) {
+	    	apertarTeclaInter(keyCode);
+	    } else {
+	    	robot.keyPress(keyCode);
+	    	robot.keyRelease(keyCode);	    	
+	    }
 	    sleep(100);
 	    // Soltar Alt
-	    robot.keyRelease(KeyEvent.VK_ALT);
+	    if (interception) {
+	    	soltarTeclaInter(KeyEvent.VK_ALT);
+	    } else {
+	    	robot.keyRelease(KeyEvent.VK_ALT);   	
+	    }
+	    
 
 	}
 	
 	//notebook
 	public void visaoDeCima() {
 		// Pressionar Ctrl e Shift
-				robot.keyPress(KeyEvent.VK_CONTROL);
-				robot.keyPress(KeyEvent.VK_SHIFT);
+		if (interception) {
+			apertarSegurarTeclaInter(KeyEvent.VK_CONTROL);
+			apertarSegurarTeclaInter(KeyEvent.VK_SHIFT);
+		} else {
+			robot.keyPress(KeyEvent.VK_CONTROL);
+			robot.keyPress(KeyEvent.VK_SHIFT);
+		}
+		
+		// Pressionar o botão direito do mouse
+		if (interception) {
+			segurarMouseDireitoInter();
+		} else {
+			robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);			
+		}
 
-				// Pressionar o botão direito do mouse
-				robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);
-				
-				if (JanelaPrincipal.obterSalaSelecionada().equals("1")) {
-					moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY - 50);
-				} else {
-					moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY - 100);
-				}
-				sleep(20);
+		if (JanelaPrincipal.obterSalaSelecionada().equals("1")) {
+			moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY - 50);
+		} else {
+			moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY - 100);
+		}
+		sleep(20);
 
-				// Obter a posição atual do mouse
-				java.awt.Point mousePos = java.awt.MouseInfo.getPointerInfo().getLocation();
-				int currentX = (int) mousePos.getX();
-				int currentY = (int) mousePos.getY();
+		// Obter a posição atual do mouse
+		java.awt.Point mousePos = java.awt.MouseInfo.getPointerInfo().getLocation();
+		int currentX = (int) mousePos.getX();
+		int currentY = (int) mousePos.getY();
 
-				sleep(20);
-				// Mover o mouse 300 pixels para baixo
-				robot.mouseMove(currentX, currentY + 250);
-				sleep(100);
-				// Soltar o botão direito do mouse
-				robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);
+		sleep(20);
+		// Mover o mouse 300 pixels para baixo
+		if (interception) {
+			moverMouseInter(currentX, currentY + 250);
+		} else {
+			robot.mouseMove(currentX, currentY + 250);			
+		}
+		sleep(100);
+		// Soltar o botão direito do mouse
+		if (interception) {
+			soltarMouseDireitoInter();
+		} else {
+			robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);			
+		}
 
-				// Soltar Ctrl e Shift
-				robot.keyRelease(KeyEvent.VK_SHIFT);
-				robot.keyRelease(KeyEvent.VK_CONTROL);
+		// Soltar Ctrl e Shift
+		if (interception) {
+			soltarTeclaInter(KeyEvent.VK_SHIFT);
+			soltarTeclaInter(KeyEvent.VK_CONTROL);
+		} else {
+			robot.keyRelease(KeyEvent.VK_SHIFT);
+			robot.keyRelease(KeyEvent.VK_CONTROL);
+		}
+		
 	}
 	
 	public void sleep(int time) {
@@ -2845,18 +3091,32 @@ public class Bot {
 	        }
 
 	        // Pressiona a tecla Alt
-	        robot.keyPress(KeyEvent.VK_ALT);
+	        if (interception) {
+	        	apertarSegurarTeclaInter(KeyEvent.VK_ALT);
+	        } else {
+	        	robot.keyPress(KeyEvent.VK_ALT);	        	
+	        }
 
 	        // Determina a tecla correspondente ao número
 	        int keyCode = KeyEvent.VK_0 + numero;
 
 	        // Pressiona e solta a tecla do número
-	        robot.keyPress(keyCode);
-	        sleep(100);
-	        robot.keyRelease(keyCode);
+	        if (interception) {
+	        	apertarTeclaInter(keyCode);
+	        } else {
+	        	robot.keyPress(keyCode);
+		        sleep(100);
+		        robot.keyRelease(keyCode);
+	        }
+	        
 
 	        // Solta a tecla Alt
-	        robot.keyRelease(KeyEvent.VK_ALT);
+	        if (interception) {
+	        	soltarTeclaInter(KeyEvent.VK_ALT);
+	        } else {
+	        	robot.keyRelease(KeyEvent.VK_ALT);        	
+	        }
+	        
 
 
 	    }
@@ -2867,22 +3127,36 @@ public class Bot {
 		List<MatOfPoint> janelaHpGrande = verificarTamanhoJanelaHp(); 
 		System.out.println("Tamanho da janela do hp é grande?: " + (janelaHpGrande.isEmpty()? false : true));
 		
+		int xJ = 65;
+		int yJ = 0;
+		
 		if (janelaHpGrande.isEmpty()) {//clicar mais em cima
-			moverMouse(getxJanela() + 65, getyJanela() + 150);
-			sleep(300);
-			clicarMouse();
+			yJ = 150;
 		} else {//clicar mais em baixo
-			moverMouse(getxJanela() + 65, getyJanela() + 227);
-			sleep(300);
-			clicarMouse();
+			yJ = 227;
 		}
+		
+		List<MatOfPoint> janelaInstancia = new ArrayList<>();
+		do {
+			if (janelaInstancia.isEmpty()) {
+				moverMouse(getxJanela() + xJ, getyJanela() + yJ);
+				sleep(300);
+				clicarMouse();
+			}
+			
+			sleep(300);
+			
+			janelaInstancia = verificarJanelaInstancia();
+			
+		} while(janelaInstancia.isEmpty());
+		
 		
 		// Selecionar de fato a instancia
 		sleep(300);
 		
 		int x = 0;
 		int y = 0;
-		List<MatOfPoint> janelaInstancia = verificarJanelaInstancia();
+		
 		if (!janelaInstancia.isEmpty()) {
 			Rect janela = Imgproc.boundingRect(janelaInstancia.get(0));
 			x = janela.x;
@@ -2927,52 +3201,106 @@ public class Bot {
 		sleep(300);
 		clicarMouse();
 		sleep(300);
-		// Clicar em Criar
-		moverMouse(getxJanela() + x + 141, getyJanela() + y + 304 + 17);
-		sleep(300);
-		clicarMouse();
-		sleep(300);
-		// Clicar em Ok
-		moverMouse(getxJanela() + 586, getyJanela() + 429);
-		sleep(300);
-		clicarMouse();
-		sleep(300);
-		// Apertar enter que apareceu um balao de npc
-		apertarTecla(KeyEvent.VK_ENTER);
-		sleep(300);
-		// Repetir pra criar a instancia de old gh
-		// Clicar em Criar
-		moverMouse(getxJanela() + x + 141, getyJanela() + y + 304 + 17);
-		sleep(300);
-		clicarMouse();
-		sleep(300);
-		// Clicar em Ok
-		moverMouse(getxJanela() + 586, getyJanela() + 429);
-		sleep(300);
-		clicarMouse();
-		sleep(300);
-		// Apertar enter que apareceu um balao de npc
-		apertarTecla(KeyEvent.VK_ENTER);
-		sleep(300);
-		//Clicar em Entrar
-		moverMouse(getxJanela() + x + 48, getyJanela() + y + 304 + 17);
-		sleep(300);
-		clicarMouse();
-		sleep(300);
-		// Clicar em Ok
-		moverMouse(getxJanela() + 586, getyJanela() + 429);
-		sleep(300);
-		clicarMouse();
-		sleep(300);
+		
+		List<MatOfPoint> janelinhaInstancia = new ArrayList<>();
+		do {
+			Scalar[] limites = calcularLimites(255, 72, 0);// Cor laranja
+			Scalar minLaranja = limites[0];
+			Scalar maxLaranja = limites[1];
+			//Procurando o botao de Ok
+			List<MatOfPoint> btnOk = new ArrayList<MatOfPoint>();
+			do {
+				btnOk = encontrarCor(minLaranja, maxLaranja, 35, 45, 15, 25, false);
+				System.out.println("Botao Ok - Lista está vazia? " + btnOk.isEmpty());
+				if (btnOk.isEmpty()) {
+					System.out.println("Clicando no botão de Criar!");
+					moverMouse(getxJanela() + x + 141, getyJanela() + y + 304 + 17);
+					sleep(300);
+					clicarMouse();
+					sleep(300);
+				} else {
+					System.out.println("Clicando nob botão de Ok");
+					Rect ma = Imgproc.boundingRect(btnOk.get(0));
+					moverMouse(getxJanela() + ma.x + ma.width / 2, getyJanela() + ma.y + ma.height / 2);
+					sleep(50);
+					clicarMouse();
+				}
+				sleep(100);
+			} while (btnOk.isEmpty());
+			
+			
+			List<MatOfPoint> balaoNpc = new ArrayList<MatOfPoint>();
+			int contador = 0;
+			do {
+				System.out.println("Procurando pelo balão de npc");
+				balaoNpc = balaoNpc();
+				if (!balaoNpc.isEmpty()) {
+					sleep(1000);
+					System.out.println("Apertando Enter no balão de npc");
+					apertarTecla(KeyEvent.VK_ENTER);
+				}
+				contador++;
+				sleep(1000);
+			} while (balaoNpc.isEmpty() && contador < 10);
+			
+			sleep(1000);
+			System.out.println("Verificando se a janela de instancia apareceu...");
+			janelinhaInstancia = verificarJanelaEncerrarInstancia();
+			
+		} while (janelinhaInstancia.isEmpty());
+		
+		sleep(1000);
+		
+		System.out.println("Clicando em entrar");
+		Scalar[] limites = calcularLimites(255, 72, 0);// Cor laranja
+		Scalar minLaranja = limites[0];
+		Scalar maxLaranja = limites[1];
+		//Procurando o botao de Ok
+		List<MatOfPoint> btnOk = new ArrayList<MatOfPoint>();
+		do {
+			btnOk = encontrarCor(minLaranja, maxLaranja, 35, 45, 15, 25, false);
+			System.out.println("Botao Ok - Lista está vazia? " + btnOk.isEmpty());
+			if (btnOk.isEmpty()) {
+				System.out.println("Clicando no botão de Entrar!");
+				moverMouse(getxJanela() + x + 48, getyJanela() + y + 304 + 17);
+				sleep(300);
+				clicarMouse();
+				sleep(300);
+			} else {
+				System.out.println("Clicando nob botão de Ok");
+				Rect ma = Imgproc.boundingRect(btnOk.get(0));
+				moverMouse(getxJanela() + ma.x + ma.width / 2, getyJanela() + ma.y + ma.height / 2);
+				sleep(50);
+				clicarMouse();
+			}
+			sleep(100);
+		} while (btnOk.isEmpty());
+		
+		sleep(1000);
+		System.out.println("Procurando balão de npc");
+		List<MatOfPoint> balaoNpc = new ArrayList<MatOfPoint>();
+		do {
+			System.out.println("Procurando pelo balão de npc");
+			balaoNpc = balaoNpc();
+			if (!balaoNpc.isEmpty()) {
+				System.out.println("Apertando pra baixo varias vezes para escolher a ultima opção");
+				for (int i = 0; i < 10; i++) {
+					apertarTecla(KeyEvent.VK_DOWN);
+					sleep(300);
+				}
+				apertarTecla(KeyEvent.VK_ENTER);
+			}
+			sleep(1000);
+		} while (balaoNpc.isEmpty());
 		
 		boolean chegou = false;
-		if (dg == 33) {
+		if (dg == 34) {
 			do {
 				chegou = obterMapa().equals(Mapa.OLDGH.getNome());
 				System.out.println("Chegou em Old Glast Heim? " + chegou);
 				sleep(1000);
 			} while (chegou == false);
-		} else if (dg == 43) {
+		} else if (dg == 44) {
 			do {
 				chegou = obterMapa().equals(Mapa.TOMB.getNome());
 				System.out.println("Chegou em Tomb of Remorse? " + chegou);
@@ -2989,10 +3317,10 @@ public class Bot {
 		int dg = 0;
 		switch (instancia) {
 			case "Old Glast Heim":
-				dg = 33;
+				dg = 34;
 				break;
 			case "Tomb of Remorse":
-				dg = 43;
+				dg = 44;
 				break;
 	
 			default:
@@ -3177,6 +3505,52 @@ public class Bot {
 				Math.min(val + valTolerance, 255));
 
 		return new Scalar[] { lower, upper };
+	}
+	
+	public int contarPixelsDeUmaImagem(String path, Color cor, int x, int y, int width, int height) {
+		try {
+			File arquivoOriginal = new File(path);
+			BufferedImage imagemGrande = ImageIO.read(arquivoOriginal);
+			
+			
+			/*int x = 535;
+            int y = 45;
+            int width = 146;
+            int height = 116;*/
+            
+            BufferedImage imagemCortada = imagemGrande.getSubimage(x, y, width, height);
+            
+            File arquivoDestino = new File("imagemCortada.png");
+            ImageIO.write(imagemCortada, "png", arquivoDestino);
+
+            System.out.println("Imagem cortada e salva com sucesso em: " + arquivoDestino.getAbsolutePath());
+            
+            int contador = 0;
+            int tolerancia = 10;
+            // Percorre cada pixel da imagem capturada
+            for (int i = 0; i < imagemCortada.getWidth(); i++) {
+                for (int j = 0; j < imagemCortada.getHeight(); j++) {
+                    Color pixel = new Color(imagemCortada.getRGB(i, j));
+                    // Se o pixel for da cor desejada, incrementa o contador
+                    if (Math.abs(pixel.getRed() - cor.getRed()) <= tolerancia &&
+                    		Math.abs(pixel.getGreen() - cor.getGreen()) <= tolerancia &&
+                    		Math.abs(pixel.getBlue() - cor.getBlue()) <= tolerancia) {
+                    	contador++;
+                    }
+                    
+                }
+            }
+            
+            System.out.println("Quantidade de cor do texto: " + contador);
+            
+            return contador;
+            
+            //int pixelsAzulTexto = bot.contarPixels(azulTexto, x, y, width, height);
+			
+		} catch (IOException e) {
+            System.err.println("Erro ao ler ou salvar imagem: " + e.getMessage());
+        }
+		return 0;
 	}
 	
 }

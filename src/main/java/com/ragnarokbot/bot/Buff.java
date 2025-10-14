@@ -1,20 +1,30 @@
 package com.ragnarokbot.bot;
 
+import com.ragnarokbot.model.enums.Effects;
+
 public class Buff {
 	private int tecla;
 	private int cd;
 	private int cdCounter;
 	private long lastUsedTime; // Timestamp do último uso
+	private Effects effect;
 	
 	private boolean self;
 	
-	public Buff(int tecla, int cd, boolean self) {
+	public Buff(int tecla, int cd, boolean self, Effects effect) {
 		this.tecla = tecla;
 		this.cd = cd;
 		this.lastUsedTime = 0;
 		this.self = self;
+		this.effect = effect;
 	}
 	
+	
+	
+	public Effects getEffect() {
+		return effect;
+	}
+
 	public int getTecla() {
         return tecla;
     }

@@ -28,8 +28,44 @@ public class SkillsConfig {
 	private Integer aspdPala;
 	private Integer aspdPalaTarget;
 	private String basePath;
+	private String protegerTerreno;
+	private String atalhoAcessorioSolomon;
+	private String atalhoAcessorio;
+	private String atalhoInvocarFainha;
 	
 	
+	public String getAtalhoInvocarFainha() {
+		return atalhoInvocarFainha;
+	}
+
+	public void setAtalhoInvocarFainha(String atalhoInvocarFainha) {
+		this.atalhoInvocarFainha = atalhoInvocarFainha;
+	}
+
+	public String getAtalhoAcessorioSolomon() {
+		return atalhoAcessorioSolomon;
+	}
+
+	public void setAtalhoAcessorioSolomon(String atalhoAcessorioSolomon) {
+		this.atalhoAcessorioSolomon = atalhoAcessorioSolomon;
+	}
+
+	public String getAtalhoAcessorio() {
+		return atalhoAcessorio;
+	}
+
+	public void setAtalhoAcessorio(String atalhoAcessorio) {
+		this.atalhoAcessorio = atalhoAcessorio;
+	}
+
+	public String getProtegerTerreno() {
+		return protegerTerreno;
+	}
+
+	public void setProtegerTerreno(String protegerTerreno) {
+		this.protegerTerreno = protegerTerreno;
+	}
+
 	public String getAtalhoCartaoVip() {
 		return atalhoCartaoVip;
 	}
@@ -227,6 +263,15 @@ public class SkillsConfig {
 		private String classe;
 		private List<Skills> skills;
 		private List<Buffs> buffs;
+		private List<Equipamentos> equipamentos;
+		
+		
+		public List<Equipamentos> getEquipamentos() {
+			return equipamentos;
+		}
+		public void setEquipamentos(List<Equipamentos> equipamentos) {
+			this.equipamentos = equipamentos;
+		}
 		public String getClasse() {
 			return classe;
 		}
@@ -245,6 +290,24 @@ public class SkillsConfig {
 		public void setBuffs(List<Buffs> buffs) {
 			this.buffs = buffs;
 		}
+	}
+	
+	public static class Equipamentos {
+		private String atalho;
+		private String posicao;
+		public String getAtalho() {
+			return atalho;
+		}
+		public void setAtalho(String atalho) {
+			this.atalho = atalho;
+		}
+		public String getPosicao() {
+			return posicao;
+		}
+		public void setPosicao(String posicao) {
+			this.posicao = posicao;
+		}
+		
 	}
 	
 	public static class Skills {
@@ -305,6 +368,15 @@ public class SkillsConfig {
 		private String atalho;
 		private int cd;
 		private boolean self;
+		private String effect;
+		
+		
+		public String getEffect() {
+			return effect;
+		}
+		public void setEffect(String effect) {
+			this.effect = effect;
+		}
 		public String getAtalho() {
 			return atalho;
 		}

@@ -11,21 +11,30 @@ import com.sun.jna.ptr.PointerByReference; // Se necessário para ponteiros.
 public class MemoryScanner {
 	
 	public static int processId = 0; 
-	//public long addressX = 0x19D468; 
-	//public long addressX = 0x1557FBC;
-	public long addressX = 0x156FD4C;
-	//public long addressY = 0x19D46C; 
-	//public long addressY = 0x1557FC0;
-	public long addressY = 0x156FD4C + 4;
-	//notebook
-	public long addressHp = 0x15874D0;
-	//public long addressHp = 0x156F798;
+
+	//public static long addressX = 0x156FD4C; //history
+	//public static long addressX = 0xE77288; //tales
+	public static long addressX = 0;
+
+	//public static long addressY = 0x156FD4C + 4;  //history
+	//public static long addressY = 0xE77288 + 4;//tales
+	public static long addressY = 0;
+
+	//public long addressHp = 0x15874D0; //history
+	//public static long addressHp = 0x00E8E434; //tales
+	public static long addressHp = 0;
 	
-	public long addressString = 0x19A9ED - 5;
+	public static long addressString = 0x19A9ED - 5;
 	
-	public long addressMapa = 0x1583574;
+	//public static long addressMapa = 0x1583574;   //history
+	//public static long addressMapa = 0xE89BD4;  //tales
+	public static long addressMapa = 0;
 	
-	public static long addressName = 0x0158A120;
+	//public static long addressName = 0x0158A120; //history
+	//public static long addressName = 0x00E90C00; //tales
+	public static long addressName = 0;
+	
+	
 	
     public interface Kernel32 extends Library {
         Kernel32 INSTANCE = Native.load("kernel32", Kernel32.class);
@@ -255,5 +264,54 @@ public class MemoryScanner {
         return buffs;
     }
 
+	public static long getAddressX() {
+		return addressX;
+	}
+
+	public static void setAddressX(long addressX) {
+		MemoryScanner.addressX = addressX;
+	}
+
+	public static long getAddressY() {
+		return addressY;
+	}
+
+	public static void setAddressY(long addressY) {
+		MemoryScanner.addressY = addressY;
+	}
+
+	public static long getAddressHp() {
+		return addressHp;
+	}
+
+	public static void setAddressHp(long addressHp) {
+		MemoryScanner.addressHp = addressHp;
+	}
+
+	public static long getAddressString() {
+		return addressString;
+	}
+
+	public static void setAddressString(long addressString) {
+		MemoryScanner.addressString = addressString;
+	}
+
+	public static long getAddressMapa() {
+		return addressMapa;
+	}
+
+	public static void setAddressMapa(long addressMapa) {
+		MemoryScanner.addressMapa = addressMapa;
+	}
+
+	public static long getAddressName() {
+		return addressName;
+	}
+
+	public static void setAddressName(long addressName) {
+		MemoryScanner.addressName = addressName;
+	}
+
+    
 
 }

@@ -78,7 +78,29 @@ public class Script {
 	    private List<Acao> acoes;
 	    private boolean boss;
 	    private boolean terminaNoBoss;
+	    private List<Integer> npccoordenadas;
+	    private Integer tempo;
+	    private Boolean verificarFinal;
 	    
+	    
+		public Boolean getVerificarFinal() {
+			return verificarFinal;
+		}
+		public void setVerificarFinal(Boolean verificarFinal) {
+			this.verificarFinal = verificarFinal;
+		}
+		public Integer getTempo() {
+			return tempo;
+		}
+		public void setTempo(Integer tempo) {
+			this.tempo = tempo;
+		}
+		public List<Integer> getNpccoordenadas() {
+			return npccoordenadas;
+		}
+		public void setNpccoordenadas(List<Integer> npccoordenadas) {
+			this.npccoordenadas = npccoordenadas;
+		}
 		public boolean isTerminaNoBoss() {
 			return terminaNoBoss;
 		}

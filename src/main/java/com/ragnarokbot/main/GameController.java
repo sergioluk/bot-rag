@@ -13,11 +13,13 @@ import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import com.ragnarokbot.bot.Bot;
 import com.ragnarokbot.bot.Buff;
+import com.ragnarokbot.bot.Mestre;
 import com.ragnarokbot.bot.Skill;
 import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.model.AStar;
 import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.GrafoMapa;
+import com.ragnarokbot.model.enums.Comando;
 import com.ragnarokbot.model.enums.Effects;
 import com.ragnarokbot.model.enums.Estado;
 import com.ragnarokbot.model.enums.Mapa;
@@ -32,6 +34,7 @@ import config.ScriptLoader;
 import config.SkillsConfig;
 import config.SkillsConfig.Buffs;
 import config.SkillsConfig.Classes;
+import config.SkillsConfig.Equipamentos;
 import config.SkillsConfig.Skills;
 import config.Script.Acao;
 import config.Script.Links;
@@ -39,6 +42,7 @@ import config.Script.Passo;
 import config.Script.Rota;
 import net.sourceforge.tess4j.TesseractException;
 import state.StateMachine;
+
 import utils.KeyMapper;
 
 import java.awt.Color;
@@ -168,14 +172,14 @@ public class GameController implements Runnable {
 	private boolean pegarEquipsArmazem = false;
 	private boolean pegarEquipsArmazem2 = false;
 	private int passosInteragirKafraRemoverItens = 0;
-	
-	//public static boolean isVelocidade = false;
-	//public static boolean isChicleteGoma = false;
+
+	// public static boolean isVelocidade = false;
+	// public static boolean isChicleteGoma = false;
 	long tempoVeloGoma = System.currentTimeMillis();
-	
+
 	long tempoCooldownRefresh = System.currentTimeMillis();
 	boolean aguardarCdRefresh = false;
-	
+
 	private BufferedImage cometa = null;
 	private BufferedImage cometaPreto = null;
 	BufferedImage barra = null;
@@ -185,17 +189,26 @@ public class GameController implements Runnable {
 	public Tela tela;
 	public static int aspdPala = 0;
 	public static int aspdPalaTarget = 0;
-	
+
 	private boolean horaDeBuffar = false;
-	
+
+	private int tentativaEncontrarBoss = 10;
+
 	long tempoPm = System.currentTimeMillis();
+
+	private boolean cliclandoNpcManual = false;
+
+	private boolean verificarSeLimpouTomb = false;
+	private long tempoVerificacaoTomb = System.currentTimeMillis();
+	
+	public Comando slaveEstado = Comando.IDLE;
 
 	public GameController(Bot bot) {
 		this.bot = bot;
 		cometa = bot.abrirImagem("config/skills/cometa.png");
 		cometaPreto = bot.abrirImagem("config/skills/cometa preto.png");
 		barra = bot.abrirImagem("config/skills/barra.png");
-		//this.tela = tela;
+		// this.tela = tela;
 		/*
 		 * try { // Registrar o hook do teclado GlobalScreen.registerNativeHook();
 		 * GlobalScreen.addNativeKeyListener(this); } catch (Exception e) {
@@ -217,23 +230,115 @@ public class GameController implements Runnable {
 
 		// notebook
 		skillsConfig = scriptLoader.carregarSkills("config/config_skills.json");
-		
+
 		if (skillsConfig.getAspdPala() != null) {
 			aspdPala = skillsConfig.getAspdPala();
 		}
 		if (skillsConfig.getAspdPalaTarget() != null) {
 			aspdPalaTarget = skillsConfig.getAspdPalaTarget();
 		}
+		Bot.iniciarInterception();
+		boolean testes = false;
+		if (testes) {
+			System.out.println("Teste de cima");
+			// List<Integer> status = bot.listarStatus();
+			// System.out.println("Status: " + status.toString());
 
+			bot.printarTela();
+
+			// bot.sleep(2000);
+			// bot.executarInstancia("Tomb of Remorse");
+			
+			
+			
+			
+
+			String f1 = "1 tela0.png";
+			String f2 = "2 tela-1.png";
+			String f3 = "3 chamando o boss.png";
+			String f4 = "4 boss morto.png";
+			String f5 = "5 matando os ultimos bixos mas tem que ter cuidado.png";
+			String f51 = "5.1 2 parte da ultima parte.png";
+			String f6 = "6 ultimo boss morto.png";
+
+			int x = 535;
+			int y = 45;
+			int width = 146;
+			int height = 116;
+			Color azulTexto = new Color(0, 66, 255);
+			Color laranja = new Color(230, 66, 0);
+			bot.contarPixelsDeUmaImagem(f3, azulTexto, x, y, width, height);
+
+			System.out.println("Começando...");
+			bot.sleep(3000);
+			System.out.println("Iniciando o interception");
+			Bot.iniciarInterception();
+			/*
+			 * System.out.println("Movendo para (864, 363)"); Bot.moverMouseInter(864, 363);
+			 * bot.sleep(1000); System.out.println("Movendo para (864, 433)");
+			 * Bot.moverMouseInter(864, 433); bot.sleep(1000);
+			 * System.out.println("Movendo para (542, 418)"); Bot.moverMouseInter(542, 418);
+			 * bot.sleep(1000); Bot.clickInter(); System.out.println("Terminando teste");
+			 * bot.sleep(1000); Bot.apertarTeclaInter(KeyEvent.VK_C);
+			 * System.out.println("Apertando C"); bot.sleep(500);
+			 * Bot.apertarTeclaInter(KeyEvent.VK_A); System.out.println("Apertando A");
+			 * bot.sleep(500); Bot.apertarTeclaInter(KeyEvent.VK_B);
+			 * System.out.println("Apertando B");
+			 */
+
+			/*bot.sleep(1000);
+			System.out.println("Scrolando pra cima");
+			for (int i = 0; i < 10; i++) {
+				Bot.scrollMouseInter(1); // Scroll up
+				bot.sleep(50);
+			}
+			bot.sleep(1000);
+			System.out.println("Scrolando pra baixo");
+			for (int i = 0; i < 10; i++) {
+				Bot.scrollMouseInter(-1); // Scroll down
+				bot.sleep(50);
+			}*/
+			/*
+			 * bot.sleep(1000); System.out.println("Apertando e segurando a tecla E");
+			 * Bot.apertarSegurarTeclaInter(KeyEvent.VK_E); bot.sleep(3000);
+			 * System.out.println("Soltando a tecla E");
+			 * Bot.soltarTeclaInter(KeyEvent.VK_E); bot.sleep(5000);
+			 * System.out.println("clicando botao direito do mouse");
+			 * Bot.clicarMouseDireitoInter(); bot.sleep(2000);
+			 * System.out.println("clicando e segurando o mouse");
+			 * Bot.clicarSegurarMouseInter(); bot.sleep(5000);
+			 * System.out.println("soltando o mouse"); Bot.soltarMouseInter();
+			 * bot.sleep(2000);
+			 * System.out.println("clicando e segurando o botao direito do mouse");
+			 * Bot.segurarMouseDireitoInter(); bot.sleep(5000);
+			 * System.out.println("soltando o botao direito do mouse");
+			 * Bot.soltarMouseDireitoInter();
+			 */
+			System.out.println("terminou o teste");
+			Bot.encerrarInterception();
+			/*
+			rectInventario = bot.getInventario();
+			int brancos = bot.contarPixels(Color.WHITE, rectInventario.x + bot.getxJanela(), rectInventario.y + bot.getyJanela(), rectInventario.width, rectInventario.height);
+			System.out.println("Quantidade de pixels brancos: " + brancos);
+			bot.equipandoItens(rectInventario);
+			bot.sleep(1000);
+			barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
+			bot.sleep(1000);
+			equiparAcessorios(skillsConfig.getAtalhoAcessorio());
+			System.out.println("Acabou");*/
+
+			return;
+		}
 		// bot.encerrarInstancia();
-		//bot.printarTela();
 		// atalho padrao para bio chef
 		String classe = JanelaPrincipal.obterClasseSelecionada();
 		carregarAtalhosSkills(classe);
-		
+
 		bot.sleep(3000);
-		
-		//Modo de instancia não pode ler isso pq começa da pagina de login
+
+		// bot.printarTela(); //cotoco
+
+		// Modo de instancia não pode ler isso pq começa da pagina de login
 		if (!JanelaPrincipal.instanciaRadioButton.isSelected()) {
 			barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
 		}
@@ -247,34 +352,85 @@ public class GameController implements Runnable {
 			System.out.println("instancia do script escolhida: " + instancia);
 			setScript(scriptTemp);
 
-			logarNaPrimeiraVez();
+			if (!JanelaPrincipal.obterSlave()) {
+				logarNaPrimeiraVez();
+			}
 
 			System.out.println("###################################################################");
 		}
 
 		carregarMapa();
 		carregarOpcoesFarmNpc();
-		
-		//Verifica se vc ja está nos mapas de farme, se nao estiver, volta base e fala com o npc
+
+		// Verifica se vc ja está nos mapas de farme, se nao estiver, volta base e fala
+		// com o npc
 		if (!JanelaPrincipal.instanciaRadioButton.isSelected()) {
 			iniciarBotQualquerLugar();
 		}
-		
 
 		// Testar se funcionou a programagem e desativar logar pela primeira vez pra
 		// testar...
-		//modoDesequiparEquips = true;
-		//voltarBase();
-		
-		//bot.printarTela();
-		
-		//bot.teste();
-		
-		//ligarBot = false;
+		// modoDesequiparEquips = true;
+		// voltarBase();
+
+		// bot.printarTela();
+
+		// bot.teste();
+
+		// ligarBot = false;
 
 		bot.visaoDeCima();
 		bot.sleep(100);
 		bot.zoom(-28);
+		
+		if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterSlave()) {
+			while (ligarBot) {
+				long startTime = System.currentTimeMillis();
+				// bot.sleep(100);
+				bot.sleep(1000);
+				synchronized (this) {
+					while (pausarBot) {
+						try {
+							System.out.println("Bot pausado");
+							wait(); // Aguarda até que `pausado` seja false
+						} catch (InterruptedException e) {
+							Thread.currentThread().interrupt();
+							e.printStackTrace();
+						}
+					}
+				}
+				switch (slaveEstado) {
+					case IDLE:
+						System.out.println("Fazendo nada...");
+						break;
+					case ATACAR_MONSTRO:
+						break;
+					case LOGAR:
+						System.out.println("Logando...");
+						logarNaPrimeiraVezSlave();
+						slaveEstado = Comando.IDLE;
+						break;
+					case INICIAR_INSTANCIA:
+						System.out.println("Iniciando instancia...");
+						iniciarInstanciaSlave();
+						slaveEstado = Comando.IDLE;
+						break;
+					case DESLOGAR_LOGAR_OUTRO_PERSONAGEM:
+						System.out.println("Deslogando e logando outro personagem...");
+						deslogarPersonagemContaIniciarInstanciaSlave();
+						slaveEstado = Comando.IDLE;
+						break;
+					case PARAR_BOT:
+						System.out.println("Parando o bot...");
+						fecharBot();
+						break;
+					case PRINTAR_TELA:
+						break;
+					default:
+						break;
+				}
+			}
+		}
 
 		while (ligarBot) {
 			long startTime = System.currentTimeMillis();
@@ -292,25 +448,24 @@ public class GameController implements Runnable {
 				}
 			}
 
+			/*
+			 * System.out.println("Tesde de baixo"); boolean tesste = true; if (tesste) {
+			 * bot.sleep(100); continue; }
+			 */
+
 			if (horaDeBuffar) {
-				System.out.println("Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar");
-				System.out.println("Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar");
-				System.out.println("Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar");
-				
+				System.out.println(
+						"Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar");
+				System.out.println(
+						"Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar");
+				System.out.println(
+						"Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar Hora de buffar");
+
 				if (!bot.buffs.isEmpty()) {
-					int contador = 1;
-					for (Buff b : bot.buffs) {
-						System.out.println("Buffando o " + contador + " buff");
-						int tecla = b.getTecla();
-						bot.apertarTecla(tecla);
-						if (!b.isSelf()) {
-							bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight() / 2);
-							bot.sleep(50);
-							bot.clicarMouse();
-						}
-						bot.sleep(200);
-						contador++;
-					}
+
+					buffar();
+
+					System.out.println("Saiu do loop dos buffs, continuando o fluxo");
 				}
 				horaDeBuffar = false;
 				System.out.println("Rota aumentada !");
@@ -322,7 +477,7 @@ public class GameController implements Runnable {
 					finalizarRota(script, 5);
 				}
 			}
-			
+
 			int timeRand = ThreadLocalRandom.current().nextInt(5000, 10001);
 			if (bot.tempoPassou(timeRand)) {
 				if (bot.getHpAtual() <= 1) {
@@ -333,8 +488,9 @@ public class GameController implements Runnable {
 					voltarBase();
 				}
 			}
-			
-			//Essa parte é só pra nao verificar o cd do cometa durante um refresh, pra dar um tempo de refreshar e depois olhar a imagem do cometa
+
+			// Essa parte é só pra nao verificar o cd do cometa durante um refresh, pra dar
+			// um tempo de refreshar e depois olhar a imagem do cometa
 			if (aguardarCdRefresh) {
 				if (System.currentTimeMillis() - tempoCooldownRefresh >= 3000) {
 					aguardarCdRefresh = false;
@@ -342,7 +498,7 @@ public class GameController implements Runnable {
 					System.out.println("Acabou de dar refrsh, só mantendo a variavel aguardarCdRefresh true");
 				}
 			}
-			
+
 			if (System.currentTimeMillis() - tempoPm >= 30000) {
 				tempoPm = System.currentTimeMillis();
 				System.out.println("Verificando se recebesse PMS");
@@ -366,7 +522,7 @@ public class GameController implements Runnable {
 				int tempoRandom = ThreadLocalRandom.current().nextInt(13000, 15001);
 				if (tempoAtual - tempoVeloGoma >= tempoRandom) {
 					tempoVeloGoma = tempoAtual;
-					
+
 					List<Integer> status = bot.listarStatus();
 					boolean gomaEncontrada = false;
 					boolean velocidadeEncontrada = false;
@@ -380,38 +536,33 @@ public class GameController implements Runnable {
 							velocidadeEncontrada = true;
 						}
 						if (buffs == Effects.ARMA_REMOVIDO.getId() || buffs == Effects.ESCUDO_REMOVIDO.getId()
-								|| buffs == Effects.ARMADURA_REMOVIDO.getId() || buffs == Effects.ELMO_REMOVIDO.getId()) {
+								|| buffs == Effects.ARMADURA_REMOVIDO.getId()
+								|| buffs == Effects.ELMO_REMOVIDO.getId()) {
 							boolean isMapaFarme = false;
-							/*BufferedImage imagemRef = null;
-							String path = "";
-							if (script.getMapa().equals("bio.png")) {
-								path = "config/minimapas/bio.png";
-							}
-							if (script.getMapa().equals("chef.png")) {
-								path = "config/minimapas/chef.png";
-							}
-							try {
-								imagemRef = ImageIO.read(new File(path));
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
-							// Captura do minimapa atual
-							Rectangle captureArea = new Rectangle(bot.getxJanela() + 880, bot.getyJanela() + 16, 128, 128);
-							BufferedImage minimapaAtual = bot.getRobot().createScreenCapture(captureArea);
-							isMapaFarme = bot.compararImagens(imagemRef, minimapaAtual, 30.0);
-							System.out.println("Verificando se está no mapa de farme pra usar veneno: " + isMapaFarme);
-							
-							if (isMapaFarme) {
-								int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVeneno());
-								bot.apertarTecla(atalho);
-							}*/
-							
+							/*
+							 * BufferedImage imagemRef = null; String path = ""; if
+							 * (script.getMapa().equals("bio.png")) { path = "config/minimapas/bio.png"; }
+							 * if (script.getMapa().equals("chef.png")) { path =
+							 * "config/minimapas/chef.png"; } try { imagemRef = ImageIO.read(new
+							 * File(path)); } catch (IOException e) { e.printStackTrace(); } // Captura do
+							 * minimapa atual Rectangle captureArea = new Rectangle(bot.getxJanela() + 880,
+							 * bot.getyJanela() + 16, 128, 128); BufferedImage minimapaAtual =
+							 * bot.getRobot().createScreenCapture(captureArea); isMapaFarme =
+							 * bot.compararImagens(imagemRef, minimapaAtual, 30.0);
+							 * System.out.println("Verificando se está no mapa de farme pra usar veneno: " +
+							 * isMapaFarme);
+							 * 
+							 * if (isMapaFarme) { int atalho =
+							 * KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVeneno());
+							 * bot.apertarTecla(atalho); }
+							 */
+
 							String mapaScript = getNomeMapa();
 							String mapaMemoria = bot.obterMapa();
 							isMapaFarme = mapaScript.equals(mapaMemoria);
 							System.out.println("Mapa script: " + mapaScript + " | Mapa atual: " + mapaMemoria);
 							System.out.println("Verificando se está no mapa de farme pra usar veneno: " + isMapaFarme);
-							
+
 							if (isMapaFarme) {
 								int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVeneno());
 								bot.apertarTecla(atalho);
@@ -425,7 +576,8 @@ public class GameController implements Runnable {
 						bot.sleep(500);
 					}
 					if (!velocidadeEncontrada && JanelaPrincipal.obterVelocidade() == true) {
-						System.out.println("Tá sem velocidade e o botão de velocidade está ativo... Potando velocidade");
+						System.out
+								.println("Tá sem velocidade e o botão de velocidade está ativo... Potando velocidade");
 						int atalhoVelocidade = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoVelocidade());
 						bot.apertarTecla(atalhoVelocidade);
 						bot.sleep(500);
@@ -445,7 +597,12 @@ public class GameController implements Runnable {
 			} else {
 				monstros = bot.listaMonstros();
 
+				// List<Coordenadas> coordenadasMonstrosAtrasDaParede = new ArrayList<>();
 				if (verificarModoInstanciaProcura()) {
+
+					coordsMonstrosAtrasParede.removeIf(
+							c -> c.x >= atual.x - 9 && c.x <= atual.x + 9 && c.y >= atual.y - 9 && c.y <= atual.y + 9);
+
 					List<MatOfPoint> monstrosAtrasParede = monstros.get("monstrosAtrasParede");
 
 					// Set temporário para evitar duplicações
@@ -456,6 +613,7 @@ public class GameController implements Runnable {
 						int centerX = m.x + m.width / 2;
 						int centerY = m.y + m.height / 2 + 10;
 						Coordenadas destinoBixo = bot.getCoordenadasTelaDoBixo(atual, centerX, centerY);
+						// coordenadasMonstrosAtrasDaParede.add(destinoBixo);
 
 						Boolean isAndavel = mapaCarregado.get(destinoBixo);
 						System.out.println("Coordenadas analisada x: " + destinoBixo.x + " y: " + destinoBixo.y + " | "
@@ -465,9 +623,9 @@ public class GameController implements Runnable {
 							boolean podeAdicionar = true;
 
 							for (Coordenadas coord : coordenadasUnicas) {
-								int difX = Math.abs(destinoBixo.x - coord.x);
-								int difY = Math.abs(destinoBixo.y - coord.y);
-								if (difX <= 3 && difY <= 3) {
+								double dist = Math.sqrt(
+										Math.pow(destinoBixo.x - coord.x, 2) + Math.pow(destinoBixo.y - coord.y, 2));
+								if (dist <= 3) { // distância real, não só X e Y
 									podeAdicionar = false;
 									break;
 								}
@@ -516,7 +674,41 @@ public class GameController implements Runnable {
 				}
 			}
 
-			if (verificarSeLimpouOldGh) {
+			if (verificarSeLimpouTomb) {
+				if (System.currentTimeMillis() - tempoVerificacaoTomb <= 3000) {
+					System.out.println("Analisando Tomb of Remorse");// lucascotoco
+
+					int x = bot.getxJanela() + 535;
+					int y = bot.getyJanela() + 45;
+					int width = 146;
+					int height = 116;
+					Color azulTexto = new Color(0, 66, 255);
+					int pixels = bot.contarPixels(azulTexto, x, y, width, height);
+
+					if (pixels > 100) { // Encontrou a mensagem azul
+						if (rota == 0) {
+							System.out.println("Indo para o portal dos bixos iniciais...");
+							passo = script.getRotas().get(0).getPassos().size() - 1;
+							verificarSeLimpouTomb = false;
+							coordsMonstrosAtrasParede.clear();
+						} else if (rota == 1 && pixels == 307) {
+							System.out.println("Indo para o centro para buffar...");
+							passo = script.getRotas().get(1).getPassos().size() - 1;
+							verificarSeLimpouTomb = false;
+							coordsMonstrosAtrasParede.clear();
+						} else if (rota == 6 && (pixels == 612 || pixels == 308)) {
+							System.out.println("Indo para o portal para o ultimo chefe...");
+							passo = script.getRotas().get(6).getPassos().size() - 1;
+							verificarSeLimpouTomb = false;
+							coordsMonstrosAtrasParede.clear();
+						}
+					}
+
+				} else {
+					tempoVerificacaoTomb = System.currentTimeMillis();
+					verificarSeLimpouTomb = false;
+				}
+			} else if (verificarSeLimpouOldGh) {
 				if (System.currentTimeMillis() - tempoVerificacaoOldGH <= 2000) {
 					System.out.println("Analisando Old GH");
 					boolean areaLimpa = bot.detectarPixelsAmarelos(bot.getxJanela() + 222, bot.getyJanela() + 40, 658,
@@ -566,16 +758,11 @@ public class GameController implements Runnable {
 				// Lógica de andar
 				if (personagemParado) {
 					if (System.currentTimeMillis() - ultimoUpdateTela >= 5000) {
-						//Pala não é pra refrashar a tela
+						// Pala não é pra refrashar a tela
 						if (!JanelaPrincipal.obterClasseSelecionada().equals("pala")) {
-							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
-							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
-							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
-							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
-							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
-							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
-							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
-							System.out.println("PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
+							System.out.println(
+									"PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO PERSONAGEM PARADO ");
+
 							int refresh = skillsConfig.getRefresh();
 							bot.atalhoAltM(refresh);
 						}
@@ -603,13 +790,18 @@ public class GameController implements Runnable {
 						|| !monstros.getOrDefault("amarelo", List.of()).isEmpty()) {
 					atacar(monstros);
 
+					// Verificar se matou todos os bixos de certas partes de tomb of remorse
+					if (script.getMapa().equals("tomb_of_remorse.png") && (rota == 0 || rota == 1 || rota == 6)) {
+						verificarSeLimpouTomb = true;
+						tempoVerificacaoTomb = System.currentTimeMillis();
+					}
 					// Verificar se matou todos os bixos de cada lado de old gh
-					if (script.getMapa().equals("old_glast_heim.png") && passo >= 10 && (rota == 2 || rota == 3)) {
+					else if (script.getMapa().equals("old_glast_heim.png") && passo >= 10 && (rota == 2 || rota == 3)) {
 						System.out.println("Ja passou do passo 10 e ta na esquerda ou direita");
 						verificarSeLimpouOldGh = true;
 						tempoVerificacaoOldGH = System.currentTimeMillis();
 					}
-					
+
 					if (!stateMachine.getEstadoAtual().equals(Estado.NPC)) {
 						stateMachine.mudarEstado(Estado.ANDANDO);
 					}
@@ -643,6 +835,11 @@ public class GameController implements Runnable {
 					interagirComAKafraRetirarEquips();
 					continue;
 				}
+				if (cliclandoNpcManual) {
+					System.out.println("Clicando manual no npc...");
+					clickNpc();
+					continue;
+				}
 
 				// stateMachine.mudarEstado(Estado.ANDANDO);
 				break;
@@ -672,23 +869,80 @@ public class GameController implements Runnable {
 
 	private void processarLogicaMatarBoss() {
 		System.out.println("BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS");
-
+		Skill skillDisponivel = null;
+		int pixels = 0;
 		do {
 			monstros = bot.procurarBoss();
-
+			skillDisponivel = getAvailableSkill("rosa");
 			if (!monstros.getOrDefault("amarelo", List.of()).isEmpty()) {
 				foundBoss = true;
 				startTimeBoss = System.currentTimeMillis(); // Reseta o timer sempre que encontrar um boss
-				atacar(monstros);
+				// atacar(monstros);
+
+				// Atacando o boss
+				MatOfPoint monstro = null;
+				// Boss
+				List<MatOfPoint> monstrosAmarelo = monstros.computeIfAbsent("amarelo", k -> new ArrayList<>());
+				if (!monstrosAmarelo.isEmpty()) {
+					monstrosAmarelo.sort(Comparator.comparingDouble(m -> bot.calcularDistanciaCentro(m)));
+
+					if (skillDisponivel != null) {
+						monstro = monstrosAmarelo.get(0);
+
+						Rect m = Imgproc.boundingRect(monstro);
+						int centerX = m.x + m.width / 2;
+						int centerY = m.y + m.height / 2 + 10;
+						// Coordenadas coord =
+						// bot.getCoordenadasTelaDoBixo(bot.obterCoordenadasMemoria(), centerX,
+						// centerY);
+						bot.moverMouse(bot.getxJanela() + centerX, bot.getyJanela() + centerY);
+						bot.apertarSegurarTecla(skillDisponivel.getTecla());
+						// System.out.println("Segurando tecla, boss está em: " + coord);
+
+					}
+				}
+				// fim atacando o boss
+
 				stateMachine.mudarEstado(Estado.ANDANDO);
+				tentativaEncontrarBoss = 10;
 			} else {
 				foundBoss = false;
+				tentativaEncontrarBoss--;
+				System.out.println("Tentativas de encontrar o Boss: " + tentativaEncontrarBoss);
+			}
+
+			if (script.getMapa().equals("tomb_of_remorse.png")) {
+				if (script.getRotas().get(rota).getVerificacao().isTerminaNoBoss() == false) {
+					// contar a quantidade de pixels azul que aparece quando mata a veia, usa a
+					// funcao no teste de cima pora com a imagem 973
+					int x = bot.getxJanela() + 535;
+					int y = bot.getyJanela() + 45;
+					int width = 146;
+					int height = 116;
+					Color azulTexto = new Color(0, 66, 255);
+					pixels = bot.contarPixels(azulTexto, x, y, width, height);
+				}
+				if (script.getRotas().get(rota).getVerificacao().isTerminaNoBoss() == true) {
+					// contar a quantidade de pixels laranja pra saber se ja foi |||||||||||||||||
+					// ai no while fazer um && pixels == 0
+					int x = bot.getxJanela() + 412;
+					int y = bot.getyJanela() + 75;
+					int width = 300;
+					int height = 32;
+					Color laranjaItemObtido = new Color(230, 66, 0);
+					pixels = bot.contarPixels(laranjaItemObtido, x, y, width, height);
+				}
 			}
 
 			bot.sleep(100);// velocidade de atk
 
-		} while ((System.currentTimeMillis() - startTimeBoss) < maxSearchTime || foundBoss);
+			// fazer um && pixels == 0 para isTerminaNoBoss false, e verificar qtd pixels
+			// laranja no ultimo boss relax man vai ser izi içai
 
+		} while (((System.currentTimeMillis() - startTimeBoss) < maxSearchTime || foundBoss
+				|| tentativaEncontrarBoss > 0) && pixels < 500);
+
+		bot.soltarTecla(skillDisponivel.getTecla());
 		// Se saiu do loop, significa que não achou boss por 5 segundos
 		if (script.getRotas().get(rota).getVerificacao().isTerminaNoBoss()) {
 			System.out.println("Termina no chefe, indo para verificação de finalização de instancia");
@@ -731,6 +985,43 @@ public class GameController implements Runnable {
 		Coordenadas novaCoordenada = new Coordenadas(novaX, novaY);
 		bot.moverPersonagemComClick(atual, novaCoordenada);
 		System.out.println("Movimento forçado para evitar inatividade.");
+
+		// if (JanelaPrincipal.instanciaRadioButton.isSelected()) {
+		List<MatOfPoint> balao = bot.balaoNpc();
+		System.out.println("tamanho balao UEUEUEU " + balao.size());
+
+		if (!balao.isEmpty()) {
+			bot.apertarTecla(KeyEvent.VK_ENTER);
+		}
+		// }
+	}
+
+	private void clickNpc() {
+		stateMachine.mudarEstado(Estado.NPC);
+
+		System.out.println("Tentando falar com npc manualmente");
+		Coordenadas npcCoord = new Coordenadas(0, 0);
+		if (script.getRotas().get(rota).getVerificacao().getNpccoordenadas().get(0) != null
+				&& script.getRotas().get(rota).getVerificacao().getNpccoordenadas().get(1) != null) {
+			int x = script.getRotas().get(rota).getVerificacao().getNpccoordenadas().get(0);
+			int y = script.getRotas().get(rota).getVerificacao().getNpccoordenadas().get(1);
+			npcCoord = new Coordenadas(x, y);
+			System.out.println("Coord npc: " + npcCoord.toString());
+		}
+
+		List<MatOfPoint> balao = new ArrayList<MatOfPoint>();
+		do {
+			Coordenadas atualCoord = bot.obterCoordenadasMemoria();
+			bot.setarMouseEmCoordenadaTela(atualCoord, npcCoord);
+			bot.sleep(500);
+			bot.clicarMouse();
+			bot.sleep(1000);
+			balao = bot.verificarBalaoNpcTeleport();
+			bot.sleep(1000);
+		} while (balao.isEmpty());
+
+		cliclandoNpcManual = false;
+		interagindoComNpc = true;
 	}
 
 	private void falarComNpc() {
@@ -757,7 +1048,7 @@ public class GameController implements Runnable {
 						bot.sleep(500);
 						hp = bot.getHpAtual();
 						bot.sleep(500);
-					} while(hp > 1);
+					} while (hp > 1);
 					System.out.println("Personagem morto...");
 					int base = skillsConfig.getGoBase();
 					bot.atalhoAltM(base);
@@ -773,7 +1064,7 @@ public class GameController implements Runnable {
 				bot.sleep(30);
 				bot.clicarMouse();
 				bot.sleep(100);
-				
+
 				List<Integer> status = bot.listarStatus();
 				for (int buffs : status) {
 					if (buffs == Effects.BLESSING.getId()) {
@@ -781,34 +1072,35 @@ public class GameController implements Runnable {
 						falouComCurandeiro = true;
 					}
 				}
-				
+
 				if (!falouComCurandeiro) {
 					return;
 				}
-				
-				//Equipar os itens caso esteja quebrados ou desequipados
+
+				// Equipar os itens caso esteja quebrados ou desequipados
 				int x = barraSkills.x + 4;
 				int y = barraSkills.y + 18;
 				boolean barra1 = true;
 				do {
 					System.out.println("Mudando pra segunda barra");
 					BufferedImage barraVerificada = bot.printarParteTela(x, y, 8, 11);
-					barra1 = bot.compararImagens(barra, barraVerificada, 2); //true barra1 | false barra2
+					barra1 = bot.compararImagens(barra, barraVerificada, 2); // true barra1 | false barra2
 					if (barra1 == true) {
 						bot.sleep(100);
 						bot.moverMouse(bot.getxJanela() + x + 4, bot.getyJanela() + y + 5);
 						bot.sleep(100);
 						bot.clicarMouse();
 						bot.sleep(100);
-						bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight()/2);
+						bot.moverMouse(bot.getxJanela() + bot.getWidth() / 2, bot.getyJanela() + bot.getHeight() / 2);
 						bot.sleep(500);
 					}
 					System.out.println("barra1: " + barra1);
-				} while(barra1 == true);
-				
-				System.out.println("Equipando os itens... e verificando a quantidade de pixel verde pra saber se equipou tudo...");
+				} while (barra1 == true);
+
+				System.out.println(
+						"Equipando os itens... e verificando a quantidade de pixel verde pra saber se equipou tudo...");
 				int contador = 0;
-				Color verde = new Color(0,255,8);
+				Color verde = new Color(0, 255, 8);
 				int tentativas = 0;
 				do {
 					for (int i = 0; i < skillsConfig.getAtalhoEquipamento().size(); i++) {
@@ -818,31 +1110,33 @@ public class GameController implements Runnable {
 						bot.sleep(200);
 						tentativas++;
 					}
-					
+
 					// Se atingir 3 tentativas, sai do loop
-			        if (tentativas >= 3) {
-			            System.out.println("Número máximo de tentativas atingido!");
-			            break;
-			        }
-					
-					contador = bot.contarPixels(verde, bot.getxJanela() + barraSkills.x, bot.getyJanela() + barraSkills.y, barraSkills.width, 34);
-					System.out.println("Quantidades de verde: " + contador + " é maior que 7450? " + (contador < 7450 ? false:true));
-				} while(contador < 7450);
-				
+					if (tentativas >= 3) {
+						System.out.println("Número máximo de tentativas atingido!");
+						break;
+					}
+
+					contador = bot.contarPixels(verde, bot.getxJanela() + barraSkills.x,
+							bot.getyJanela() + barraSkills.y, barraSkills.width, 34);
+					System.out.println("Quantidades de verde: " + contador + " é maior que 7450? "
+							+ (contador < 7450 ? false : true));
+				} while (contador < 7450);
+
 				do {
 					System.out.println("Mudando pra primeira barra");
 					BufferedImage barraVerificada = bot.printarParteTela(x, y, 8, 11);
-					barra1 = bot.compararImagens(barra, barraVerificada, 2); //true barra1 | false barra2
+					barra1 = bot.compararImagens(barra, barraVerificada, 2); // true barra1 | false barra2
 					if (barra1 == false) {
 						bot.sleep(100);
 						bot.moverMouse(bot.getxJanela() + x + 4, bot.getyJanela() + y + 5);
 						bot.sleep(100);
 						bot.clicarMouse();
 						bot.sleep(100);
-						bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight()/2);
+						bot.moverMouse(bot.getxJanela() + bot.getWidth() / 2, bot.getyJanela() + bot.getHeight() / 2);
 						bot.sleep(500);
 					}
-				} while(barra1 == false);
+				} while (barra1 == false);
 				System.out.println("Equipamentos equipados com o sucesso de um equipador");
 			}
 
@@ -1001,6 +1295,10 @@ public class GameController implements Runnable {
 				coordsMonstrosAtrasParede.remove(0);
 			} else {
 				List<Coordenadas> caminhoAteOBixo = aStar.encontrarCaminho(grafo, atual, destinoBixo);
+				if (caminhoAteOBixo.isEmpty()) {
+					coordsMonstrosAtrasParede.remove(0);
+					return;
+				}
 				Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOBixo, atual);
 				bot.moverPersonagem(atual, coordDestino, mapaCarregado);
 				System.out.println("Indo até o monstro atrás da parede x: " + destinoBixo.x + " y: " + destinoBixo.y);
@@ -1011,63 +1309,34 @@ public class GameController implements Runnable {
 		// this.listaDeFarmBioChef.size());
 		System.out.println("Rota atual: " + script.getRotas().get(rota).getDescricao());
 
-		// Processar verificação específica da rota
-		processarVerificacao(script, distanciaMinima);
+		if (script.getRotas().get(rota).getPassos().get(passo).getPortal() != null) {
+			if (bot.calcularDistancia(atual, obterDestinoAtual(script)) <= distanciaMinima) {
+				System.out.println("Dormindo por 3s para dar tempo de entrar no portal");
+				bot.sleep(3000);
+			}
+		}
+		
+		//Fazer verificar a ultima coordenada so em tomb na parte da veia
+		if (script.getMapa().equals("tomb_of_remorse.png")
+				&& script.getRotas().get(rota).getVerificacao().getVerificarFinal() != null) {
+			if (passo == script.getRotas().get(rota).getPassos().size() - 1) { //so verifica no ultimo passo
+				processarVerificacao(script, distanciaMinima);
+			}
+		} else {
+			// Processar verificação específica da rota
+			processarVerificacao(script, distanciaMinima);
+		}
 
 		Coordenadas destino = obterDestinoAtual(script);
-		// System.out.println("Atual: " + atual + " | destino: " + destino);
-
-		// caminhoAlternativo = aStar.calcularCaminhoComExpansao10(atual, destino,
-		// grafo);
+		
 		caminhoCalculado = aStar.encontrarCaminho(grafo, atual, destino);
 		
-		//Modo BioChef
-		//Só testando mesmo... Codigo adicionado pra nao fazer o mouse focar nas coordenadsa finais fazendo o personagem parar algumas vezes
-		//Se ficar ruim so apagar
-		/*if (script.getMapa().equals("bio.png") || script.getMapa().equals("chef.png")) {
-		    if (caminhoCalculado.size() < 14) {
-		        int passoAlt = passo + 1;
-		        int rotaAlt = rota;
-
-		        // Verifica se 'rota' está dentro dos limites
-		        if (!script.getRotas().isEmpty() && rota < script.getRotas().size()) {
-		            if (passoAlt >= script.getRotas().get(rota).getPassos().size()) {
-		                passoAlt = 0;
-		                rotaAlt += 1;
-		                
-		                // Garante que 'rotaAlt' esteja dentro dos limites
-		                if (rotaAlt >= script.getRotas().size()) {
-		                    rotaAlt = 0;
-		                }
-		            }
-
-		            // Verifica se 'rotaAlt' está dentro dos limites e tem passos
-		            if (rotaAlt < script.getRotas().size() && 
-		                !script.getRotas().get(rotaAlt).getPassos().isEmpty() &&
-		                passoAlt < script.getRotas().get(rotaAlt).getPassos().size()) {
-		                
-		                List<Integer> coordenadas = script.getRotas().get(rotaAlt).getPassos().get(passoAlt).getCoordenadas();
-
-		                // Verifica se há pelo menos duas coordenadas
-		                if (coordenadas.size() >= 2) {
-		                    int xAlt = coordenadas.get(0);
-		                    int yAlt = coordenadas.get(1);
-		                    Coordenadas destinoAlt = new Coordenadas(xAlt, yAlt);
-		                    caminhoCalculado = aStar.encontrarCaminho(grafo, atual, destinoAlt);
-		                }
-		            }
-		        }
-		    }
-		}*/
 
 		Coordenadas destinoAlt = bot.escolherProximaCoordenada(caminhoCalculado, atual);
 
 		// Verificar se o destino foi alcançado
 		if (bot.calcularDistancia(atual, destino) <= distanciaMinima) {
-			if (script.getRotas().get(rota).getPassos().get(passo).getPortal() != null) {
-				System.out.println("Dormindo por 3s para dar tempo de entrar no portal");
-				bot.sleep(3000);
-			}
+			System.out.println("Destino: " + destino);
 			passo++;
 			System.out.println("Destino alcançado, mudando para a próxima rota.");
 
@@ -1096,20 +1365,27 @@ public class GameController implements Runnable {
 		case "loop":
 			reiniciarRota();
 			break;
+		case "npcClickManual":
 		case "npc":
 			mudarEstadoParaNpc();
 			break;
 		case "sleep":
-			delayProBoss();
+			usarProtegerTerreno();
+			int tempo = 2000;
+			if (script.getRotas().get(rota).getVerificacao().getTempo() != null) {
+				tempo = script.getRotas().get(rota).getVerificacao().getTempo();
+			}
+			delayProBoss(tempo);
 			break;
 		case "buffs":
+			bot.soltarMouse();
 			ativarBuff();
 			break;
 		default:
 			System.out.println("Tipo de verificação desconhecido: " + verificacao);
 		}
 	}
-	
+
 	private void ativarBuff() {
 		System.out.println("Buffando Buffando Buffando Buffando Buffando Buffando Buffando Buffando Buffando ");
 		System.out.println("Buffando Buffando Buffando Buffando Buffando Buffando Buffando Buffando Buffando ");
@@ -1117,9 +1393,11 @@ public class GameController implements Runnable {
 		bot.sleep(1000);
 	}
 
-	private void delayProBoss() {
-		System.out.println("Mimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindo");
-		bot.sleep(2000);
+	private void delayProBoss(int tempo) {
+		System.out
+				.println("Mimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindoMimindo mimindo");
+		bot.moverMouse(bot.getxJanela() + bot.getWidth() / 2, bot.getyJanela() + bot.getHeight() / 2);
+		bot.sleep(tempo);
 		System.out.println("Rota aumentada !");
 		rota++;
 		elseAcoes = 0;
@@ -1185,12 +1463,32 @@ public class GameController implements Runnable {
 			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
 			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
 			System.out.println("ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ACABOU ");
+			bot.sleep(1000);
+
+			if (script.getMapa().equals("tomb_of_remorse.png")) {
+				System.out.println("Indo para o portal para sair da instancia");
+				Coordenadas destino = new Coordenadas(74, 115);
+				Coordenadas portal = new Coordenadas(212, 50);
+
+				do {
+					Coordenadas cAtual = bot.obterCoordenadasMemoria();
+					List<Coordenadas> caminhoAteOPortal = aStar.encontrarCaminho(grafo, cAtual, portal);
+					Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOPortal, cAtual);
+					bot.moverPersonagem(cAtual, coordDestino, mapaCarregado);
+					bot.sleep(300);
+					List<MatOfPoint> balaoNpc = bot.balaoNpc();
+					if (!balaoNpc.isEmpty()) {
+						bot.apertarTecla(KeyEvent.VK_ENTER);
+					}
+				} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 5);
+				System.out.println("Entrou no portal e saiu da instancia!");
+			}
 
 			System.out.println("voltando para base");
-			bot.sleep(1000);
-			//String path = "config/minimapas/base.png";
+
+			// String path = "config/minimapas/base.png";
 			int voltarBase = skillsConfig.getGoBase();
-			//verificarSeMudouMapa(path, voltarBase);
+			// verificarSeMudouMapa(path, voltarBase);
 			mudarMapa(Mapa.BASE.getNome(), voltarBase);
 			System.out.println("Aguardando 3 segundos");
 			bot.sleep(1000);
@@ -1199,7 +1497,7 @@ public class GameController implements Runnable {
 			System.out.println("Aguardando 1 segundo");
 
 			System.out.println("Encerrando Instancia");
-			bot.encerrarInstancia();
+			//bot.encerrarInstancia();
 			System.out.println("Desequipando os equipamentos...");
 			bot.sleep(2000);
 
@@ -1237,6 +1535,10 @@ public class GameController implements Runnable {
 	}
 
 	private void deslogarPersonagemContaIniciarInstancia() {
+		if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+			//Mandar comando pro slave para logar
+			Mestre.enviarComando(Comando.DESLOGAR_LOGAR_OUTRO_PERSONAGEM);
+		}
 		int ultimoIndexConta = indexConta;
 		indexInstancia++;
 		if (indexInstancia > scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem)
@@ -1251,6 +1553,12 @@ public class GameController implements Runnable {
 				if (indexConta > scriptContas.getContas().size() - 1) {
 					indexConta = 0;
 					ligarBot = false;
+					System.out.println("Deslogando personagem");
+					bot.deslogarPersonagem();
+					if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+						//Mandar comando pro slave para logar
+						Mestre.enviarComando(Comando.PARAR_BOT);
+					}
 					fecharBot();
 					return;
 				}
@@ -1316,13 +1624,29 @@ public class GameController implements Runnable {
 			bot.clicarMouse();
 			bot.sleep(300);
 
-			// Fechar chat de npc
+			List<MatOfPoint> balaoNpc = new ArrayList<>();
+			int contador = 0;
+			do {
+				balaoNpc = bot.balaoNpc();
+				if (!balaoNpc.isEmpty()) {
+					break;
+				}
+				bot.sleep(1000);
+				contador++;
+			} while (contador < 10);
+			
+			while (!balaoNpc.isEmpty()) {
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+				bot.sleep(300);
+				balaoNpc = bot.balaoNpc();
+			}
+			/*// Fechar chat de npc
 			System.out.println("Apertando enter 2x para fechar chat de npc");
 			bot.apertarTecla(KeyEvent.VK_ENTER);
 			bot.sleep(300);
 			// Fechar chat de npc
 			bot.apertarTecla(KeyEvent.VK_ENTER);
-			bot.sleep(300);
+			bot.sleep(300);*/
 
 			System.out.println("Visão topdown");
 			bot.visaoDeCima();
@@ -1348,8 +1672,86 @@ public class GameController implements Runnable {
 
 		String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
 				.getInstancias().get(indexInstancia);
+		
+		
+		
+		
+		System.out.println("Verificando barra de skills");
+		int maior = 0;
+		String classe = JanelaPrincipal.obterClasseSelecionada();
+		for (Classes c : skillsConfig.getClasses()) {
+			if (c.getClasse().equals(classe)) {
+				for (Equipamentos e :c.getEquipamentos()) {
+					String posicao = e.getPosicao();
+					String posicaoNumero = posicao.split("-")[0];
+					int numero = Integer.parseInt(posicaoNumero);
+					if (numero > maior) {
+						maior = numero;
+					}
+				}
+			}
+		}
+		System.out.println("Maior numero das posições dos atalhos no f12 é " + maior);
+
+		List <MatOfPoint> barra = new ArrayList<>();
+		int tamanhoProcuradoDaBarra = maior * 33;
+		int altura = 0;
+		do {
+			System.out.println("Verificando tamanho da barra!!!");
+			System.out.println("Altura barra: " + barraSkills.height + " | tamanhoProcuradoDaBarra: " + tamanhoProcuradoDaBarra);
+			barra = bot.procurarBarraSkills();
+			if (!barra.isEmpty()) {
+				Rect r = Imgproc.boundingRect(barra.get(0));
+				altura = r.height;
+				if (altura > tamanhoProcuradoDaBarra - 5 && altura < tamanhoProcuradoDaBarra + 5) {
+					break;
+				}
+			}
+			
+			bot.sleep(1000);
+			bot.apertarTecla(KeyEvent.VK_F12);
+			bot.sleep(50);
+		} while (altura != tamanhoProcuradoDaBarra);
+		System.out.println("Saiu do loop");
+		barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
+		
+		Color corBarra = new Color(238, 247, 255);
+		int xx = bot.getxJanela() + barraSkills.x + barraSkills.width - 10;
+		int yy = bot.getyJanela() + barraSkills.y + barraSkills.height + 31;
+		Color corCapturada = new Color(238, 247, 255); // só pra forçar ser igual
+		
+		do {
+			System.out.println("Verificando se a barra branca de itens está ativa");
+			BufferedImage screenCapture = bot.getRobot().createScreenCapture(new Rectangle(xx, yy, 1, 1));
+			int pixelColor = screenCapture.getRGB(0, 0);
+			corCapturada = new Color(pixelColor);
+			bot.sleep(1000);
+			if (corBarra.getRGB() == corCapturada.getRGB()) {
+				bot.sleep(500);
+				bot.moverMouse(xx, yy + 6);
+				bot.sleep(500);
+				bot.clicarMouse();
+			}
+			
+		} while (corBarra.getRGB() == corCapturada.getRGB());
+		
+		
+		
+		
+		System.out.println("Buffando antes de começar a instancia");
+		buffar();
+		bot.sleep(1000);
+		if (classe.equals("sorc")) {
+			System.out.println("Equipando o acessório!");
+			equiparAcessorios(skillsConfig.getAtalhoAcessorio());
+		}
 		System.out.println("Executando instancia");
 		bot.executarInstancia(instancia);
+		
+		if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+			//Mandar comando pro slave para logar
+			Mestre.enviarComando(Comando.INICIAR_INSTANCIA);
+		}
 	}
 
 	private void reiniciarRota() {
@@ -1365,7 +1767,13 @@ public class GameController implements Runnable {
 		passo = 0;
 		passoAlternativo = 0;
 		stateMachine.mudarEstado(Estado.NPC);
+
 		tentandoFalarComNpc = true;
+		String verificacao = script.getRotas().get(rota).getVerificacao().getTipo();
+		if (verificacao.equals("npcClickManual")) {
+			tentandoFalarComNpc = false;
+			cliclandoNpcManual = true;
+		}
 	}
 
 	/*
@@ -1470,9 +1878,9 @@ public class GameController implements Runnable {
 			skill.use();
 			if (skill.getMain() == true && script.getMapa().equals("chef.png")) {
 				if (aguardarCdRefresh == false && verificarCooldownCometa(skill)) {
-					System.out.println("Voltando base...");
-					System.out.println("Voltando base...");
-					System.out.println("Voltando base...");
+					System.out.println("Voltando base... CD");
+					System.out.println("Voltando base... CD");
+					System.out.println("Voltando base... CD");
 					voltarBase();
 				}
 			}
@@ -1480,17 +1888,17 @@ public class GameController implements Runnable {
 		}
 		return false;
 	}
-	
+
 	private boolean verificarCooldownCometa(Skill skill) {
 		String[] partes = skill.getPosicao().split("-");
 		int barra = Integer.parseInt(partes[0]);
 		int pos = Integer.parseInt(partes[1]);
-			
-		int x = barraSkills.x + 16 + (pos-1)*24 + (pos-1)*5;
-		int y = barraSkills.y + 4 + (barra-1)*19 + (barra-1)*14;
-			
+
+		int x = barraSkills.x + 16 + (pos - 1) * 24 + (pos - 1) * 5;
+		int y = barraSkills.y + 4 + (barra - 1) * 19 + (barra - 1) * 14;
+
 		BufferedImage verificarCometa = bot.printarParteTela(x, y, 24, 19);
-			
+
 		if (bot.compararImagensCometa(cometa, verificarCometa, cometaPreto, 2)) {
 			System.out.println("Não está em cooldown");
 			return false;
@@ -1606,12 +2014,17 @@ public class GameController implements Runnable {
 	}
 
 	public void logarNaPrimeiraVez() {
+		if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+			//Mandar comando pro slave para logar
+			Mestre.enviarComando(Comando.LOGAR);
+		}
+		System.out.println("Aceitando o contrado");
 		bot.aceitarContrato();
 
 		System.out.println("Apertando enter na selecao de servidor");
 		bot.apertarTecla(KeyEvent.VK_ENTER);
 		bot.sleep(500);
-
+		// todo
 		String usuario = scriptContas.getContas().get(indexConta).getUsuario();
 		String senha = scriptContas.getContas().get(indexConta).getSenha();
 		String pin = scriptContas.getContas().get(indexConta).getPin();
@@ -1657,19 +2070,38 @@ public class GameController implements Runnable {
 		bot.sleep(300);
 		bot.clicarMouse();
 		bot.sleep(300);
+		
+		List<MatOfPoint> balaoNpc = new ArrayList<>();
+		int contador = 0;
+		do {
+			balaoNpc = bot.balaoNpc();
+			if (!balaoNpc.isEmpty()) {
+				break;
+			}
+			bot.sleep(1000);
+			contador++;
+		} while (contador < 10);
+		
+		while (!balaoNpc.isEmpty()) {
+			bot.apertarTecla(KeyEvent.VK_ENTER);
+			bot.sleep(300);
+			balaoNpc = bot.balaoNpc();
+		}
 
-		// Fechar chat de npc
+		/*// Fechar chat de npc
 		bot.apertarTecla(KeyEvent.VK_ENTER);
 		bot.sleep(300);
 		// Fechar chat de npc
 		bot.apertarTecla(KeyEvent.VK_ENTER);
-		bot.sleep(300);
+		bot.sleep(300);*/
+		
+		barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
 
 		// Selecionar Instancias
 		// Abrir Janela de instancias
 		String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
 				.getInstancias().get(indexInstancia);
-		//bot.executarInstancia(instancia);
+		// bot.executarInstancia(instancia);
 		stateMachine.mudarEstado(Estado.NPC);
 		tentandoFalarComNpc = true;
 		pegarEquipsArmazem = true;
@@ -1686,7 +2118,7 @@ public class GameController implements Runnable {
 		if (script.getMapa() == null) {
 			return;
 		}
-		
+
 		if (stateMachine.getEstadoAtual().equals(Estado.NPC)) {
 			System.out.println("Apertou pause durante fase de npc... PARANDO STONKS!!!");
 			pararBot();
@@ -1712,7 +2144,6 @@ public class GameController implements Runnable {
 	public void pararBot() {
 		System.out.println("Tecla 'O' pressionada. Parando o bot...");
 		ligarBot = false;
-		
 
 		resetarRotas();
 		resetarVariaveisVoltarFarme();
@@ -1748,6 +2179,7 @@ public class GameController implements Runnable {
 			GlobalScreen.unregisterNativeHook();
 		} catch (NativeHookException e) {
 		}
+		Bot.encerrarInterception();
 		System.exit(0);
 	}
 
@@ -1816,12 +2248,12 @@ public class GameController implements Runnable {
 	// notebook
 	private boolean verificarModoInstanciaProcura() {
 		String nomeMapa = script.getMapa();
-		if (nomeMapa.equals("old_glast_heim.png")) {
+		if (nomeMapa.equals("old_glast_heim.png") || nomeMapa.equals("tomb_of_remorse.png")) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	public void mudarMapa(String mapa, int altOpcao) {
 		boolean mapasIguais = false;
 		do {
@@ -1832,7 +2264,7 @@ public class GameController implements Runnable {
 			mapasIguais = mapaAtual.equals(mapa);
 			System.out.println("Mapa atual: " + mapaAtual + " | Mapa destino: " + mapa + " | Status: " + mapasIguais);
 			bot.sleep(1000);
-		} while(mapasIguais == false);
+		} while (mapasIguais == false);
 	}
 
 	public boolean verificarSeMudouMapa(String path, int altOpcao) {
@@ -1883,23 +2315,23 @@ public class GameController implements Runnable {
 	}
 
 	private void voltarBase() {
-		  //int labirinto = skillsConfig.getLabirintovalk();
-		//String path = "config/minimapas/valkiria.png";
-		//verificarSeMudouMapa(path, labirinto);
-		  //mudarMapa(Mapa.VALKIRIA.getNome(), labirinto); tulete
+		// int labirinto = skillsConfig.getLabirintovalk();
+		// String path = "config/minimapas/valkiria.png";
+		// verificarSeMudouMapa(path, labirinto);
+		// mudarMapa(Mapa.VALKIRIA.getNome(), labirinto); tulete
 		if (bot.getHpAtual() <= 1) {
-			
+
 			System.out.println("Como ta morrido, clicando no botao de voltar");
 			System.out.println("Loop do clique!!!");
-			
-			Scalar[] limites = bot.calcularLimites(255, 72, 0);//Cor laranja
+
+			Scalar[] limites = bot.calcularLimites(255, 72, 0);// Cor laranja
 			Scalar minLaranja = limites[0];
 			Scalar maxLaranja = limites[1];
-			
+
 			String mapaAtual = bot.obterMapa();
 			String verificarMapa = "";
-			
-			//Procurando o botao de voltar quando o personagem morre
+
+			// Procurando o botao de voltar quando o personagem morre
 			List<MatOfPoint> btnRetorno = new ArrayList<MatOfPoint>();
 			do {
 				btnRetorno = bot.encontrarCor(minLaranja, maxLaranja, 200, 250, 15, 25, false);
@@ -1908,48 +2340,48 @@ public class GameController implements Runnable {
 					bot.apertarTecla(KeyEvent.VK_ESCAPE);
 				} else {
 					Rect ma = Imgproc.boundingRect(btnRetorno.get(0));
-					bot.moverMouse(bot.getxJanela() + ma.x + ma.width/2, bot.getyJanela() + ma.y + ma.height/2);
+					bot.moverMouse(bot.getxJanela() + ma.x + ma.width / 2, bot.getyJanela() + ma.y + ma.height / 2);
 					bot.sleep(50);
 					bot.clicarMouse();
 				}
 				bot.sleep(100);
-			} while(btnRetorno.isEmpty());
+			} while (btnRetorno.isEmpty());
 			bot.sleep(1000);
-			//Procurando o botao de Ok para confirmar a volta pra base
+			// Procurando o botao de Ok para confirmar a volta pra base
 			List<MatOfPoint> btnOk = new ArrayList<MatOfPoint>();
 			do {
 				btnOk = bot.encontrarCor(minLaranja, maxLaranja, 35, 45, 17, 22, false);
-				System.out.println("Lista está do quadrado pequeno ta vazia? " + btnOk.isEmpty());
+				System.out.println("Lista do quadrado pequeno ta vazia? " + btnOk.isEmpty());
 				if (btnOk.isEmpty()) {
 					Rect ma = Imgproc.boundingRect(btnRetorno.get(0));
-					bot.moverMouse(bot.getxJanela() + ma.x + ma.width/2, bot.getyJanela() + ma.y + ma.height/2);
+					bot.moverMouse(bot.getxJanela() + ma.x + ma.width / 2, bot.getyJanela() + ma.y + ma.height / 2);
 					bot.sleep(50);
 					bot.clicarMouse();
 				} else {
 					Rect btn = Imgproc.boundingRect(btnOk.get(0));
-					bot.moverMouse(bot.getxJanela() + btn.x + btn.width/2, bot.getyJanela() + btn.y + btn.height/2);
+					bot.moverMouse(bot.getxJanela() + btn.x + btn.width / 2, bot.getyJanela() + btn.y + btn.height / 2);
 					bot.sleep(50);
 					bot.clicarMouse();
 				}
 				bot.sleep(100);
-			} while(btnOk.isEmpty());
-			
+			} while (btnOk.isEmpty());
+
 			bot.sleep(100);
-			
-			//verifica se está no mesmo mapa ainda, se estiver clica no botao ok
-			//else sai do loop
+
+			// verifica se está no mesmo mapa ainda, se estiver clica no botao ok
+			// else sai do loop
 			do {
 				verificarMapa = bot.obterMapa();
 				if (verificarMapa.equals(mapaAtual)) {
 					Rect btn = Imgproc.boundingRect(btnOk.get(0));
-					bot.moverMouse(bot.getxJanela() + btn.x + btn.width/2, bot.getyJanela() + btn.y + btn.height/2);
+					bot.moverMouse(bot.getxJanela() + btn.x + btn.width / 2, bot.getyJanela() + btn.y + btn.height / 2);
 					bot.sleep(50);
 					bot.clicarMouse();
 				} else {
 					break;
 				}
-			} while(verificarMapa.equals(mapaAtual));
-				
+			} while (verificarMapa.equals(mapaAtual));
+
 		} else {
 			List<MatOfPoint> balao = new ArrayList<MatOfPoint>();
 			System.out.println("Usando o cartao vip");
@@ -1958,32 +2390,30 @@ public class GameController implements Runnable {
 				bot.apertarTecla(atalho);
 				System.out.println("Apertando atalho do cartao vip");
 				bot.sleep(200);
-				//sai dowhile loop caso morra durante esse teste
+				// sai dowhile loop caso morra durante esse teste
 				if (bot.getHpAtual() <= 1) {
 					return;
 				}
 				balao = bot.verificarBalaoNpcTeleport();
-				
+
 			} while (balao.size() <= 0);
-			
+
 			bot.sleep(1000);
-			
+
 			System.out.println("npc teleporte vip aberto... apertando enter");
 			do {
 				System.out.println("Apertando enter pra sair do mapa de farme");
 				bot.apertarTecla(KeyEvent.VK_ENTER);
 				bot.sleep(100);
-			} while(estaEmMapaDeFarm(bot.obterMapa()));
+			} while (estaEmMapaDeFarm(bot.obterMapa()));
 			bot.sleep(1000);
 		}
-			
-		
 
-		//path = "config/minimapas/base.png";
+		// path = "config/minimapas/base.png";
 		int base = skillsConfig.getGoBase();
-		//isBase = verificarSeMudouMapa(path, base);
+		// isBase = verificarSeMudouMapa(path, base);
 		mudarMapa(Mapa.BASE.getNome(), base);
-		
+
 		String mapaAtual = bot.obterMapa();
 		if (mapaAtual.equals(Mapa.BASE.getNome())) {
 			Coordenadas cordsBase = new Coordenadas(242, 211);
@@ -1993,10 +2423,9 @@ public class GameController implements Runnable {
 				mesmaCoords = bot.compararCoordenadas(cordsBase, bot.obterCoordenadasMemoria());
 				System.out.println("Ja está na base? " + mesmaCoords);
 				bot.sleep(2000);
-			} while(mesmaCoords == false);
+			} while (mesmaCoords == false);
 		}
-		
-		
+
 		bot.sleep(2000);
 		// visao de cima
 		bot.visaoDeCima();
@@ -2007,7 +2436,7 @@ public class GameController implements Runnable {
 		System.out.println("Desligando andar forçado no voltarBase");
 		System.out.println("Desligando andar forçado no voltarBase");
 		System.out.println("Desligando andar forçado no voltarBase");
-		andarForcado = false;//as vezes ativava o andar forçado e o personagem não falava com o npc
+		andarForcado = false;// as vezes ativava o andar forçado e o personagem não falava com o npc
 		stateMachine.mudarEstado(Estado.NPC);
 	}
 
@@ -2019,30 +2448,30 @@ public class GameController implements Runnable {
 		if (mapa.equals("bio.png")) {
 			if (dificuldade.equals("normal")) {
 				if (sala.equals("1")) {
-					listaOpcoesFarmNpc = List.of(20, 1, 1, 1, 1);
+					listaOpcoesFarmNpc = List.of(20, 1, 1, 2, 1, 1);
 				} else if (sala.equals("2")) {
-					listaOpcoesFarmNpc = List.of(20, 1, 2, 1, 1);
+					listaOpcoesFarmNpc = List.of(20, 1, 2, 2, 1, 1);
 				}
 			} else if (dificuldade.equals("hard")) {
 				if (sala.equals("1")) {
-					listaOpcoesFarmNpc = List.of(20, 2, 1, 1, 1);
+					listaOpcoesFarmNpc = List.of(20, 2, 1, 2, 1, 1);
 				} else if (sala.equals("2")) {
-					listaOpcoesFarmNpc = List.of(20, 2, 2, 1, 1);
+					listaOpcoesFarmNpc = List.of(20, 2, 2, 2, 1, 1);
 				}
 			}
 		}
 		if (mapa.equals("chef.png")) {
 			if (dificuldade.equals("normal")) {
 				if (sala.equals("1")) {
-					listaOpcoesFarmNpc = List.of(21, 1, 1, 1, 1, 1, 1);
+					listaOpcoesFarmNpc = List.of(21, 1, 1, 1, 1, 2, 1, 1);
 				} else if (sala.equals("2")) {
-					listaOpcoesFarmNpc = List.of(21, 1, 1, 2, 1, 1, 1);
+					listaOpcoesFarmNpc = List.of(21, 1, 1, 2, 1, 2, 1, 1);
 				}
 			} else if (dificuldade.equals("hard")) {
 				if (sala.equals("1")) {
-					listaOpcoesFarmNpc = List.of(21, 1, 2, 1, 1, 1, 1);
+					listaOpcoesFarmNpc = List.of(21, 1, 2, 1, 1, 2, 1, 1);
 				} else if (sala.equals("2")) {
-					listaOpcoesFarmNpc = List.of(21, 1, 2, 2, 1, 1, 1);
+					listaOpcoesFarmNpc = List.of(21, 1, 2, 2, 1, 2, 1, 1);
 				}
 			}
 		}
@@ -2139,8 +2568,8 @@ public class GameController implements Runnable {
 						mapa = Mapa.BIONORMAL2.getNome();
 					}
 				}
-				//path = "config/minimapas/bio.png";
-				//verificarSeMudouMapa(path, -1);
+				// path = "config/minimapas/bio.png";
+				// verificarSeMudouMapa(path, -1);
 				mudarMapa(mapa, -1);
 				bot.sleep(1000);
 				bot.visaoDeCima();
@@ -2161,8 +2590,8 @@ public class GameController implements Runnable {
 						mapa = Mapa.CHEFNORMAL2.getNome();
 					}
 				}
-				//path = "config/minimapas/chef.png";
-				//verificarSeMudouMapa(path, -1);
+				// path = "config/minimapas/chef.png";
+				// verificarSeMudouMapa(path, -1);
 				mudarMapa(mapa, -1);
 				bot.sleep(1000);
 				bot.visaoDeCima();
@@ -2180,7 +2609,7 @@ public class GameController implements Runnable {
 					int base = skillsConfig.getGoBase();
 					bot.atalhoAltM(base);
 					bot.sleep(2000);
-					isBase = bot.compararCoordenadas(new Coordenadas(242,211), bot.obterCoordenadasMemoria());
+					isBase = bot.compararCoordenadas(new Coordenadas(242, 211), bot.obterCoordenadasMemoria());
 				} while (isBase == false);
 				resetarVariaveisVoltarFarme();
 				System.out.println("Resetando pra falar com os npcs de novo...");
@@ -2462,7 +2891,7 @@ public class GameController implements Runnable {
 				bot.selecionarOpcao(2);
 				passosInteragirKafraRemoverItens = 1;
 			}
-			
+
 			if (balao.isEmpty()) {
 				passosInteragirKafraRemoverItens = 2;
 			}
@@ -2538,11 +2967,63 @@ public class GameController implements Runnable {
 		passosInteragirKafraRemoverItens = 0;
 	}
 
+	private void buffar() {
+		List<Integer> buffsMemoria = bot.listarStatus();
+		boolean isBuffado = false;
+
+		do {
+
+			// Buffar todos que eu quero
+			for (Buff b : bot.buffs) {
+				if (!buffsMemoria.contains(b.getEffect().getId())) { // Se o buff não estiver na memoria, BUFFAR!
+					// usar o buff
+					if (b.getEffect().toString().equals(Effects.MYST_AMPLIFY.toString())) {
+						System.out.println("Equipando Solomon Pendant");
+						equiparAcessorios(skillsConfig.getAtalhoAcessorioSolomon());
+					}
+					if (b.getEffect().toString().equals(Effects.FADINHA.toString())) {
+						int atalhoInvocarFadinha = KeyMapper.getTeclaAtalho(skillsConfig.getAtalhoInvocarFainha());
+						bot.apertarTecla(atalhoInvocarFadinha);
+						bot.sleep(2000);
+					}
+					int tecla = b.getTecla();
+					bot.apertarTecla(tecla);
+					if (!b.isSelf()) {
+						bot.sleep(200);
+						bot.moverMouse(bot.getxJanela() + bot.getWidth() / 2,
+								bot.getyJanela() + bot.getHeight() / 2 + 10);
+						bot.sleep(500);
+						bot.clicarMouse();
+					} else { // Se o buff já está na memoria
+						System.out.println("Já está com " + b.getEffect().toString());
+						if (b.getEffect().toString().equals(Effects.MYST_AMPLIFY.toString())) {
+							System.out.println("Equipando o acessório normal");
+							equiparAcessorios(skillsConfig.getAtalhoAcessorio());
+						}
+					}
+				}
+			}
+
+			bot.sleep(500);
+			buffsMemoria = bot.listarStatus();
+
+			isBuffado = true;
+			for (Buff b : bot.buffs) {
+				if (!buffsMemoria.contains(b.getEffect().getId())) {
+					isBuffado = false;
+					break;
+				}
+			}
+
+			System.out.println("Está todo buffado? " + isBuffado);
+		} while (!isBuffado);
+	}
+
 	public void interagirComAKafra() {
 		// passosInteragirKafra = 0;
 		bot.sleep(200);
 		System.out.println("passosInteragirKafra: " + passosInteragirKafra);
-		
+
 		if (passosInteragirKafra == 0 || passosInteragirKafra == 1) {
 			System.out.println("Falando com a kafra");
 			List<MatOfPoint> balao = bot.verificarBalaoNpcTeleport();
@@ -2556,8 +3037,8 @@ public class GameController implements Runnable {
 			if (balao.size() == 2) {
 				bot.selecionarOpcao(2);
 				passosInteragirKafra = 1;
-			} 
-			
+			}
+
 			if (balao.isEmpty()) {
 				passosInteragirKafra = 2;
 			}
@@ -2668,7 +3149,7 @@ public class GameController implements Runnable {
 		}
 
 	}
-	
+
 	public String getNomeMapa() {
 		String mapa = "";
 		String dificuldade = JanelaPrincipal.obterDificuldadeSelecionada();
@@ -2707,61 +3188,54 @@ public class GameController implements Runnable {
 		}
 		return mapa;
 	}
-	
+
 	private boolean estaEmMapaDeFarm(String mapaMemoria) {
-	    return mapaMemoria.equals(Mapa.CHEFHARD1.getNome()) ||
-	           mapaMemoria.equals(Mapa.CHEFHARD2.getNome()) ||
-	           mapaMemoria.equals(Mapa.CHEFNORMAL1.getNome()) ||
-	           mapaMemoria.equals(Mapa.CHEFNORMAL2.getNome()) ||
-	           mapaMemoria.equals(Mapa.BIOHARD1.getNome()) ||
-	           mapaMemoria.equals(Mapa.BIOHARD2.getNome()) ||
-	           mapaMemoria.equals(Mapa.BIONORMAL1.getNome()) ||
-	           mapaMemoria.equals(Mapa.BIONORMAL2.getNome());
+		return mapaMemoria.equals(Mapa.CHEFHARD1.getNome()) || mapaMemoria.equals(Mapa.CHEFHARD2.getNome())
+				|| mapaMemoria.equals(Mapa.CHEFNORMAL1.getNome()) || mapaMemoria.equals(Mapa.CHEFNORMAL2.getNome())
+				|| mapaMemoria.equals(Mapa.BIOHARD1.getNome()) || mapaMemoria.equals(Mapa.BIOHARD2.getNome())
+				|| mapaMemoria.equals(Mapa.BIONORMAL1.getNome()) || mapaMemoria.equals(Mapa.BIONORMAL2.getNome());
 	}
-	
+
 	public void iniciarBotQualquerLugar() {
 		String mapa = getNomeMapa();
 		String mapaMemoria = bot.obterMapa();
 		System.out.println("Verificando mapa atual: " + mapaMemoria + " e mapa de destino: " + mapa);
-		
+
 		if (!mapa.equals(mapaMemoria)) {
-			 // Se estiver em um mapa de farm, vá para Valkiria primeiro
-	        if (estaEmMapaDeFarm(mapaMemoria)) {
-	            /*System.out.println("Saindo do mapa de farm e indo para Valkiria...");
-	            boolean isValk = false;
-	            do {
-	            	int valkiria = skillsConfig.getLabirintovalk();
-		            bot.atalhoAltM(valkiria);
-		            if (bot.obterMapa().equals(Mapa.VALKIRIA.getNome())) {
-		            	isValk = true;
-		            }
-		            bot.sleep(2000);
-	            } while(isValk == false);*/
-	        	
-	        	List<MatOfPoint> balao = new ArrayList<MatOfPoint>();
+			// Se estiver em um mapa de farm, vá para Valkiria primeiro
+			if (estaEmMapaDeFarm(mapaMemoria)) {
+				/*
+				 * System.out.println("Saindo do mapa de farm e indo para Valkiria..."); boolean
+				 * isValk = false; do { int valkiria = skillsConfig.getLabirintovalk();
+				 * bot.atalhoAltM(valkiria); if
+				 * (bot.obterMapa().equals(Mapa.VALKIRIA.getNome())) { isValk = true; }
+				 * bot.sleep(2000); } while(isValk == false);
+				 */
+
+				List<MatOfPoint> balao = new ArrayList<MatOfPoint>();
 				System.out.println("Usando o cartao vip");
 				do {
 					int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoCartaoVip());
 					bot.apertarTecla(atalho);
 					bot.sleep(200);
-					//sai dowhile loop caso morra durante esse teste
+					// sai dowhile loop caso morra durante esse teste
 					if (bot.getHpAtual() <= 1) {
 						return;
 					}
 					balao = bot.verificarBalaoNpcTeleport();
-					
+
 				} while (balao.size() <= 0);
-				
+
 				bot.sleep(1000);
-				
+
 				System.out.println("npc teleporte vip aberto... apertando enter");
 				do {
 					bot.apertarTecla(KeyEvent.VK_ENTER);
 					bot.sleep(100);
-				} while(estaEmMapaDeFarm(bot.obterMapa()));
+				} while (estaEmMapaDeFarm(bot.obterMapa()));
 				bot.sleep(1000);
-				
-	        }
+
+			}
 			System.out.println("Começando bot a partir da base...");
 			Coordenadas cordsBase = new Coordenadas(242, 211);
 			int base = skillsConfig.getGoBase();
@@ -2771,8 +3245,8 @@ public class GameController implements Runnable {
 				mesmaCoords = bot.compararCoordenadas(cordsBase, bot.obterCoordenadasMemoria());
 				System.out.println("Ja está na base? " + mesmaCoords);
 				bot.sleep(2000);
-			} while(mesmaCoords == false);
-			
+			} while (mesmaCoords == false);
+
 			tentandoFalarComNpc = true;
 			andarForcado = false;
 			stateMachine.mudarEstado(Estado.NPC);
@@ -2794,12 +3268,14 @@ public class GameController implements Runnable {
 					if (sk.getSelfSkill() != null) {
 						selfSkill = sk.getSelfSkill();
 					}
-					bot.skills.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange(), sk.getPosicao(), main, selfSkill));
+					bot.skills.add(new Skill(teclaAtalho, sk.getCor(), sk.getCd(), sk.getRange(), sk.getPosicao(), main,
+							selfSkill));
 				}
 				if (c.getBuffs() != null) {
 					for (Buffs b : c.getBuffs()) {
 						int teclaAtalho = KeyMapper.getTeclaAtalho(b.getAtalho());
-						bot.buffs.add(new Buff(teclaAtalho, b.getCd(), b.isSelf()));
+						Effects efeito = Effects.valueOf(b.getEffect());
+						bot.buffs.add(new Buff(teclaAtalho, b.getCd(), b.isSelf(), efeito));
 					}
 				}
 
@@ -2807,9 +3283,7 @@ public class GameController implements Runnable {
 			}
 		}
 	}
-	
-	
-	
+
 	/*
 	 * //notebook
 	 * 
@@ -2837,10 +3311,10 @@ public class GameController implements Runnable {
 	 * @Override public void nativeKeyTyped(NativeKeyEvent e) { // Não usado }
 	 */
 
-	
 	public Script getScript() {
 		return script;
 	}
+
 	public void setScript(Script script) {
 		this.script = script;
 	}
@@ -2904,5 +3378,289 @@ public class GameController implements Runnable {
 	public Bot getBot() {
 		return bot;
 	}
+
+	private void usarProtegerTerreno() {
+		Color protegerCor = new Color(166, 171, 15);
+		int x = bot.getxJanela() + (bot.getWidth() / 2) - 25;
+		int y = bot.getyJanela() + (bot.getHeight() / 2) - 25;
+		int width = 50;
+		int height = 50;
+
+		int pixelsProtegerTerreno = 0;
+		do {
+			pixelsProtegerTerreno = bot.contarPixels(protegerCor, x, y, width, height);
+			System.out.println("Quantidade de pixels amarelos: " + pixelsProtegerTerreno);
+
+			if (pixelsProtegerTerreno < 50) {
+				System.out.println("Usando Proteger terreno de fato!");
+				bot.soltarMouse();
+				bot.moverMouse(bot.getxJanela() + bot.getWidth() / 2 - 15, bot.getyJanela() + bot.getHeight() / 2);
+				if (skillsConfig.getProtegerTerreno() != null) {
+					System.out.println("Usando proteger terreno UHULLLLL");
+					int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getProtegerTerreno());
+					bot.apertarTecla(atalho);
+					bot.sleep(100);
+					bot.clicarMouse();
+				}
+				bot.sleep(1000);
+			}
+
+		} while (pixelsProtegerTerreno < 50);
+
+	}
+
+	public void equiparAcessorios(String atalho) {
+		// Pegando o atalho e posição do Solomon Pendament
+		String classeSelecionada = JanelaPrincipal.obterClasseSelecionada();
+		String[] partes = {};
+		for (Classes cl : skillsConfig.getClasses()) {
+			if (cl.getClasse().equals(classeSelecionada)) {
+				for (Equipamentos eq : cl.getEquipamentos()) {
+					if (eq.getAtalho().equals(atalho)) {
+						partes = eq.getPosicao().split("-");
+					}
+				}
+			}
+		}
+		int barra = Integer.parseInt(partes[0]);
+		int pos = Integer.parseInt(partes[1]);
+		int x = barraSkills.x + 16 + (pos - 1) * 24 + (pos - 1) * 5;
+		int y = barraSkills.y + 4 + (barra - 1) * 19 + (barra - 1) * 14;
+		BufferedImage captura = bot.printarParteTela(x, y, 24, 19);
+
+		int contador = 0;
+		Color verde = new Color(0, 255, 8);
+
+		int tolerancia = 10; // Pequena margem de variação
+
+		// System.out.println("Contador de pixels: " + bot.contarPixels(verde, x, y, 24,
+		// 19));
+		System.out.println("---------------");
+		do {
+			int atalhoSolomon = KeyMapper.getTeclaAtalho(atalho);
+			bot.apertarTecla(atalhoSolomon);
+			bot.sleep(100);
+
+			// Percorre cada pixel da imagem capturada
+			for (int i = 0; i < captura.getWidth(); i++) {
+				for (int j = 0; j < captura.getHeight(); j++) {
+					Color pixel = new Color(captura.getRGB(i, j));
+					// Se o pixel for da cor desejada, incrementa o contador
+					if (Math.abs(pixel.getRed() - verde.getRed()) <= tolerancia
+							&& Math.abs(pixel.getGreen() - verde.getGreen()) <= tolerancia
+							&& Math.abs(pixel.getBlue() - verde.getBlue()) <= tolerancia) {
+						contador++;
+					}
+				}
+			}
+			// 431
+			System.out.println(
+					"Quantidades de verde: " + contador + " é menor que 300? " + (contador < 300 ? true : false));
+		} while (contador < 300);
+	}
+	
+	
+	public void logarNaPrimeiraVezSlave() {
+		System.out.println("Aceitando o contrado");
+		bot.aceitarContrato();
+
+		System.out.println("Apertando enter na selecao de servidor");
+		bot.apertarTecla(KeyEvent.VK_ENTER);
+		bot.sleep(500);
+		// todo
+		String usuario = scriptContas.getContas().get(indexConta).getUsuario();
+		String senha = scriptContas.getContas().get(indexConta).getSenha();
+		String pin = scriptContas.getContas().get(indexConta).getPin();
+		bot.realizarLogin(usuario, senha);
+
+		System.out.println("Apertando enter na escolha do canal 1");
+		BufferedImage imagemTelaCanal = null;
+		String path = "config/telas/canal.png";
+		try {
+			imagemTelaCanal = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace(); // 377 571 280 29
+		}
+		boolean imagensIguais = false;
+		do {
+			BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
+			imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+			System.out.println("Verificando imagens: " + imagensIguais);
+			bot.sleep(500);
+		} while (imagensIguais == false);
+		bot.apertarTecla(KeyEvent.VK_UP);
+		bot.sleep(500);
+		bot.apertarTecla(KeyEvent.VK_UP);
+		bot.sleep(500);
+		bot.apertarTecla(KeyEvent.VK_UP);
+		bot.sleep(500);
+		bot.apertarTecla(KeyEvent.VK_ENTER);
+		bot.sleep(10000);
+
+		System.out.println("Chega na parte do pin...");
+		bot.inserirPin(pin);
+		bot.sleep(1000);
+
+		int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+				.getIndexPersonagem();
+		int pagina = scriptContas.getContas().get(0).getPersonagens().get(0).getPagina();
+		bot.escolherPersonagem(indexPersonagem, pagina);
+		String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem).getClasse();
+		carregarAtalhosSkills(classe);
+
+		// Fechar Logue e Ganhe
+		bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
+		bot.sleep(300);
+		bot.clicarMouse();
+		bot.sleep(300);
+		
+		List<MatOfPoint> balaoNpc = new ArrayList<>();
+		int contador = 0;
+		do {
+			balaoNpc = bot.balaoNpc();
+			if (!balaoNpc.isEmpty()) {
+				break;
+			}
+			bot.sleep(1000);
+			contador++;
+		} while (contador < 10);
+		
+		while (!balaoNpc.isEmpty()) {
+			bot.apertarTecla(KeyEvent.VK_ENTER);
+			bot.sleep(300);
+			balaoNpc = bot.balaoNpc();
+		}
+		
+		barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
+
+		// Selecionar Instancias
+		// Abrir Janela de instancias
+		String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+				.getInstancias().get(indexInstancia);
+
+	}
+	
+	private void iniciarInstanciaSlave() {
+		String instanciaScript = scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem)
+				.getInstancias().get(indexInstancia) + ".json";
+		ScriptLoader scriptLoader = new ScriptLoader();
+		Script scriptTemp = scriptLoader.carregarScriptdoJson("instancias/" + instanciaScript);
+		setScript(scriptTemp);
+		carregarMapa();
+
+		String instancia = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+				.getInstancias().get(indexInstancia);
+		
+		bot.sleep(1000);
+		
+		System.out.println("Executando instancia");
+		bot.executarInstancia(instancia);
+		
+		
+	}
+	
+	private void deslogarPersonagemContaIniciarInstanciaSlave() {
+		int ultimoIndexConta = indexConta;
+		indexInstancia++;
+		if (indexInstancia > scriptContas.getContas().get(indexConta).getPersonagens().get(indexPersonagem)
+				.getInstancias().size() - 1) {
+			indexInstancia = 0;
+
+			indexPersonagem++;
+			if (indexPersonagem > scriptContas.getContas().get(indexConta).getPersonagens().size() - 1) {
+				indexPersonagem = 0;
+
+				indexConta++;
+				if (indexConta > scriptContas.getContas().size() - 1) {
+					indexConta = 0;
+					ligarBot = false;
+					System.out.println("Deslogando personagem");
+					bot.deslogarPersonagem();
+					fecharBot();
+					return;
+				}
+
+			}
+			System.out.println("Deslogando personagem");
+			bot.deslogarPersonagem();
+
+			if (ultimoIndexConta != indexConta) { // indexConta aumentou
+				System.out.println("Indo tela login");
+				bot.sleep(3000);
+				bot.voltarTelaLogin();
+
+				System.out.println("Logando");
+				String usuario = scriptContas.getContas().get(indexConta).getUsuario();
+				String senha = scriptContas.getContas().get(indexConta).getSenha();
+				String pin = scriptContas.getContas().get(indexConta).getPin();
+				bot.realizarLogin(usuario, senha);
+
+				System.out.println("Apertando enter na escolha do canal 1");
+				BufferedImage imagemTelaCanal = null;
+				String canal = "config/telas/canal.png";
+				try {
+					imagemTelaCanal = ImageIO.read(new File(canal));
+				} catch (IOException e) {
+					e.printStackTrace(); // 377 571 280 29
+				}
+				boolean imagensIguais = false;
+				do {
+					BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
+					imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+					System.out.println("Verificando imagens: " + imagensIguais);
+					bot.sleep(500);
+				} while (imagensIguais == false);
+				bot.apertarTecla(KeyEvent.VK_UP);
+				bot.sleep(500);
+				bot.apertarTecla(KeyEvent.VK_UP);
+				bot.sleep(500);
+				bot.apertarTecla(KeyEvent.VK_UP);
+				bot.sleep(500);
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+				bot.sleep(5000);
+
+				System.out.println("Chega na parte do pin...");
+				bot.inserirPin(pin);
+				bot.sleep(1000);
+			}
+
+			int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+					.getIndexPersonagem();
+			int pagina = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+					.getPagina();// tava 0 0 por algum motivo
+			bot.escolherPersonagem(indexPersonagem, pagina);
+			String classe = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)
+					.getClasse();
+			System.out.println("Carregando atalhos da classe: " + classe);
+			carregarAtalhosSkills(classe);
+
+			// Fechar Logue e Ganhe
+			System.out.println("Fechando Logue e Ganhe");
+			bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
+			bot.sleep(300);
+			bot.clicarMouse();
+			bot.sleep(300);
+
+			List<MatOfPoint> balaoNpc = new ArrayList<>();
+			int contador = 0;
+			do {
+				balaoNpc = bot.balaoNpc();
+				if (!balaoNpc.isEmpty()) {
+					break;
+				}
+				bot.sleep(1000);
+				contador++;
+			} while (contador < 10);
+			
+			while (!balaoNpc.isEmpty()) {
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+				bot.sleep(300);
+				balaoNpc = bot.balaoNpc();
+			}
+			
+		}
+
+	}
+
 
 }

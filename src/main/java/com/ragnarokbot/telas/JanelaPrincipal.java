@@ -21,13 +21,18 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -52,20 +57,26 @@ import javax.swing.JWindow;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.NativeHookException;
 import com.github.kwhat.jnativehook.NativeInputEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyEvent;
 import com.github.kwhat.jnativehook.keyboard.NativeKeyListener;
 import com.ragnarokbot.bot.Bot;
+import com.ragnarokbot.bot.Mestre;
 import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.main.GameController;
 import com.ragnarokbot.model.MemoryScanner;
+import com.ragnarokbot.model.enums.Comando;
 import com.sun.jna.platform.win32.User32;
 
+import config.Conexao;
 import config.ContasConfig;
 import config.Script;
 import config.ScriptLoader;
+import config.Servidores;
+import config.Servidores.Servidor;
 import config.SkillsConfig;
 import config.SkillsConfig.Classes;
 import net.sourceforge.tess4j.ITesseract;
@@ -79,7 +90,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     private List<String> sequenciaBioChef = new ArrayList<>();
     private JLabel sequenciaLabel;
     private static JLabel timeLabel;
-    private GameController gameController;
+    public GameController gameController;
     public static JRadioButton instanciaRadioButton;
     private JRadioButton farmRadioButton;
     private JList<String> instanceList;
@@ -101,6 +112,13 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     //public static boolean isVelocidade = false;
     //public static boolean isChicleteGoma = false;
     private Tela tela;
+    
+    private static JRadioButton radioMestre;
+    private static JRadioButton radioSlave;
+    private static JCheckBox checkBoxMultiBot;
+    private static JCheckBox interception;
+    
+    public static String serverName = "";
 
     public JanelaPrincipal(GameController gameController) {
     	this.tela = tela;
@@ -112,7 +130,6 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         setLocationRelativeTo(null);
         setResizable(false); // Janela não redimensionável
         setLayout(new BorderLayout());
-        
         
         try {
 			// Registrar o hook do teclado
@@ -240,9 +257,35 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             String selectedItem = (String) comboBox.getSelectedItem();
             if (selectedItem != null) {
                 int selectedPid = Integer.parseInt(selectedItem.split(" - ")[0]);
+                serverName = selectedItem.split(" - ")[1];
+                System.out.println("Nome do server: " + serverName);
                 MemoryScanner.processId = selectedPid;
                 System.out.println("Selecionou o " + MemoryScanner.processId);
+                
+                
+                ObjectMapper mapper = new ObjectMapper();
+                Servidores servidores = null;
+                try {
+					servidores = mapper.readValue(new File("config/servidores.json"), Servidores.class);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+                
+                if (servidores != null) {
+                	for (Servidor s : servidores.getServidores()) {
+                		if (s.getServerName().equals(serverName)) {
+                			System.out.println("Gz meu fi");
+                			MemoryScanner.setAddressHp(s.getAddressHp());
+                			MemoryScanner.setAddressX(s.getAddressX());
+                			MemoryScanner.setAddressY(s.getAddressY());
+                			MemoryScanner.setAddressMapa(s.getAddressMapa());
+                			MemoryScanner.setAddressName(s.getAddressName());
+                		}
+                	}
+                }
+                
                 mudarNome(obterNome());
+                
             }
         });
         topLeftPanel.add(comboBox, BorderLayout.WEST);
@@ -345,9 +388,44 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         painelEsquerdaOpcoes.setOpaque(false);
         checkBoxVelocidade = new JCheckBox("Velocidade");
         checkBoxGoma = new JCheckBox("Goma");
+        
+        
+        // Criando o checkbox "MultiBot"
+        checkBoxMultiBot = new JCheckBox("MultiBot");
+        interception = new JCheckBox("Interception");
+        
+        
         painelEsquerdaOpcoes.add(checkBoxVelocidade);
         painelEsquerdaOpcoes.add(checkBoxGoma);
         
+        painelEsquerdaOpcoes.add(interception);
+        painelEsquerdaOpcoes.add(checkBoxMultiBot);
+        
+        
+        
+     // Painel com as opções Mestre/Slave (inicialmente invisível)
+        JPanel painelOpcoesMultiBot = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        painelOpcoesMultiBot.setOpaque(false); // se quiser fundo transparente
+
+        radioMestre = new JRadioButton("Mestre");
+        radioSlave = new JRadioButton("Slave");
+        
+        ButtonGroup grupoMultiBot = new ButtonGroup();
+        grupoMultiBot.add(radioMestre);
+        grupoMultiBot.add(radioSlave);
+        painelOpcoesMultiBot.add(radioMestre);
+        painelOpcoesMultiBot.add(radioSlave);
+        painelOpcoesMultiBot.setVisible(false); // começa oculto
+        painelEsquerdaOpcoes.add(painelOpcoesMultiBot); // Adiciona ao lado do checkbox
+        // Listener para mostrar/ocultar opções
+        checkBoxMultiBot.addActionListener(e -> {
+            painelOpcoesMultiBot.setVisible(checkBoxMultiBot.isSelected());
+            painelEsquerdaOpcoes.revalidate();
+            painelEsquerdaOpcoes.repaint();
+        });
+        
+              
+
         JPanel painelProfile = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         painelProfile.setOpaque(false);
         
@@ -374,11 +452,57 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 
         belowTopPanel.add(leftPanel, BorderLayout.WEST);
         belowTopPanel.add(rightPanel, BorderLayout.EAST);
+        
+        
+        
+        
+        
+        
+        // Botões que aparecerão dependendo da seleção
+        JButton botaoAbrirConexao = new JButton("Abrir Conexão");
+        JButton botaoConectar = new JButton("Conectar");
+
+        // Painel que vai abrigar o botão do lado direito dos radio buttons
+        JPanel painelBotaoConexao = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        painelBotaoConexao.setOpaque(false);
+
+        // Começa escondido
+        botaoAbrirConexao.setVisible(false);
+        botaoConectar.setVisible(false);
+
+        // Adiciona os dois botões ao painel, mas apenas um ficará visível por vez
+        painelBotaoConexao.add(botaoAbrirConexao);
+        painelBotaoConexao.add(botaoConectar);
+
+        // Ações dos botões
+        botaoAbrirConexao.addActionListener(e -> abrirConexao());
+        botaoConectar.addActionListener(e -> conectar());
+
+        // Adiciona o painelBotaoConexao no painel principal dos radio buttons
+        painelOpcoesMultiBot.add(painelBotaoConexao);
+
+        // Listeners para mostrar o botão correspondente
+        radioMestre.addItemListener(e -> {
+            if (radioMestre.isSelected()) {
+                botaoAbrirConexao.setVisible(true);
+                botaoConectar.setVisible(false);
+            }
+        });
+
+        radioSlave.addItemListener(e -> {
+            if (radioSlave.isSelected()) {
+                botaoConectar.setVisible(true);
+                botaoAbrirConexao.setVisible(false);
+            }
+        });
+        
+        
 
         return belowTopPanel;
     }
 
-    private JPanel createLeftPanel(ButtonGroup group) {
+
+	private JPanel createLeftPanel(ButtonGroup group) {
     	JPanel leftPanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -541,7 +665,6 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 	// Método chamado ao clicar no botão Play
     private void play() {
         System.out.println("Clicou no botão Play");
-        
         try {
             
             ScriptLoader scriptLoader = new ScriptLoader();
@@ -678,10 +801,20 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         //model.addElement("Selecione um processo");
     	
         // Obter lista de processos
-        List<ProcessHandle> processes = ProcessHandle.allProcesses()
+        /*List<ProcessHandle> processes = ProcessHandle.allProcesses()
                 .filter(process -> process.info().command().isPresent() 
                         && process.info().command().get().endsWith(".exe") 
                         && process.info().command().get().toLowerCase().contains("ragnarok")) // Filtrar por "Ragnarok"
+                .collect(Collectors.toList());*/
+    	
+    	List<ProcessHandle> processes = ProcessHandle.allProcesses() //filtrar por "ragnarok.exe" e "rtales.bin"
+                .filter(process -> {
+                    return process.info().command().map(cmd -> {
+                        String lowerCmd = cmd.toLowerCase();
+                        return (cmd.endsWith(".exe") && lowerCmd.contains("ragnarok")) ||
+                               (cmd.endsWith(".bin") && lowerCmd.contains("rtales"));
+                    }).orElse(false);
+                })
                 .collect(Collectors.toList());
 
         // Preencher o ComboBox com os processos filtrados
@@ -740,37 +873,6 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         listPanel.repaint();
     }
     
-    /*
-    @Override
-    public void nativeKeyPressed(NativeKeyEvent e) {
-        // Verifica se as teclas CTRL e SHIFT estão pressionadas
-        boolean isCtrlPressed = (e.getModifiers() & NativeKeyEvent.CTRL_MASK) != 0;
-        boolean isShiftPressed = (e.getModifiers() & NativeKeyEvent.SHIFT_MASK) != 0;
-
-        // Ctrl + Shift + F
-        if (isCtrlPressed && isShiftPressed && e.getKeyCode() == NativeKeyEvent.VC_F) {
-            gameController.fecharBot();
-        }
-
-        // Ctrl + Shift + P
-        if (isCtrlPressed && isShiftPressed && e.getKeyCode() == NativeKeyEvent.VC_P) {
-        	gameController.pausarBot();
-        }
-        
-        // Ctrl + Shift + O
-        if (isCtrlPressed && isShiftPressed && e.getKeyCode() == NativeKeyEvent.VC_O) {
-        	gameController.pararBot();
-        }
-        
-        // Ctrl + Shift + S
-        if (isCtrlPressed && isShiftPressed && e.getKeyCode() == NativeKeyEvent.VC_S) {
-        	gameController.modoSalvarCoordenadas();
-        }
-        // Ctrl + Shift + D
-        if (isCtrlPressed && isShiftPressed && e.getKeyCode() == NativeKeyEvent.VC_D) {
-        	gameController.modoFecharCoordenadas();
-        }
-    }*/
     
     @Override
     public void nativeKeyReleased(NativeKeyEvent e) {
@@ -867,12 +969,25 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
     public static void setValorGoma(boolean valor) {
         checkBoxGoma.setSelected(valor);
     }
+    public static boolean obterMultiBot() {
+        return checkBoxMultiBot.isSelected();
+    }
+    public static boolean obterSlave() {
+        return radioSlave.isSelected();
+    }
+    public static boolean obterMestre() {
+        return radioMestre.isSelected();
+    }
+    public static boolean obterInterception() {
+		return interception.isSelected();
+	}
 	
 	public static String obterNome() {
 		int id = MemoryScanner.processId;
 		if (id == 0) {
 			return "";
 		}
+		
 		String nome = MemoryScanner.obterStringMemoria(id, MemoryScanner.addressName);
 		return nome;
 	}
@@ -903,6 +1018,123 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 		}
 		System.out.println("Modo de Goma/Chiclete " + (obterGoma()?"ativado":"desativado") + "!!!");
 	}
+	
+	private void conectar() {
+		
+		ObjectMapper mapper = new ObjectMapper();
+        Conexao conexao = null;
+        try {
+        	conexao = mapper.readValue(new File("config/conexao.json"), Conexao.class);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+        if (conexao == null) {
+        	JOptionPane.showMessageDialog(this, "Conexão não configurada ", "Erro", JOptionPane.ERROR_MESSAGE);
+        	return;
+        }
+        
+		play();
+		System.out.println("Conectando");
+		String MASTER_IP = conexao.getIp();
+		int PORT = conexao.getPort();
+		try {
+            Socket socket = new Socket(MASTER_IP, PORT);
+            System.out.println("Conectado ao mestre em " + MASTER_IP);
+            
+            BufferedReader in = new BufferedReader( new InputStreamReader(socket.getInputStream()));
+            String comando;
+            
+            while((comando = in.readLine()) != null) {
+                try {
+                    Comando cmd = Comando.valueOf(comando); //Converte String -> Enum
+                    executarComando(cmd);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("Comando invalido recebido: " + comando);
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+		
+	}
+
+	private void abrirConexao() {
+		ObjectMapper mapper = new ObjectMapper();
+        Conexao conexao = null;
+        try {
+        	conexao = mapper.readValue(new File("config/conexao.json"), Conexao.class);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+        if (conexao == null) {
+        	JOptionPane.showMessageDialog(this, "Conexão não configurada ", "Erro", JOptionPane.ERROR_MESSAGE);
+        	return;
+        }
+		System.out.println("Abrindo conexao");
+		ServerSocket serverSocket;
+		try {
+			serverSocket = new ServerSocket(conexao.getPort());
+			System.out.println("Mestre aguardando conexões...");
+
+			// Thread para aceitar conexões dos Slaves
+			new Thread(() -> {
+				while (true) {
+					try {
+						Socket slaveSocket = serverSocket.accept();
+						Mestre.slaves.add(slaveSocket);
+						System.out.println("Slave conectado: " + slaveSocket.getInetAddress());
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}).start();
+
+			// Lê comandos do teclado e envia para todos os Slaves
+			Scanner scanner = new Scanner(System.in);
+			boolean ligar = true;
+			while (ligar) {
+				System.out.print("Digite um comando: ");
+				String input = scanner.nextLine().toUpperCase();
+				try {
+					Comando cmd = Comando.valueOf(input); // Verifica se é um comando válido
+					Mestre.enviarComando(cmd);
+				} catch (IllegalArgumentException e) {
+					System.out.println("Comando inválido. Use: " + Arrays.toString(Comando.values()));
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+	}
+	private void executarComando(Comando cmd) {
+        switch (cmd) {
+        case LOGAR:
+            System.out.println("Logar");
+            gameController.slaveEstado = Comando.LOGAR;
+            break;
+        case INICIAR_INSTANCIA:
+            System.out.println("Iniciar Instancia");
+            gameController.slaveEstado = Comando.INICIAR_INSTANCIA;
+            break;
+        case DESLOGAR_LOGAR_OUTRO_PERSONAGEM:
+            System.out.println("Deslogando e logando");
+            gameController.slaveEstado = Comando.DESLOGAR_LOGAR_OUTRO_PERSONAGEM;
+            break;
+        case PRINTAR_TELA:
+            System.out.println("Printou");
+            break;
+        case ATACAR_MONSTRO:
+            System.out.println("Atacando o monstro");
+            break;
+        case PARAR_BOT:
+            System.out.println("Parando");
+            gameController.slaveEstado = Comando.PARAR_BOT;
+            break;
+        default:
+            throw new IllegalArgumentException("Unexpected value: " + cmd);
+        }
+    }
 }
 
 
