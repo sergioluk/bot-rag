@@ -14,6 +14,7 @@ public enum Effects {
     BLIND(887),
     CONFUSION(886),
     CURSE(884),
+    
     QUAGMIRE(8),
     HALLUCINATIONWALK(334),
     HALLUCINATION(34),
