@@ -18,6 +18,20 @@
                     "passarItens" : false,
                     "classe" : "sorc",
                     "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 3,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 4,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
                 }
             ]
         }

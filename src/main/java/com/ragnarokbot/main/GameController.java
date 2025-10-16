@@ -986,14 +986,14 @@ public class GameController implements Runnable {
 		bot.moverPersonagemComClick(atual, novaCoordenada);
 		System.out.println("Movimento forçado para evitar inatividade.");
 
-		// if (JanelaPrincipal.instanciaRadioButton.isSelected()) {
-		List<MatOfPoint> balao = bot.balaoNpc();
-		System.out.println("tamanho balao UEUEUEU " + balao.size());
-
-		if (!balao.isEmpty()) {
-			bot.apertarTecla(KeyEvent.VK_ENTER);
+		if (JanelaPrincipal.instanciaRadioButton.isSelected()) {
+			List<MatOfPoint> balao = bot.balaoNpc();
+			System.out.println("tamanho balao UEUEUEU " + balao.size());
+	
+			if (!balao.isEmpty()) {
+				bot.apertarTecla(KeyEvent.VK_ENTER);
+			}
 		}
-		// }
 	}
 
 	private void clickNpc() {
@@ -1588,8 +1588,9 @@ public class GameController implements Runnable {
 				}
 				boolean imagensIguais = false;
 				do {
-					BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
-					imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+					//BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
+					//imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+					imagensIguais = bot.procurarImagem(imagemTelaCanal, 0.8);
 					System.out.println("Verificando imagens: " + imagensIguais);
 					bot.sleep(500);
 				} while (imagensIguais == false);
@@ -2040,8 +2041,9 @@ public class GameController implements Runnable {
 		}
 		boolean imagensIguais = false;
 		do {
-			BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
-			imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+			//BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
+			//imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+			imagensIguais = bot.procurarImagem(imagemTelaCanal, 0.8);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			bot.sleep(500);
 		} while (imagensIguais == false);
@@ -3483,8 +3485,9 @@ public class GameController implements Runnable {
 		}
 		boolean imagensIguais = false;
 		do {
-			BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
-			imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+			//BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
+			//imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+			imagensIguais = bot.procurarImagem(imagemTelaCanal, 0.8);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			bot.sleep(500);
 		} while (imagensIguais == false);
@@ -3605,8 +3608,9 @@ public class GameController implements Runnable {
 				}
 				boolean imagensIguais = false;
 				do {
-					BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
-					imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+					//BufferedImage atual = bot.printarParteTela(377, 571, 280, 29);
+					//imagensIguais = bot.compararImagens(atual, imagemTelaCanal, 30.0);
+					imagensIguais = bot.procurarImagem(imagemTelaCanal, 0.8);
 					System.out.println("Verificando imagens: " + imagensIguais);
 					bot.sleep(500);
 				} while (imagensIguais == false);

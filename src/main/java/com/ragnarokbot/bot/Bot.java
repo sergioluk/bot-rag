@@ -821,8 +821,9 @@ public class Bot {
 		}
 		boolean imagensIguais = false;
 		do {
-			BufferedImage atual = printarParteTela(960, 79, 13, 12);
-			imagensIguais = compararImagens(atual, imagemTelaPin, 30.0);
+			//BufferedImage atual = printarParteTela(960, 79, 13, 12);
+			//imagensIguais = compararImagens(atual, imagemTelaPin, 30.0);
+			imagensIguais = procurarImagem(imagemTelaPin, 0.8);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			sleep(500);
 		} while( imagensIguais == false);
@@ -2690,8 +2691,9 @@ public class Bot {
 		}
 		boolean imagensIguais = false;
 		do {
-			BufferedImage atual = printarParteTela(573, 537, 76, 35);
-			imagensIguais = compararImagens(atual, imagemTelaLogin, 30.0);
+			//BufferedImage atual = printarParteTela(573, 537, 76, 35);
+			//imagensIguais = compararImagens(atual, imagemTelaLogin, 30.0);
+			imagensIguais = procurarImagem(imagemTelaLogin, 0.8);
 			System.out.println("Verificando imagens realizar login: " + imagensIguais);
 			sleep(500);
 		} while( imagensIguais == false);
@@ -2712,6 +2714,38 @@ public class Bot {
 		sleep(500);
 		apertarTecla(KeyEvent.VK_ENTER);
 		sleep(500);
+	}
+	
+	public boolean procurarImagem(BufferedImage imagemAlvo, double threshold) {
+	    // Captura a tela do jogo
+	    BufferedImage tela = printarTela();
+
+	    // Converte as imagens BufferedImage para Mat
+	    Mat telaMat = bufferedImageToMat(tela);
+	    Mat imagemAlvoMat = bufferedImageToMat(imagemAlvo);
+
+	    // Converte para tons de cinza para facilitar a detecção
+	    Mat telaGray = new Mat();
+	    Mat alvoGray = new Mat();
+	    Imgproc.cvtColor(telaMat, telaGray, Imgproc.COLOR_BGR2GRAY);
+	    Imgproc.cvtColor(imagemAlvoMat, alvoGray, Imgproc.COLOR_BGR2GRAY);
+
+	    // Resultado da comparação
+	    int resultCols = telaGray.cols() - alvoGray.cols() + 1;
+	    int resultRows = telaGray.rows() - alvoGray.rows() + 1;
+	    Mat result = new Mat(resultRows, resultCols, CvType.CV_32FC1);
+
+	    // Aplica o template matching
+	    Imgproc.matchTemplate(telaGray, alvoGray, result, Imgproc.TM_CCOEFF_NORMED);
+
+	    // Localiza o melhor resultado
+	    Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
+	    double maxVal = mmr.maxVal;
+
+	    System.out.println("Resultado da similaridade (template matching): " + maxVal);
+
+	    // Se o valor máximo for maior que o limiar (threshold), a imagem foi encontrada
+	    return maxVal >= threshold;
 	}
 	
 	public BufferedImage printarParteTela(int x, int y, int width, int heigh) {
@@ -3368,8 +3402,9 @@ public class Bot {
 		boolean imagensIguais = false;
 		do {
 			
-			BufferedImage atual = printarParteTela(960, 79, 13, 12);
-			imagensIguais = compararImagens(atual, imagemTelaPin, 30.0);
+			//BufferedImage atual = printarParteTela(960, 79, 13, 12);
+			//imagensIguais = compararImagens(atual, imagemTelaPin, 30.0);
+			imagensIguais = procurarImagem(imagemTelaPin, 0.8);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			sleep(1000);
 			

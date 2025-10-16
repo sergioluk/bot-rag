@@ -1091,7 +1091,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 
 			// Lê comandos do teclado e envia para todos os Slaves
 			Scanner scanner = new Scanner(System.in);
-			boolean ligar = true;
+			boolean ligar = false;
 			while (ligar) {
 				System.out.print("Digite um comando: ");
 				String input = scanner.nextLine().toUpperCase();
