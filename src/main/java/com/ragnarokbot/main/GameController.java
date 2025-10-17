@@ -201,6 +201,8 @@ public class GameController implements Runnable {
 	private boolean verificarSeLimpouTomb = false;
 	private long tempoVerificacaoTomb = System.currentTimeMillis();
 	
+	int contagemErro = 0;
+	
 	public Comando slaveEstado = Comando.IDLE;
 
 	public GameController(Bot bot) {
@@ -1330,7 +1332,20 @@ public class GameController implements Runnable {
 		Coordenadas destino = obterDestinoAtual(script);
 		
 		caminhoCalculado = aStar.encontrarCaminho(grafo, atual, destino);
-		
+		//pra nao bugar quando passar do portal e continuar na rota anterior...
+		//Rota atual: Chefe morto, andando até o portal
+		//Caiu aqui #####################################
+		if (caminhoCalculado.isEmpty() && script.getMapa().equals("tomb_of_remorse.png")) {
+			contagemErro++;
+			System.out.println("OPA, deu erro, caminho calculado foi vazio: " + contagemErro + "/50");
+			if (contagemErro >= 50) {
+				contagemErro = 0;
+				rota++;
+				passo = 0;
+			}
+		} else {
+			contagemErro = 0;
+		}
 
 		Coordenadas destinoAlt = bot.escolherProximaCoordenada(caminhoCalculado, atual);
 
@@ -1618,6 +1633,7 @@ public class GameController implements Runnable {
 			System.out.println("Carregando atalhos da classe: " + classe);
 			carregarAtalhosSkills(classe);
 
+			bot.sleep(3000);
 			// Fechar Logue e Ganhe
 			System.out.println("Fechando Logue e Ganhe");
 			bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
@@ -3637,7 +3653,8 @@ public class GameController implements Runnable {
 					.getClasse();
 			System.out.println("Carregando atalhos da classe: " + classe);
 			carregarAtalhosSkills(classe);
-
+			
+			bot.sleep(3000);
 			// Fechar Logue e Ganhe
 			System.out.println("Fechando Logue e Ganhe");
 			bot.moverMouse(bot.getxJanela() + 510, bot.getyJanela() + 567);
