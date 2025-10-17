@@ -1,9 +1,9 @@
 {
     "contas": [
         { 
-            "usuario" : "querodinheiros",
-            "senha" : "Hehexd2511@",
-            "pin" : "2511",
+            "usuario" : "login",
+            "senha" : "login@",
+            "pin" : "login",
             "personagens" : [
                 {
                     "pagina" : 1,
