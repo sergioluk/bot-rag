@@ -3517,7 +3517,7 @@ public class GameController implements Runnable {
 		bot.sleep(10000);
 
 		System.out.println("Chega na parte do pin...");
-		bot.inserirPin(pin);
+		//bot.inserirPin(pin);
 		bot.sleep(1000);
 
 		int indexPersonagem = scriptContas.getContas().get(indexConta).getPersonagens().get(this.indexPersonagem)

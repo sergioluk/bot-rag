@@ -90,7 +90,7 @@ public class BotRagnarok {
 	
 	@SuppressWarnings("deprecation")
 	public static void main(String[] args) throws Exception {
-		boolean dev = false;
+		boolean dev = true;
 		if (dev == false) {
 			try {
 				 // Lê a versão atual do bot
