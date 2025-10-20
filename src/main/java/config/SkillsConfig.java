@@ -32,12 +32,19 @@ public class SkillsConfig {
 	private String atalhoAcessorioSolomon;
 	private String atalhoAcessorio;
 	private String atalhoInvocarFainha;
+	private Boolean rico;
 	
 	
+	public Boolean getRico() {
+		return rico;
+	}
+	public void setRico(Boolean rico) {
+		this.rico = rico;
+	}
 	public String getAtalhoInvocarFainha() {
 		return atalhoInvocarFainha;
 	}
-
+	
 	public void setAtalhoInvocarFainha(String atalhoInvocarFainha) {
 		this.atalhoInvocarFainha = atalhoInvocarFainha;
 	}

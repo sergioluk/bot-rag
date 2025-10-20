@@ -2467,14 +2467,26 @@ public class GameController implements Runnable {
 			if (dificuldade.equals("normal")) {
 				if (sala.equals("1")) {
 					listaOpcoesFarmNpc = List.of(20, 1, 1, 1, 1);
+					if (skillsConfig.getRico( )!= null && skillsConfig.getRico() == true) {
+						listaOpcoesFarmNpc = List.of(20, 1, 1);
+					}
 				} else if (sala.equals("2")) {
 					listaOpcoesFarmNpc = List.of(20, 1, 2, 1, 1);
+					if (skillsConfig.getRico( )!= null && skillsConfig.getRico() == true) {
+						listaOpcoesFarmNpc = List.of(20, 1, 2);
+					}
 				}
 			} else if (dificuldade.equals("hard")) {
 				if (sala.equals("1")) {
 					listaOpcoesFarmNpc = List.of(20, 2, 1, 1, 1);
+					if (skillsConfig.getRico( )!= null && skillsConfig.getRico() == true) {
+						listaOpcoesFarmNpc = List.of(20, 2, 1);
+					}
 				} else if (sala.equals("2")) {
 					listaOpcoesFarmNpc = List.of(20, 2, 2, 1, 1);
+					if (skillsConfig.getRico( )!= null && skillsConfig.getRico() == true) {
+						listaOpcoesFarmNpc = List.of(20, 2, 2);
+					}
 				}
 			}
 		}
