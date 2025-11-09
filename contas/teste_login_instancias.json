@@ -1,10 +1,24 @@
 {
     "contas": [
         { 
-            "usuario" : "login",
-            "senha" : "login@",
-            "pin" : "login",
+            "usuario" : "instanciagg1",
+            "senha" : "Hehexd2511",
+            "pin" : "2511",
             "personagens" : [
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 1,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 2,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
                 {
                     "pagina" : 1,
                     "indexPersonagem" : 3,
@@ -15,6 +29,83 @@
                 {
                     "pagina" : 1,
                     "indexPersonagem" : 4,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 5,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 6,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 7,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 8,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 9,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 10,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 11,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 12,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 13,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 14,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 15,
                     "passarItens" : false,
                     "classe" : "sorc",
                     "instancias" : ["Tomb of Remorse"]

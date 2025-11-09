@@ -2938,16 +2938,20 @@ public class GameController implements Runnable {
 
 		if (passosInteragirKafraRemoverItens == 3) {
 			System.out.println("Abrindo inventario pra remover os itens");
-			bot.getRobot().keyPress(KeyEvent.VK_ALT);
+			bot.apertarSegurarTecla(KeyEvent.VK_ALT);
+			//bot.getRobot().keyPress(KeyEvent.VK_ALT);
 			bot.sleep(50);
-			bot.getRobot().keyPress(KeyEvent.VK_E);
+			bot.apertarSegurarTecla(KeyEvent.VK_E);
+			//bot.getRobot().keyPress(KeyEvent.VK_E);
 			rectInventario = bot.getInventario();
 			bot.sleep(200);
 			if (rectInventario != null) {
 				System.out.println("Inventario aberto pra remover os itens!!!");
-				bot.getRobot().keyRelease(KeyEvent.VK_ALT);
+				bot.soltarTecla(KeyEvent.VK_ALT);
+				//bot.getRobot().keyRelease(KeyEvent.VK_ALT);
 				bot.sleep(50);
-				bot.getRobot().keyRelease(KeyEvent.VK_E);
+				bot.soltarTecla(KeyEvent.VK_E);
+				//bot.getRobot().keyRelease(KeyEvent.VK_E);
 				passosInteragirKafraRemoverItens = 4;
 			}
 		}
@@ -3085,16 +3089,20 @@ public class GameController implements Runnable {
 
 		if (passosInteragirKafra == 3) {
 			System.out.println("Abrindo inventario");
-			bot.getRobot().keyPress(KeyEvent.VK_ALT);
+			bot.apertarSegurarTecla(KeyEvent.VK_ALT);
+			//bot.getRobot().keyPress(KeyEvent.VK_ALT);
 			bot.sleep(50);
-			bot.getRobot().keyPress(KeyEvent.VK_E);
+			bot.apertarSegurarTecla(KeyEvent.VK_E);
+			//bot.getRobot().keyPress(KeyEvent.VK_E);
 			rectInventario = bot.getInventario();
 			bot.sleep(200);
 			if (rectInventario != null) {
 				System.out.println("Inventario aberto!!!");
-				bot.getRobot().keyRelease(KeyEvent.VK_ALT);
+				bot.soltarTecla(KeyEvent.VK_ALT);
+				//bot.getRobot().keyRelease(KeyEvent.VK_ALT);
 				bot.sleep(50);
-				bot.getRobot().keyRelease(KeyEvent.VK_E);
+				bot.soltarTecla(KeyEvent.VK_E);
+				//bot.getRobot().keyRelease(KeyEvent.VK_E);
 				passosInteragirKafra = 4;
 			}
 		}
@@ -3128,15 +3136,19 @@ public class GameController implements Runnable {
 
 		if (passosDesequiparEquips == 0) {
 			System.out.println("Abrir alt Q");
-			bot.getRobot().keyPress(KeyEvent.VK_ALT);
+			bot.apertarSegurarTecla(KeyEvent.VK_ALT);
+			//bot.getRobot().keyPress(KeyEvent.VK_ALT);
 			bot.sleep(50);
-			bot.getRobot().keyPress(KeyEvent.VK_Q);
+			bot.apertarSegurarTecla(KeyEvent.VK_Q);
+			//bot.getRobot().keyPress(KeyEvent.VK_Q);
 			rectAltQ = bot.getAltQ();
 			if (rectAltQ != null) {
 				System.out.println("Alt Q aberto!!!");
-				bot.getRobot().keyRelease(KeyEvent.VK_ALT);
+				bot.soltarTecla(KeyEvent.VK_ALT);
+				//bot.getRobot().keyRelease(KeyEvent.VK_ALT);
 				bot.sleep(50);
-				bot.getRobot().keyRelease(KeyEvent.VK_Q);
+				bot.soltarTecla(KeyEvent.VK_ALT);
+				//bot.getRobot().keyRelease(KeyEvent.VK_Q);
 				passosDesequiparEquips = 1;
 			}
 		}

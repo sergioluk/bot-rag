@@ -3,7 +3,7 @@
   "goBase": 2,
   "labirintovalk": 5,
   "tempoDoLoop": 50,
-  "tempoAndarForcado": 600,
+  "tempoAndarForcado": 400,
 
   "atalhoPlay" : "SHIFT+CTRL+I",
   "atalhoStop" : "SHIFT+CTRL+O",
@@ -29,9 +29,9 @@
   "basePath": "C:/Users/Sérgio/Desktop/History Reborn 3.0/",
 
   "protegerTerreno": "F8",
-  "atalhoAcessorioSolomon": "T",
-  "atalhoAcessorio": "R",
-  "atalhoInvocarFainha": "3",
+  "atalhoAcessorioSolomon": "7",
+  "atalhoAcessorio": "6",
+  "atalhoInvocarFainha": "I",
 
   
   "classesDisponiveis" : ["sorc","mago","arqueiro","monk","pala"],
@@ -80,47 +80,47 @@
             "cd" : 6000,
             "cor" : "rosa",
             "range": 9,
-            "posicao": "1-3",
+            "posicao": "3-1",
             "main": false
           }
         ],
         "equipamentos": [
           {
-            "atalho": "T",
-            "posicao": "3-5"
+            "atalho": "7",
+            "posicao": "2-7"
           },
           {
-            "atalho": "R",
-            "posicao": "3-4"
+            "atalho": "6",
+            "posicao": "2-6"
           }
         ],
         "buffs" : [
           {
-            "atalho": "7",
+            "atalho": "8",
             "cd": 1,
             "self": true,
             "effect": "ARMAPROTECAO"
           },
           {
-            "atalho": "8",
+            "atalho": "9",
             "cd": 1,
             "self": true,
             "effect": "SHADOWPROTECAO"
           },
           {
-            "atalho": "4",
+            "atalho": "O",
             "cd": 1,
             "self": true,
             "effect": "FADINHA"
           },
           {
-            "atalho": "Y",
+            "atalho": "1",
             "cd": 1,
             "self": false,
             "effect": "SPELLENCHANT"
           },
           {
-            "atalho": "O",
+            "atalho": "4",
             "cd": 1,
             "self": true,
             "effect": "MYST_AMPLIFY"

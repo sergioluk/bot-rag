@@ -53,6 +53,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.kwhat.jnativehook.GlobalScreen;
 import com.github.kwhat.jnativehook.mouse.NativeMouseEvent;
+import com.ragnarokbot.bot.controles.Control;
+import com.ragnarokbot.bot.controles.ControlInterception;
+import com.ragnarokbot.bot.controles.ControlRobot;
 import com.ragnarokbot.main.BotRagnarok;
 import com.ragnarokbot.main.GameController;
 import com.ragnarokbot.model.Coordenadas;
@@ -120,6 +123,8 @@ public class Bot {
     //Variaveis para coordenadas mini mapa
     public Config configOCR;
     
+    public Control control;
+    
     
     static String dependencia = new File("libs/interception.dll").getAbsolutePath();
     static String libPath = new File("libs/InterceptionDemo.dll").getAbsolutePath();
@@ -154,7 +159,7 @@ public class Bot {
         //System.out.println("Testando com os novos metodos");
         
         //inicializarBot();
-        
+		
 		
 	}
 	
@@ -180,6 +185,9 @@ public class Bot {
         if (interception) {
         	System.out.println("Interception ligado!");
         	iniciarInterception();
+        	control = new ControlInterception();
+        } else {
+        	control = new ControlRobot(robot);
         }
 	}
 	
@@ -485,11 +493,8 @@ public class Bot {
 		moverMouse(getxJanela() + x, getyJanela() + y);
 		sleep(100);
 		
-		if (interception) {
-			apertarSegurarTeclaInter(KeyEvent.VK_ALT);
-		} else {
-			getRobot().keyPress(KeyEvent.VK_ALT);			
-		}
+		apertarSegurarTecla(KeyEvent.VK_ALT);
+		
 		boolean isInventarioLimpo = false;
 		do {
 			clicarMouseDireito();
@@ -498,11 +503,8 @@ public class Bot {
 			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 45k? " + isInventarioLimpo); //45k
 			if (brancos > 45000) {
 				isInventarioLimpo = true;
-				if (interception) {
-					soltarTeclaInter(KeyEvent.VK_ALT);
-				} else {
-					getRobot().keyRelease(KeyEvent.VK_ALT);
-				}
+				
+				soltarTecla(KeyEvent.VK_ALT);
 			}
 		} while(!isInventarioLimpo);
 		sleep(100);
@@ -520,11 +522,9 @@ public class Bot {
 		y = m.y + 21;
 		moverMouse(getxJanela() + x, getyJanela() + y);
 		sleep(50);
-		if (interception) {
-			apertarSegurarTeclaInter(KeyEvent.VK_ALT);
-		} else {
-			getRobot().keyPress(KeyEvent.VK_ALT);
-		}
+		
+		apertarSegurarTecla(KeyEvent.VK_ALT);
+		
 		System.out.println("Tirando ARMORS");
 		boolean isArmazemLimpo = false;
 		do {
@@ -534,11 +534,9 @@ public class Bot {
 			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 102k? " + isArmazemLimpo); //45k
 			if (brancos > 102000) {
 				isArmazemLimpo = true;
-				if (interception) {
-					soltarTeclaInter(KeyEvent.VK_ALT);
-				} else {
-					getRobot().keyRelease(KeyEvent.VK_ALT);	
-				}
+
+				soltarTecla(KeyEvent.VK_ALT);
+				
 			}
 		} while(!isArmazemLimpo);
 		sleep(100);
@@ -554,11 +552,9 @@ public class Bot {
 		x = m.x + 54;
 		y = m.y + 21;
 		moverMouse(getxJanela() + x, getyJanela() + y);
-		if (interception) {
-			apertarSegurarTeclaInter(KeyEvent.VK_ALT);
-		} else {
-			getRobot().keyPress(KeyEvent.VK_ALT);
-		}
+
+		apertarSegurarTecla(KeyEvent.VK_ALT);
+		
 		sleep(50);
 		do {
 			clicarMouseDireito();
@@ -567,11 +563,9 @@ public class Bot {
 			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 102k? " + isArmazemLimpo); //45k
 			if (brancos > 102000) {
 				isWeaponLimpo = true;
-				if (interception) {
-					soltarTeclaInter(KeyEvent.VK_ALT);
-				} else {
-					getRobot().keyRelease(KeyEvent.VK_ALT);	
-				}
+
+				soltarTecla(KeyEvent.VK_ALT);
+				
 			}
 		} while(!isWeaponLimpo);
 		
@@ -586,11 +580,9 @@ public class Bot {
 		x = m.x + 54;
 		y = m.y + 21;
 		moverMouse(getxJanela() + x, getyJanela() + y);
-		if (interception) {
-			apertarSegurarTeclaInter(KeyEvent.VK_ALT);
-		} else {
-			getRobot().keyPress(KeyEvent.VK_ALT);
-		}
+
+		apertarSegurarTecla(KeyEvent.VK_ALT);
+		
 		sleep(50);
 		do {
 			clicarMouseDireito();
@@ -599,11 +591,9 @@ public class Bot {
 			System.out.println("Quantidade de pixels brancos: " + brancos + "! É maior que 102k? " + isArmazemLimpo); //45k
 			if (brancos > 102000) {
 				isCashLimpo = true;
-				if (interception) {
-					soltarTeclaInter(KeyEvent.VK_ALT);
-				} else {
-					getRobot().keyRelease(KeyEvent.VK_ALT);	
-				}
+
+				soltarTecla(KeyEvent.VK_ALT);
+				
 			}
 		} while(!isCashLimpo);
     }
@@ -821,169 +811,55 @@ public class Bot {
 		}
 		boolean imagensIguais = false;
 		do {
-			//BufferedImage atual = printarParteTela(960, 79, 13, 12);
-			//imagensIguais = compararImagens(atual, imagemTelaPin, 30.0);
 			imagensIguais = procurarImagem(imagemTelaPin, 0.8);
 			System.out.println("Verificando imagens: " + imagensIguais);
 			sleep(500);
 		} while( imagensIguais == false);
 		
-	    // Capturar a tela da área definida
-	    Rectangle captureArea = new Rectangle(xJanela, yJanela, width, height);
-	    BufferedImage screenFullImage = robot.createScreenCapture(captureArea);
-
-	    // Converter BufferedImage para Mat diretamente
-	    Mat screen = bufferedImageToMat(screenFullImage);
-	    if (screen.empty()) {
-	        System.out.println("Erro ao carregar a imagem.");
-	        return;
-	    }
-
-	    // Converter a imagem para o espaço de cores HSV
-	    Mat hsvImage = new Mat();
-	    Imgproc.cvtColor(screen, hsvImage, Imgproc.COLOR_BGR2HSV);
-
-	    // Definir os limites de cor
-	    Scalar lowerColor = new Scalar(0, 91, 0); // Limite inferior (ajuste conforme necessário)
-	    Scalar upperColor = new Scalar(10, 171, 73); // Limite superior (ajuste conforme necessário)
-
-	    // Criar máscara para identificar a cor dentro do intervalo
-	    Mat mask = new Mat();
-	    Core.inRange(hsvImage, lowerColor, upperColor, mask);
-
-	    // Encontrar contornos na máscara
-	    List<MatOfPoint> entidades = new ArrayList<>();
-	    Imgproc.findContours(mask, entidades, new Mat(), Imgproc.RETR_EXTERNAL, Imgproc.CHAIN_APPROX_SIMPLE);
-
-	    if (entidades.isEmpty()) {
-	        System.out.println("Nenhum quadrado encontrado.");
-	        return;
-	    }
-
-	    // Filtrar quadrados com altura maior que 20 pixels
-	    List<MatOfPoint> filtrados = entidades.stream()
-	        .filter(entidade -> (Imgproc.boundingRect(entidade).height >= 50 && Imgproc.boundingRect(entidade).height <= 65)
-	        		&& (Imgproc.boundingRect(entidade).width >= 50 && Imgproc.boundingRect(entidade).width <= 65))
-	        .toList();
-
-	    // Desenhar contornos na imagem original (BGR)
-	    for (MatOfPoint ponto : filtrados) {
-	        Imgproc.drawContours(screen, List.of(ponto), -1, new Scalar(0, 255, 0), 2);
-	    }
-
-	    // Salvar a imagem com os contornos
-	    String outputPath = "pin.png";
-	    MatOfByte matOfByte = new MatOfByte();
-	    Imgcodecs.imencode(".png", screen, matOfByte); // Certifique-se de usar `screen` com contornos desenhados
-	    byte[] byteArray = matOfByte.toArray();
-	    try (FileOutputStream fos = new FileOutputStream(outputPath)) {
-	        fos.write(byteArray);
-	    } catch (IOException e) {
-	        e.printStackTrace();
-	    }
-	    
-	    List<Rect> pins = new ArrayList<>();
-	    for (int i = 0; i < 10; i++) {
-	    	pins.add(new Rect());
-	    }
-	    boolean jsonExiste = arquivoExiste("config/pins.json");
-	    System.out.println("pins.json existe? " + jsonExiste);
-	    ScriptLoader scriptLoader = new ScriptLoader();
-	    Map<String, Integer> hashReferencia;
-	    if (jsonExiste) {
-	    	hashReferencia = scriptLoader.carregarPin("config/pins.json");
-	    } else {
-	    	hashReferencia = new HashMap<>();
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000111111000000000111001110000000011000111000000001100011100000000111001110000000011111110000000000111110000000000000000000000000000000000000000000000000000000000000000000000", 0);
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000111111000000000111111110000000011111111000000001111111100000000111111110000000011111110000000000111110000000000000000000000000000000000000000000000000000000000000000000000", 1);
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000000011110000000000011111100000000011111110000000001111111000000000011111100000000000111110000000000011111000000000000000000000000000000000000000000000000000000000000000000000", 2);
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000000011110000000000011111100000000011111110000000001111111000000000011111100000000000111100000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 3);
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001100000000000000111110000000000011111100000000001111110000000000111111000000000011111100000000000011110000000000000011000000000000000000000000000000000000000000000000000000000000000000000", 4);
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111100000000000011110000000000011111100000000011111111000000001111111100000000011111100000000000111100000000000011100000000000000000000000000000000000000000000000000000000000000000000000", 5);
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001110000000000000111000000000000011100000000000001111110000000000111111100000000011100110000000000111111000000000001111000000000000000000000000000000000000000000000000000000000000000000000", 6);
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000001111110000000000111111000000000111111100000000011111111000000001111111100000000111111110000000001111110000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 7);
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000011000000000000111111000000000011111100000000001111110000000000111111000000000011001100000000001111110000000000011110000000000000000000000000000000000000000000000000000000000000000000000", 8);
-		    hashReferencia.put("0000000000000000000000000000000000000000000000000000000000000000000000111000000000001111110000000000111011100000000011111110000000001111111000000000000111100000000000000110000000000000011000000000000000000000000000000000000000000000000000000000000000000000", 9);
-		    
-	    }
-	    
-	    //Achar as coordenadas do OK
-	    int maiorX = 0;
-	    int menorY = 99999;
-	    int rectWidth = 0;
-	    int rectHeight = 0;
-	    
-	    // Lista para armazenar os hashes
-        List<Map<String, String>> pinsList = new ArrayList<>();
-        
-	    for(int i = 0; i < filtrados.size(); i++) {
-            Rect rect = Imgproc.boundingRect(filtrados.get(i));
-
-            Rectangle captureArea2 = new Rectangle(xJanela + rect.x, yJanela + rect.y, rect.width, rect.height);
-            BufferedImage print = robot.createScreenCapture(captureArea2);
-            
-            // Calcular o hash da imagem capturada
-            String hash = calcularHash(print);
-            System.out.println("Hash da imagem " + i + ": " + hash);
-            
-            Integer numero = hashReferencia.get(hash);
-            if (numero != null) {
-                System.out.println("Número identificado: " + numero);
-                pins.set(numero, rect);
-            } else {
-                System.out.println("Número não identificado.");
-            }
-            
-            if (rect.x >= maiorX) {
-            	maiorX = rect.x;
-            }
-            if (rect.y <= menorY) {
-            	menorY = rect.y;
-            }
-            rectWidth = rect.width;
-            rectHeight = rect.height;
-
-            if (!jsonExiste) {
-            	//Salvar imagem
-                File outputFile = new File("imagem" + i + ".png");
-                try {
-                	ImageIO.write(print, "png", outputFile);
-                } catch (IOException e) {
-                	e.printStackTrace();
-                }
-                
-                // Adiciona o hash ao JSON
-                Map<String, String> pinData = new HashMap<>();
-                pinData.put("imagem" + i, hash);
-                pinsList.add(pinData);
-            }
+		for(int j = 0; j < pin.length(); j++) {
+        	char c = pin.charAt(j);
+        	int numeroConvertido = Character.getNumericValue(c);
+        	
+        	BufferedImage numImg = null;
+    		String numPath = numeroConvertido + ".png";
+    		try {
+    			numImg = ImageIO.read(new File(numPath));
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+        	Rect pos = encontrarImagem(numImg, 0.85);
+        	
+        	System.out.println("Numero: " + numeroConvertido + " Localizacao x: " + pos.x + " y: " + pos.y);
+        	
+        	int centerX = xJanela + pos.x + pos.width / 2;
+        	int centerY = yJanela + pos.y + pos.height / 2;
+        	
+        	moverMouse(centerX, centerY);
+        	sleep(500);
+        	clicarMouse();
+        	//Tirando o mouse de cima dos numeros pra pintar direito
+        	sleep(500);
+        	moverMouse(xJanela + 50, yJanela + 50);
+        	sleep(500);
+        	moverMouse(xJanela + 60, yJanela + 60);
+        	sleep(500);
         }
-	    if (!jsonExiste) {
-	    	// Criar e salvar o JSON
-	    	salvarJson(pinsList, "config/pins.json");
-	    }
-        
-	    try {
-	        for(int j = 0; j < pin.length(); j++) {
-	        	char c = pin.charAt(j);
-	        	int numeroConvertido = Character.getNumericValue(c);
-	        	
-	        	Rect pinRect = pins.get(numeroConvertido);
-	        	int centerX = xJanela + pinRect.x + pinRect.width / 2;
-	            int centerY = yJanela + pinRect.y + pinRect.height / 2;
-	            moverMouse(centerX, centerY);
-	            Thread.sleep(500);
-	            clicarMouse();
-	            Thread.sleep(500);
-	        }
-	        System.out.println("Colocar o mouse no Ok");
-		    moverMouse(xJanela + maiorX + rectWidth + 67, yJanela + menorY + (2 * rectHeight) + 7);
-		    Thread.sleep(500);
-		    System.out.println("Clicou no Ok");
-	        clicarMouse();
-	    } catch (InterruptedException e) {
+		sleep(500);
+		BufferedImage okImg = null;
+		String okPath = "config/telas/okPin.png";
+		try {
+			okImg = ImageIO.read(new File(okPath));
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
+    	Rect posOk = encontrarImagem(okImg, 0.85);
+    	
+        System.out.println("Colocar o mouse no Ok");
+	    moverMouse(xJanela + posOk.x + posOk.width / 2, yJanela + posOk.y + posOk.height / 2);
+	    sleep(500);
+	    System.out.println("Clicou no Ok");
+        clicarMouse();
+		 
 	}
 	
 	public String calcularHash(BufferedImage image) {
@@ -2179,26 +2055,10 @@ public class Bot {
 		}
 	
 	public void segurarW() {
-		try {
-			if (interception) {
-				apertarSegurarTeclaInter(KeyEvent.VK_W);
-			} else {
-				robot.keyPress(KeyEvent.VK_W); // Pressiona e segura a tecla W				
-			}
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+		apertarSegurarTecla(KeyEvent.VK_W);
 	}
 	public void soltarW() {
-		try {
-			if (interception) {
-				soltarTeclaInter(KeyEvent.VK_W);
-			} else {
-				robot.keyRelease(KeyEvent.VK_W); // Solta a tecla W				
-			}
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+		soltarTecla(KeyEvent.VK_W);
 	}
 	
 	public void atacarMonstro(MatOfPoint monstro, int tecla, Boolean selfSkill) {
@@ -2244,99 +2104,49 @@ public class Bot {
     }
 	
 	public void clicarMouse() {
-		if (interception) {
-			clickInter();
-			return;
-		}
-		//robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Pressionar o botão esquerdo
-        //sleep(50);
-        //robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK); // Liberar o botão esquerdo*/
-		
-		MouseClicker.clicarMouse();
-		
-		//clickInter();
+		control.click();
 	}
 	public void clicarMouseDireito() {
-		if (interception) {
-			clicarMouseDireitoInter();
-			return;
-		}
-		robot.mousePress(InputEvent.BUTTON3_DOWN_MASK); // Pressionar o botão direito do mouse
-        sleep(50);
-        robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK); // Liberar o botão esquerdo*/
+		control.clicarMouseDireito();
 	}
 	
 	public void clicarSegurarMouse() {
-		if (interception) {
-			clicarSegurarMouseInter();
-			return;
-		}
-		robot.mousePress(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+		control.clicarSegurarMouse();
 	}
 	public void soltarMouse() {
-		if (interception) {
-			soltarMouseInter();
-			return;
-		}
-		robot.mouseRelease(java.awt.event.InputEvent.BUTTON1_DOWN_MASK);
+		control.soltarMouse();
 	}
 	
 	public void moverMouse(int x, int y) {
 		if (x >= getxJanela() + getWidth() || y >= getyJanela() + getHeight() ) {
-			if (interception) {
-				moverMouseInter(coordenadasJogadorTelaX, coordenadasJogadorTelaY);
-			} else {
-				robot.mouseMove(coordenadasJogadorTelaX, coordenadasJogadorTelaY);
-			}
+			control.moverMouse(coordenadasJogadorTelaX, coordenadasJogadorTelaY);
 			System.out.println("Mouse ia sair do limite da tela do ragnarok!!!");
 			return;
 		}
-		if (interception) {
-			moverMouseInter(x, y);
-			return;
-		}
-		robot.mouseMove(x, y);
-		//moverMouseInter(x, y);
+		control.moverMouse(x, y);
 	}
 	
 	public void apertarTecla(int tecla) {
-		if (interception) {
-			apertarTeclaInter(tecla);
-			return;
-		}
-		 robot.keyPress(tecla); // Pressionar a tecla
-		 sleep(50);
-         robot.keyRelease(tecla); // Liberar a tecla
+		control.apertarTecla(tecla);
 	}
 	
 	public void apertarSegurarTecla( int tecla ) {
-		if (interception) {
-			apertarSegurarTeclaInter(tecla);
-			return;
-		}
-		robot.keyPress(tecla); // Pressionar a tecla
+		control.apertarSegurarTecla(tecla);
 	}
 	public void soltarTecla( int tecla ) {
-		if (interception) {
-			soltarTeclaInter(tecla);
-			return;
-		}
-		robot.keyRelease(tecla); // Liberar a tecla
+		control.soltarTecla(tecla);
+	}
+	public void segurarMouseDireito() {
+		control.segurarMouseDireito();
+	}
+	public void soltarMouseDireito() {
+		control.soltarMouseDireito();
 	}
 	
 	private void scrollMouse(int scrollAmount) {
 	    // scrollAmount positivo = scroll up, scrollAmount negativo = scroll down
-		if (interception) {
-			scrollMouseInter(scrollAmount);
-		} else {
-			robot.mouseWheel(scrollAmount);			
-		}
-	    try {
-			Thread.sleep(70);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		control.scrollMouse(scrollAmount);
+	    sleep(70);
 	}
 	
 	public void zoom(int num) {
@@ -2637,34 +2447,18 @@ public class Bot {
 	        
 	        if (isUpperCase || requiresShift) {
 	            // Pressiona Shift para letras maiúsculas
-	        	if (interception) {
-	        		apertarSegurarTeclaInter(KeyEvent.VK_SHIFT);
-	        	} else {
-	        		robot.keyPress(KeyEvent.VK_SHIFT);
-	        	}
+	        	apertarSegurarTecla(KeyEvent.VK_SHIFT);
 	        }
 	        
-	        if (interception) {
-	        	apertarTeclaInter(keyCode);
-	        } else {
-	        	robot.keyPress(keyCode);
-	        	robot.keyRelease(keyCode);	        	
-	        }
+	        apertarTecla(keyCode);
 	        
 	        if (isUpperCase || requiresShift) {
 	            // Solta Shift após a letra maiúscula
-	        	if (interception) {
-	        		soltarTeclaInter(KeyEvent.VK_SHIFT);
-	        	} else {
-	        		robot.keyRelease(KeyEvent.VK_SHIFT);	        		
-	        	}
+	        	soltarTecla(KeyEvent.VK_SHIFT);
 	        }
-	        try {
-				Thread.sleep(100);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} // Pausa entre as teclas para simular digitação humana
+	       
+			sleep(100);
+			
 	    }
 	}
 	
@@ -2760,6 +2554,49 @@ public class Bot {
 	    } catch (IOException e) {
 	        e.printStackTrace();
 	    }
+	}
+	
+	public Rect encontrarImagem(BufferedImage imagemAlvo, double threshold) {
+	    // Captura a tela do jogo
+	    BufferedImage tela = printarTela();
+
+	    // Converte as imagens BufferedImage para Mat
+	    Mat telaMat = bufferedImageToMat(tela);
+	    Mat imagemAlvoMat = bufferedImageToMat(imagemAlvo);
+
+	    // Converte para tons de cinza para facilitar a detecção
+	    Mat telaGray = new Mat();
+	    Mat alvoGray = new Mat();
+	    Imgproc.cvtColor(telaMat, telaGray, Imgproc.COLOR_BGR2GRAY);
+	    Imgproc.cvtColor(imagemAlvoMat, alvoGray, Imgproc.COLOR_BGR2GRAY);
+
+	    // Resultado da comparação
+	    int resultCols = telaGray.cols() - alvoGray.cols() + 1;
+	    int resultRows = telaGray.rows() - alvoGray.rows() + 1;
+	    Mat result = new Mat(resultRows, resultCols, CvType.CV_32FC1);
+
+	    // Aplica o template matching
+	    Imgproc.matchTemplate(telaGray, alvoGray, result, Imgproc.TM_CCOEFF_NORMED);
+
+	    // Localiza o melhor resultado
+	    Core.MinMaxLocResult mmr = Core.minMaxLoc(result);
+	    double maxVal = mmr.maxVal;
+
+	    System.out.println("Resultado da similaridade (template matching): " + maxVal);
+
+	    // Se o valor máximo for maior que o limiar (threshold), retorna o retângulo da posição
+	    if (maxVal >= threshold) {
+	    	org.opencv.core.Point matchLoc = mmr.maxLoc;
+	        return new Rect(
+	            (int) matchLoc.x,
+	            (int) matchLoc.y,
+	            imagemAlvoMat.cols(),
+	            imagemAlvoMat.rows()
+	        );
+	    }
+
+	    // Caso contrário, não encontrou nada
+	    return null;
 	}
 	
 	public void escolherPersonagem(int num, int pagina) {
@@ -3003,51 +2840,27 @@ public class Bot {
 	    }
 
 	    // Pressionar Alt
-	    if (interception) {
-	    	apertarSegurarTeclaInter(KeyEvent.VK_ALT);
-	    } else {
-	    	robot.keyPress(KeyEvent.VK_ALT);	    	
-	    }
+	    apertarSegurarTecla(KeyEvent.VK_ALT);
 
 	    // Obter a tecla correspondente ao número
 	    int keyCode = KeyEvent.VK_0 + numero;
 
 	    // Pressionar o número
-	    if (interception) {
-	    	apertarTeclaInter(keyCode);
-	    } else {
-	    	robot.keyPress(keyCode);
-	    	robot.keyRelease(keyCode);	    	
-	    }
+	    apertarTecla(keyCode);
 	    sleep(100);
 	    // Soltar Alt
-	    if (interception) {
-	    	soltarTeclaInter(KeyEvent.VK_ALT);
-	    } else {
-	    	robot.keyRelease(KeyEvent.VK_ALT);   	
-	    }
-	    
-
+	    soltarTecla(KeyEvent.VK_ALT);
 	}
 	
 	//notebook
 	public void visaoDeCima() {
 		// Pressionar Ctrl e Shift
-		if (interception) {
-			apertarSegurarTeclaInter(KeyEvent.VK_CONTROL);
-			apertarSegurarTeclaInter(KeyEvent.VK_SHIFT);
-		} else {
-			robot.keyPress(KeyEvent.VK_CONTROL);
-			robot.keyPress(KeyEvent.VK_SHIFT);
-		}
+		apertarSegurarTecla(KeyEvent.VK_CONTROL);
+		apertarSegurarTecla(KeyEvent.VK_SHIFT);
 		
 		// Pressionar o botão direito do mouse
-		if (interception) {
-			segurarMouseDireitoInter();
-		} else {
-			robot.mousePress(InputEvent.BUTTON3_DOWN_MASK);			
-		}
-
+		segurarMouseDireito();
+		
 		if (JanelaPrincipal.obterSalaSelecionada().equals("1")) {
 			moverMouse(this.xJanela + coordenadasJogadorTelaX, this.yJanela + coordenadasJogadorTelaY - 50);
 		} else {
@@ -3062,27 +2875,17 @@ public class Bot {
 
 		sleep(20);
 		// Mover o mouse 300 pixels para baixo
-		if (interception) {
-			moverMouseInter(currentX, currentY + 250);
-		} else {
-			robot.mouseMove(currentX, currentY + 250);			
-		}
+		moverMouse(currentX, currentY + 250);
+		
 		sleep(100);
 		// Soltar o botão direito do mouse
-		if (interception) {
-			soltarMouseDireitoInter();
-		} else {
-			robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK);			
-		}
+		soltarMouseDireito();
 
 		// Soltar Ctrl e Shift
-		if (interception) {
-			soltarTeclaInter(KeyEvent.VK_SHIFT);
-			soltarTeclaInter(KeyEvent.VK_CONTROL);
-		} else {
-			robot.keyRelease(KeyEvent.VK_SHIFT);
-			robot.keyRelease(KeyEvent.VK_CONTROL);
-		}
+
+		soltarTecla(KeyEvent.VK_SHIFT);
+		soltarTecla(KeyEvent.VK_CONTROL);
+		
 		
 	}
 	
@@ -3125,33 +2928,16 @@ public class Bot {
 	        }
 
 	        // Pressiona a tecla Alt
-	        if (interception) {
-	        	apertarSegurarTeclaInter(KeyEvent.VK_ALT);
-	        } else {
-	        	robot.keyPress(KeyEvent.VK_ALT);	        	
-	        }
+	        apertarSegurarTecla(KeyEvent.VK_ALT);
 
 	        // Determina a tecla correspondente ao número
 	        int keyCode = KeyEvent.VK_0 + numero;
 
 	        // Pressiona e solta a tecla do número
-	        if (interception) {
-	        	apertarTeclaInter(keyCode);
-	        } else {
-	        	robot.keyPress(keyCode);
-		        sleep(100);
-		        robot.keyRelease(keyCode);
-	        }
-	        
+	        apertarTecla(keyCode);
 
 	        // Solta a tecla Alt
-	        if (interception) {
-	        	soltarTeclaInter(KeyEvent.VK_ALT);
-	        } else {
-	        	robot.keyRelease(KeyEvent.VK_ALT);        	
-	        }
-	        
-
+	        soltarTecla(KeyEvent.VK_ALT);
 
 	    }
 	    
