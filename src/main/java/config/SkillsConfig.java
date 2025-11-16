@@ -33,8 +33,15 @@ public class SkillsConfig {
 	private String atalhoAcessorio;
 	private String atalhoInvocarFainha;
 	private Boolean rico;
+	private String atalhoPilulaHp;
 	
 	
+	public String getAtalhoPilulaHp() {
+		return atalhoPilulaHp;
+	}
+	public void setAtalhoPilulaHp(String atalhoPilulaHp) {
+		this.atalhoPilulaHp = atalhoPilulaHp;
+	}
 	public Boolean getRico() {
 		return rico;
 	}

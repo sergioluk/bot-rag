@@ -270,52 +270,40 @@ public class GameController implements Runnable {
 			Color azulTexto = new Color(0, 66, 255);
 			Color laranja = new Color(230, 66, 0);
 			bot.contarPixelsDeUmaImagem(f3, azulTexto, x, y, width, height);
+			
+			List<Integer> listaBuffs = bot.listarStatus();
+			System.out.println("Buffs: " + listaBuffs.toString()); 
 
 			System.out.println("Começando...");
 			bot.sleep(3000);
+			/*
 			System.out.println("Iniciando o interception");
 			Bot.iniciarInterception();
-			/*
-			 * System.out.println("Movendo para (864, 363)"); Bot.moverMouseInter(864, 363);
-			 * bot.sleep(1000); System.out.println("Movendo para (864, 433)");
-			 * Bot.moverMouseInter(864, 433); bot.sleep(1000);
-			 * System.out.println("Movendo para (542, 418)"); Bot.moverMouseInter(542, 418);
-			 * bot.sleep(1000); Bot.clickInter(); System.out.println("Terminando teste");
-			 * bot.sleep(1000); Bot.apertarTeclaInter(KeyEvent.VK_C);
-			 * System.out.println("Apertando C"); bot.sleep(500);
-			 * Bot.apertarTeclaInter(KeyEvent.VK_A); System.out.println("Apertando A");
-			 * bot.sleep(500); Bot.apertarTeclaInter(KeyEvent.VK_B);
-			 * System.out.println("Apertando B");
-			 */
-
-			/*bot.sleep(1000);
-			System.out.println("Scrolando pra cima");
-			for (int i = 0; i < 10; i++) {
-				Bot.scrollMouseInter(1); // Scroll up
-				bot.sleep(50);
-			}
+			
+			System.out.println("Apertando enter");
+			//bot.apertarTecla(13);
 			bot.sleep(1000);
-			System.out.println("Scrolando pra baixo");
-			for (int i = 0; i < 10; i++) {
-				Bot.scrollMouseInter(-1); // Scroll down
-				bot.sleep(50);
-			}*/
-			/*
-			 * bot.sleep(1000); System.out.println("Apertando e segurando a tecla E");
-			 * Bot.apertarSegurarTeclaInter(KeyEvent.VK_E); bot.sleep(3000);
-			 * System.out.println("Soltando a tecla E");
-			 * Bot.soltarTeclaInter(KeyEvent.VK_E); bot.sleep(5000);
-			 * System.out.println("clicando botao direito do mouse");
-			 * Bot.clicarMouseDireitoInter(); bot.sleep(2000);
-			 * System.out.println("clicando e segurando o mouse");
-			 * Bot.clicarSegurarMouseInter(); bot.sleep(5000);
-			 * System.out.println("soltando o mouse"); Bot.soltarMouseInter();
-			 * bot.sleep(2000);
-			 * System.out.println("clicando e segurando o botao direito do mouse");
-			 * Bot.segurarMouseDireitoInter(); bot.sleep(5000);
-			 * System.out.println("soltando o botao direito do mouse");
-			 * Bot.soltarMouseDireitoInter();
-			 */
+			System.out.println("vk_down: " + KeyEvent.VK_DOWN);
+			bot.sleep(1000);
+			bot.apertarTecla(KeyEvent.VK_F1);
+			bot.sleep(1000);
+			bot.clicarMouse();
+			bot.apertarTecla(KeyEvent.VK_DOWN);
+			bot.sleep(1000);
+			bot.apertarTecla(KeyEvent.VK_DOWN);
+			bot.sleep(1000);
+			bot.apertarTecla(KeyEvent.VK_DOWN);
+			bot.sleep(1000);
+			bot.apertarTecla(KeyEvent.VK_DOWN);
+			bot.sleep(1000);
+			bot.apertarTecla(KeyEvent.VK_DOWN);
+			bot.sleep(1000);
+			bot.zoom(-28);
+			*/
+			
+			buffarVip();
+			
+			
 			System.out.println("terminou o teste");
 			Bot.encerrarInterception();
 			/*
@@ -2035,12 +2023,13 @@ public class GameController implements Runnable {
 			//Mandar comando pro slave para logar
 			Mestre.enviarComando(Comando.LOGAR);
 		}
-		System.out.println("Aceitando o contrado");
-		bot.aceitarContrato();
+		//System.out.println("Aceitando o contrato");
+		//bot.aceitarContrato();
 
-		System.out.println("Apertando enter na selecao de servidor");
-		bot.apertarTecla(KeyEvent.VK_ENTER);
-		bot.sleep(500);
+		//bot.sleep(1000);
+		//System.out.println("Apertando enter na selecao de servidor");
+		//bot.apertarTecla(KeyEvent.VK_ENTER);
+		bot.sleep(1000);
 		// todo
 		String usuario = scriptContas.getContas().get(indexConta).getUsuario();
 		String senha = scriptContas.getContas().get(indexConta).getSenha();
@@ -3010,6 +2999,9 @@ public class GameController implements Runnable {
 			// Buffar todos que eu quero
 			for (Buff b : bot.buffs) {
 				if (!buffsMemoria.contains(b.getEffect().getId())) { // Se o buff não estiver na memoria, BUFFAR!
+					if (b.getEffect().toString().equals(Effects.COMIDAVIP.toString())) {
+						buffarVip();
+					}
 					// usar o buff
 					if (b.getEffect().toString().equals(Effects.MYST_AMPLIFY.toString())) {
 						System.out.println("Equipando Solomon Pendant");
@@ -3705,6 +3697,55 @@ public class GameController implements Runnable {
 			
 		}
 
+	}
+	
+	public void buffarVip() {
+		System.out.println("Apertando alt 6");
+		List<MatOfPoint> balaoNpc = new ArrayList<>();
+		int contador = 0;
+		do {
+			balaoNpc = bot.balaoNpc();
+			if (!balaoNpc.isEmpty()) {
+				break;
+			}
+			bot.sleep(500);
+			bot.atalhoAltM(6);
+			contador++;
+		} while (contador < 10);
+		contador = 0;
+		bot.sleep(500);
+		System.out.println("Escolhendo 3 opção");
+		for (int i = 0; i < 3; i++) {
+			bot.apertarTecla(KeyEvent.VK_DOWN);
+			bot.sleep(100);
+		}
+		
+		balaoNpc = new ArrayList<>();
+		do {
+			contador++;
+			bot.apertarTecla(KeyEvent.VK_ENTER);
+			bot.sleep(500);
+			balaoNpc = bot.balaoNpc();
+			if (balaoNpc.isEmpty()) {
+				break;
+			}
+			System.out.println("Dando enter até terminar o dialogo");
+		} while (contador < 30);
+		
+		System.out.println("Buffando a pilula de hp");
+		contador = 0;
+		int atalho = KeyMapper.getTeclaAtalho(this.skillsConfig.getAtalhoPilulaHp());
+		do {
+			bot.apertarTecla(atalho);
+			contador++;
+			bot.sleep(100);
+			
+			List<Integer> buffsList = bot.listarStatus();
+			if (buffsList.contains(Effects.PIPULAHP.getId())) {
+				break;
+			}
+		} while (contador < 30);
+		System.out.println("Pilula tomada!");
 	}
 
 

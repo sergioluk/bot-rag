@@ -1,9 +1,9 @@
 {
     "contas": [
         { 
-            "usuario" : "u",
-            "senha" : "s",
-            "pin" : "p",
+            "usuario" : "instanciagg1",
+            "senha" : "Hehexd2511",
+            "pin" : "2511",
             "personagens" : [
                 {
                     "pagina" : 1,

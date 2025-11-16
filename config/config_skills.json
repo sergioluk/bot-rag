@@ -33,6 +33,8 @@
   "atalhoAcessorio": "6",
   "atalhoInvocarFainha": "I",
 
+  "atalhoPilulaHp": "F9",
+
   
   "classesDisponiveis" : ["sorc","mago","arqueiro","monk","pala"],
   
@@ -124,6 +126,12 @@
             "cd": 1,
             "self": true,
             "effect": "MYST_AMPLIFY"
+          },
+          {
+            "atalho": "VIP",
+            "cd": 1,
+            "self": true,
+            "effect": "COMIDAVIP"
           }
         ]
       },

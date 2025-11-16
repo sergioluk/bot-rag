@@ -8,6 +8,8 @@ public enum Effects {
 	MYST_AMPLIFY(113),
 	FURACAO(112),
 	FADINHA(554),
+	PIPULAHP(297),
+	COMIDAVIP(271),
 	
 	POISON(883),
     SILENCE(885),

@@ -64,6 +64,7 @@ import com.ragnarokbot.model.MemoryScanner;
 import com.ragnarokbot.model.MonstrosImagem;
 import com.ragnarokbot.model.MyUser32;
 import com.ragnarokbot.model.OcrResult;
+import com.ragnarokbot.model.enums.Effects;
 import com.ragnarokbot.model.enums.Estado;
 import com.ragnarokbot.model.enums.Mapa;
 import com.ragnarokbot.telas.JanelaPrincipal;
@@ -71,6 +72,7 @@ import com.ragnarokbot.telas.JanelaPrincipal;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import utils.KeyMapper;
 import utils.MouseClicker;
 
 import com.sun.jna.platform.win32.WinDef;
@@ -3373,5 +3375,6 @@ public class Bot {
         }
 		return 0;
 	}
+	
 	
 }
