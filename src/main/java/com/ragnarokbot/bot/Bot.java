@@ -2913,6 +2913,13 @@ public class Bot {
 		public int getHpAtual() {
 			return memoria.obterHP(memoria.processId, memoria.addressHp);
 		}
+		public int getMaxHp() {
+			return memoria.obterHP(memoria.processId, memoria.addressMaxHp);
+		}
+		public int getZeny() {
+			return memoria.obterZeny(memoria.processId, memoria.addressZeny);
+		}
+		
 		
 		public String getMemoriaString() {
 			return memoria.obterStringMemoria(memoria.processId, memoria.addressString);

@@ -34,6 +34,9 @@ public class MemoryScanner {
 	//public static long addressName = 0x00E90C00; //tales
 	public static long addressName = 0;
 	
+	public static long addressZeny = 0x1583658; //history
+	public static long addressMaxHp = 0x15874D4; //history
+	
 	
 	
     public interface Kernel32 extends Library {
@@ -139,6 +142,44 @@ public class MemoryScanner {
             Kernel32.INSTANCE.CloseHandle(processHandle);
         }
     }
+    
+    public int obterZeny(int processId, long addressZeny) {
+        Pointer processHandle = Kernel32.INSTANCE.OpenProcess(
+                Kernel32.PROCESS_VM_READ | Kernel32.PROCESS_QUERY_INFORMATION,
+                false,
+                processId
+        );
+
+        if (processHandle == null) {
+            System.err.println("Não foi possível abrir o processo.");
+            return -1; // Retorna -1 para indicar erro
+        }
+
+        byte[] bufferHP = new byte[4]; // Buffer para o valor de HP (4 bytes para um int)
+        IntByReference bytesRead = new IntByReference();
+
+        try {
+            boolean successHP = Kernel32.INSTANCE.ReadProcessMemory(
+                    processHandle,
+                    new Pointer(addressZeny),
+                    bufferHP,
+                    bufferHP.length,
+                    bytesRead
+            );
+
+            if (successHP && bytesRead.getValue() == 4) {
+                // Converte o buffer para um inteiro
+                return java.nio.ByteBuffer.wrap(bufferHP).order(java.nio.ByteOrder.LITTLE_ENDIAN).getInt();
+            } else {
+                System.err.println("Erro ao ler memória para Zeny.");
+                return -1;
+            }
+
+        } finally {
+            Kernel32.INSTANCE.CloseHandle(processHandle);
+        }
+    }
+    
     
     public static String obterStringMemoria(int processId, long addressString) {
         Pointer processHandle = Kernel32.INSTANCE.OpenProcess(

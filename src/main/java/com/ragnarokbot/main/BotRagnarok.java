@@ -160,197 +160,14 @@ public class BotRagnarok {
 		// Apagar
 		
 		
-		//System.out.println("Lista de status: " + bot.listarStatus());
 		
-		
-		//Rect m = bot.getArmazem();
-		//System.out.println("Armazem Altura: " + m.height + " Largura: " + m.width);
-		/*List<MatOfPoint> balao = null;
-		do {
-			balao = bot.verificarBalaoNpcTeleport();
-			System.out.print(balao.size());
-			if (!balao.isEmpty()) {
-				Rect m = Imgproc.boundingRect(balao.get(0));
-				System.out.println("Npc Altura: " + m.height + " Largura: " + m.width);
-				
-			}
-			System.out.println("Procurando balao");
-			bot.sleep(200);
-		} while(balao.isEmpty());*/
-	
-		
-		/*
-		Rect m = null;
-		
-		m = bot.getAltQ();
-		
-		m = bot.getArmazem();//Procurando o armazem
-		
-		
-		m = bot.getInventario();//procurando inventario
-		
-		
-		if (m != null) {
-			bot.guardarItensArmazem(m);//guardando os itens no armazem
-		}
-		
-		m = bot.getArmazem();//Procurando o armazem
-		
-		if (m != null) {
-			bot.removerItensArmazem( m); //pegando os itens devolta
-		}
-		
-		m = bot.getInventario();//procurando inventario
-		
-		if (m != null) {
-			bot.equipandoItens(m); //equipando os itens
-		}*/
-		
-		
-		
-		
-		/*Mat screen = bot.bufferedImageToMat(bot.printarParteTela( m.x, m.y, m.width, m.height));
-		Scalar greenColor = new Scalar(0, 255, 0); // Cor verde para os contornos
-	    Imgproc.drawContours(screen, inventario, -1, greenColor, 2);
-	    // Salvar a imagem com os contornos desenhados
-	    String contouredImagePath = "imagem_com_contornos.png";
-	    Imgcodecs.imwrite(contouredImagePath, screen);
-	    System.out.println("Imagem com contornos salva em: " + contouredImagePath);
-		*/
-		
-		//MemoryScanner memoria = new MemoryScanner();
-		//Coordenadas atual = memoria.obterCoordenadas(9820, memoria.addressX, memoria.addressY);
-		//bot.setarMouseEmCoordenadaTela(atual, new Coordenadas(194,78));
-		//System.out.println("inventario: " + m.size());
-		//bot.executarInstancia("oi");
-		//bot.realizarLogin("asd","123");
-		//bot.detectarPixelsAmarelos(222, 240, 658, 183);
-		//bot.printarTela();
-		/*boolean detectou = bot.detectarPixelsAmarelos(654, 180, 658, 183);
-		System.out.println("Detectou? " + detectou);*/
-		/*String path = "config/minimapas/valkiria.png";
-		int labirinto = 5;
-    	gameController.verificarSeMudouMapa(path, labirinto);*/
-
-		/*
-		 * GrafoMapa grafo = new GrafoMapa();
-		 * 
-		 * // Adiciona conexões no grafo grafo.addConexao(new Coordenadas(11, 20), new
-		 * Coordenadas(12, 15)); grafo.addConexao(new Coordenadas(12, 15), new
-		 * Coordenadas(12, 10)); grafo.addConexao(new Coordenadas(12, 15), new
-		 * Coordenadas(11, 20)); grafo.addConexao(new Coordenadas(12, 10), new
-		 * Coordenadas(15, 10)); grafo.addConexao(new Coordenadas(15, 10), new
-		 * Coordenadas(17, 15)); grafo.addConexao(new Coordenadas(17, 15), new
-		 * Coordenadas(17, 20));
-		 * 
-		 * grafo.addConexao(new Coordenadas(12, 10), new Coordenadas(13, 5));
-		 * grafo.addConexao(new Coordenadas(15, 10), new Coordenadas(14, 8));
-		 * grafo.addConexao(new Coordenadas(13, 5), new Coordenadas(14, 2));
-		 * grafo.addConexao(new Coordenadas(14, 8), new Coordenadas(13, 5));
-		 * 
-		 * Coordenadas inicio = new Coordenadas(17, 20); // Coordenada atual não mapeada
-		 * Coordenadas destino = new Coordenadas(14, 2); // Coordenada final não mapeada
-		 * 
-		 * AStar aStar = new AStar(); List<Coordenadas> caminho =
-		 * aStar.calcularCaminhoComExpansao(inicio, destino, grafo);
-		 * 
-		 * for (Coordenadas nodo : caminho) { System.out.println(nodo.x + " " + nodo.y);
-		 * }
-		 */
-
-		/*SwingUtilities.invokeLater(() -> {
-			ProcessSelector selector = new ProcessSelector();
-			selector.setVisible(true);
-
-			// Esperar até a janela ser fechada
-			selector.addWindowListener(new java.awt.event.WindowAdapter() {
-				@Override
-				public void windowClosed(java.awt.event.WindowEvent windowEvent) {
-					System.out.println("PID selecionado: " + selector.getSelectedPid());
-					MemoryScanner.processId = selector.getSelectedPid();
-					try {
-						ITesseract tesseract = new Tesseract();
-						tesseract.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
-						tesseract.setLanguage("eng");
-						// Configurar whitelist para reconhecer apenas números
-						tesseract.setTessVariable("tessedit_char_whitelist", "0123456789 ");
-						tesseract.setTessVariable("preserve_interword_spaces", "1");
-						tesseract.setTessVariable("user_defined_dpi", "300"); // 150 é rápido e suficiente para números
-
-						ITesseract tesseractLetras = new Tesseract();
-						tesseractLetras.setDatapath("C:/Program Files/Tesseract-OCR/tessdata");
-						tesseractLetras.setLanguage("eng");
-
-						Robot robot = new Robot();
-						Bot bot = new Bot(tesseract, robot, tesseractLetras);
-
-						// Tela tela = new Tela(bot);
-						// SwingUtilities.invokeLater(() -> tela.setVisible(true)); //Exibe a janela
-						// SwingUtilities.invokeLater( () -> new Tela(bot));
-
-						// GameController gameController = new GameController(bot, tela);
-						GameController gameController = new GameController(bot);
-						// gameController.run();
-
-						janelaPrincipal = new JanelaPrincipal(gameController);
-						janelaPrincipal.setVisible(true);
-
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-				}
-			});
-		});*/
-		
-		
-		/*Rect r = Imgproc.boundingRect(bot.procurarBarraSkills().get(0)); //x+4,y+18 w8 h11
-		int x = r.x + 4;
-		int y = r.y + 18;
-		BufferedImage barra = bot.abrirImagem("config/skills/barra.png");
-		BufferedImage verificarCometa = bot.printarParteTela(x, y, 8, 11);
-		
-		if (bot.compararImagens(barra, verificarCometa, 2)) {
-			System.out.println("Barra 1");
-		} else {
-			System.out.println("Barra 2");
-		}*/
-		/*bot.sleep(100);
-		bot.moverMouse(bot.getxJanela() + x + 4, bot.getyJanela() + y + 5);
-		bot.sleep(100);
-		bot.clicarMouse();
-		bot.sleep(100);
-		bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight()/2);
-		bot.sleep(100);*/
-		
-		/*BufferedImage verificarCometa2 = bot.printarParteTela(x, y, 8, 11);
-		
-		if (bot.compararImagens(barra, verificarCometa2, 2)) {
-			System.out.println("Barra 1");
-		} else {
-			System.out.println("Barra 2");
-		}*/
-		/*int id = 22992;
-		List<Integer> status = bot.listarStatus(id);
-		for (int buff : status) {
-			if (buff == Effects.ARMA_REMOVIDO.getId())
-				System.out.println("sem arma");
-			if (buff == Effects.ESCUDO_REMOVIDO.getId())
-				System.out.println("sem escudo");
-			if (buff == Effects.ELMO_REMOVIDO.getId())
-				System.out.println("sem elmo");
-			if (buff == Effects.ARMADURA_REMOVIDO.getId())
-				System.out.println("sem armadura");
-		}
-		System.out.println("Itens status: " + status.toString());*/
-
-		// gameController.run();
 		System.out.println("Iniciando...");
 
 		String filePath = "C:\\Users\\Sérgio\\Desktop\\enderecos.txt";
 		findDuplicateAddresses(filePath);
 
-		int processId = 22880;
-		int valueToFind = 115;
+		int processId = 5564;
+		int valueToFind = 90764;
 		System.out.println("-----------Memoria----------");
 		/*MemoryScanner.processId = 22880;
 		System.out.println("HP tales: " + bot.getHpAtual());
@@ -364,7 +181,7 @@ public class BotRagnarok {
 		
 		// short valueToFind = 68;
 		//procurarInt(processId,valueToFind);
-		//mostrarValorMemoria(processId, 0xE77288, 0xE77288 + 4); //x: 0xE77288
+		//mostrarValorMemoria(processId, 0x15874D0, 0x15874D4); //x: 0xE77288
 		// procurarShort(processId, valueToFind);
 		String nome = "alberta";
 		// String nome = "obteve Moeda de Inst�ncia";

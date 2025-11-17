@@ -67,8 +67,10 @@ import com.ragnarokbot.bot.Bot;
 import com.ragnarokbot.bot.Mestre;
 import com.ragnarokbot.bot.Tela;
 import com.ragnarokbot.main.GameController;
+import com.ragnarokbot.model.Coordenadas;
 import com.ragnarokbot.model.MemoryScanner;
 import com.ragnarokbot.model.enums.Comando;
+import com.ragnarokbot.model.enums.ComandoRecebido;
 import com.sun.jna.platform.win32.User32;
 
 import config.Conexao;
@@ -1042,14 +1044,24 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             System.out.println("Conectado ao mestre em " + MASTER_IP);
             
             BufferedReader in = new BufferedReader( new InputStreamReader(socket.getInputStream()));
-            String comando;
+            String linha;
             
-            while((comando = in.readLine()) != null) {
+            while((linha = in.readLine()) != null) {
+            	String[] partes = linha.split("\\|");
+            	
                 try {
-                    Comando cmd = Comando.valueOf(comando); //Converte String -> Enum
-                    executarComando(cmd);
+                    Comando cmd = Comando.valueOf(partes[0]); //Converte String -> Enum
+                    int x = 0; int y = 0;
+                    if (partes.length > 1) {
+                    	x = Integer.parseInt(partes[1]);
+                    	y = Integer.parseInt(partes[2]);
+                    }
+                    Coordenadas destino = new Coordenadas(x, y);
+                    
+                    gameController.fila.add(new ComandoRecebido(cmd, destino));
+                    //executarComando(cmd, destino);
                 } catch (IllegalArgumentException e) {
-                    System.out.println("Comando invalido recebido: " + comando);
+                    System.out.println("Comando invalido recebido: " + linha);
                 }
             }
         } catch (IOException e) {
@@ -1107,7 +1119,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
 		}
 
 	}
-	private void executarComando(Comando cmd) {
+	private void executarComando(Comando cmd, Coordenadas destino) {
         switch (cmd) {
         case LOGAR:
             System.out.println("Logar");
@@ -1131,6 +1143,19 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             System.out.println("Parando");
             gameController.slaveEstado = Comando.PARAR_BOT;
             break;
+        case ANDAR_ATE:
+        	System.out.println("Andando até " + destino);
+        	gameController.slaveEstado = Comando.ANDAR_ATE;
+        	gameController.andarAte = destino;
+        	break;
+        case ANDARPROXIMASALATOMB:
+        	System.out.println("Andando para a próxima area de tomb");
+        	gameController.slaveEstado = Comando.ANDARPROXIMASALATOMB;
+        	break;
+        case SAIRTOMBGUARDARITENS:
+        	System.out.println("Saindo de tomb e guardando itens no armazem");
+        	gameController.slaveEstado = Comando.SAIRTOMBGUARDARITENS;
+        	break;
         default:
             throw new IllegalArgumentException("Unexpected value: " + cmd);
         }
