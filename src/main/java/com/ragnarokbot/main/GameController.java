@@ -1813,6 +1813,13 @@ public class GameController implements Runnable {
 			distanciaMinima = 3;
 			System.out.println("Diminuindo range de verificacao pra passar no portal");
 		}
+		if (script.getMapa().equals("tomb_of_remorse.png") && rota == 6 && passo == 14) {
+			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+				System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
+				Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB);
+			}
+			
+		}
 		if (bot.calcularDistancia(atual, verificarCoordenadas) <= distanciaMinima) {
 			System.out.println(
 					"Rota aumentada de verdade pela verificacao do teleport : " + verificarX + " " + verificarY);
