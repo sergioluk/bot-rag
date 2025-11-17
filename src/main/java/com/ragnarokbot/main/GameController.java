@@ -516,7 +516,13 @@ public class GameController implements Runnable {
 							System.out.println("Chegou na quarta area");
 						} else if (c.x >= 184 && c.x <= 239 && c.y >= 50 && c.y <= 89) {
 							System.out.println("Slave está na quarta area!");
-						}		
+						}
+						bot.sleep(50);
+						bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight()/2);
+						bot.sleep(50);
+						bot.soltarMouse();
+						bot.sleep(50);
+						bot.clicarMouse();
 						slaveEstado = Comando.IDLE;
 						break;
 					case SAIRTOMBGUARDARITENS:
@@ -823,13 +829,14 @@ public class GameController implements Runnable {
 				}
 				horaDeBuffar = false;
 				System.out.println("Rota aumentada !");
-				rota++;
+				aumentarRota();
+				/*rota++;
 				elseAcoes = 0;
 				passo = 0;
 				passoAlternativo = 0;
 				if (rota >= script.getRotas().size()) {
 					finalizarRota(script, 5);
-				}
+				}*/
 			}
 
 			int timeRand = ThreadLocalRandom.current().nextInt(5000, 10001);
@@ -1305,14 +1312,15 @@ public class GameController implements Runnable {
 			finalizarRota(script, 5);
 			stateMachine.mudarEstado(Estado.ANDANDO);
 		} else {
-			rota++;
+			aumentarRota();
+			/*rota++;
 			elseAcoes = 0;
 			passo = 0;
 			passoAlternativo = 0;
 
 			if (rota >= script.getRotas().size()) {
 				finalizarRota(script, 5);
-			}
+			}*/
 		}
 	}
 
@@ -1668,11 +1676,7 @@ public class GameController implements Runnable {
 		if (script.getRotas().get(rota).getPassos().get(passo).getPortal() != null) {
 			if (bot.calcularDistancia(atual, obterDestinoAtual(script)) <= distanciaMinima) {
 				System.out.println("Dormindo por 3s para dar tempo de entrar no portal");
-				if (script.getMapa().equals("tomb_of_remorse.png")) {
-					if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
-						Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB);
-					}
-				}
+				
 				bot.sleep(3000);
 			}
 		}
@@ -1700,6 +1704,15 @@ public class GameController implements Runnable {
 			if (contagemErro >= 50) {
 				contagemErro = 0;
 				rota++;
+				if (script.getMapa().equals("tomb_of_remorse.png") && (rota == 1 || rota == 5)) {
+					System.out.println("SAJDNJASD asjdnASNDja sajdnasja asdnjasndja asjdnjasd");
+					System.out.println("SAJDNJASD asjdnASNDja sajdnasja asdnjasndja asjdnjasd");
+					System.out.println("SAJDNJASD asjdnASNDja sajdnasja asdnjasndja asjdnjasd");
+					System.out.println("SAJDNJASD asjdnASNDja sajdnasja asdnjasndja asjdnjasd");
+					if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+						Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB);
+					}
+				}
 				passo = 0;
 			}
 		} else {
@@ -1764,13 +1777,14 @@ public class GameController implements Runnable {
 			andarAteCoordenada(new Coordenadas(210,64));
 			
 			System.out.println("Rota aumentada !");
-			rota++;
+			aumentarRota();
+			/*rota++;
 			elseAcoes = 0;
 			passo = 0;
 			passoAlternativo = 0;
 			if (rota >= script.getRotas().size()) {
 				finalizarRota(script, 5);
-			}
+			}*/
 			break;
 		default:
 			System.out.println("Tipo de verificação desconhecido: " + verificacao);
@@ -1790,10 +1804,25 @@ public class GameController implements Runnable {
 		bot.moverMouse(bot.getxJanela() + bot.getWidth() / 2, bot.getyJanela() + bot.getHeight() / 2);
 		bot.sleep(tempo);
 		System.out.println("Rota aumentada !");
-		rota++;
+		/*rota++;
 		elseAcoes = 0;
 		passo = 0;
 		passoAlternativo = 0;
+		if (rota >= script.getRotas().size()) {
+			finalizarRota(script, 5);
+		}*/
+		aumentarRota();
+	}
+	
+	private void aumentarRota() {
+		rota++;
+		System.out.println("Rota: " + rota);
+		if (script.getMapa().equals("tomb_of_remorse.png") && (rota == 1 || rota == 5)) {
+			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+				Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB);
+			}
+		}
+		passo = 0;
 		if (rota >= script.getRotas().size()) {
 			finalizarRota(script, 5);
 		}
@@ -1813,7 +1842,7 @@ public class GameController implements Runnable {
 			distanciaMinima = 3;
 			System.out.println("Diminuindo range de verificacao pra passar no portal");
 		}
-		if (script.getMapa().equals("tomb_of_remorse.png") && rota == 6 && passo == 14) {
+		if (script.getMapa().equals("tomb_of_remorse.png") && rota == 6 && passo == 8) {
 			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
 				System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
 				Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB);
@@ -1823,7 +1852,8 @@ public class GameController implements Runnable {
 		if (bot.calcularDistancia(atual, verificarCoordenadas) <= distanciaMinima) {
 			System.out.println(
 					"Rota aumentada de verdade pela verificacao do teleport : " + verificarX + " " + verificarY);
-			rota++;
+			aumentarRota();
+			/*rota++;
 			elseAcoes = 0;
 			passo = 0;
 			passoAlternativo = 0;
@@ -1832,7 +1862,7 @@ public class GameController implements Runnable {
 				// System.out.println("Caiu na ultima rota: " + rota + " | rota.size():" +
 				// script.getRotas().size());
 				finalizarRota(script, distanciaMinima);
-			}
+			}*/
 		}
 	}
 
