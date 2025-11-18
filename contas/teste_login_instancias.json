@@ -5,7 +5,41 @@
             "senha" : "Hehexd2511",
             "pin" : "2511",
             "personagens" : [
-               
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 1,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 2,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 3,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 4,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
+                {
+                    "pagina" : 1,
+                    "indexPersonagem" : 5,
+                    "passarItens" : false,
+                    "classe" : "sorc",
+                    "instancias" : ["Tomb of Remorse"]
+                },
                 {
                     "pagina" : 1,
                     "indexPersonagem" : 6,

@@ -137,6 +137,17 @@
         }
       },
       {
+        "descricao": "Entrar em formação",
+        "passos": [
+            { "coordenadas": [209, 66] }
+        ],
+        "verificacao": {
+          "tipo": "formacao",
+          "tempo": 1000,
+          "coordenadas": [209, 66]
+        }
+      },
+      {
         "descricao": "Esperar so pra usar o proteger terreno",
         "passos": [
             { "coordenadas": [209, 66] }

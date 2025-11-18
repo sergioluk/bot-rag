@@ -209,6 +209,7 @@ public class GameController implements Runnable {
 	public Comando slaveEstado = Comando.IDLE;
 	public Coordenadas andarAte = new Coordenadas(0,0);
 	public ConcurrentLinkedQueue<ComandoRecebido> fila = new ConcurrentLinkedQueue<>();
+	private boolean comandoTombEnviado = false;
 
 	public GameController(Bot bot) {
 		this.bot = bot;
@@ -1861,6 +1862,7 @@ public class GameController implements Runnable {
 			}
 		}
 		passo = 0;
+		comandoTombEnviado = false; //so pra resetar isso
 		if (rota >= script.getRotas().size()) {
 			finalizarRota(script, 5);
 		}
@@ -1884,14 +1886,11 @@ public class GameController implements Runnable {
 			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
 				System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
 				String sala = "4";
-				boolean encontrou = false;
-				for (ComandoRecebido c : fila) {
-			        if (c.getComando() == Comando.ANDARPROXIMASALATOMB) {
-			        	encontrou = true;
-			        }
-			    }
-			    if (encontrou == false) {
-			    	Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB, sala);
+			    
+			    if (!comandoTombEnviado) {
+			        System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
+			        Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB, sala);
+			        comandoTombEnviado = true;
 			    }
 			}
 			
