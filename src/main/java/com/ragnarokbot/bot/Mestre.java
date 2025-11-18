@@ -35,5 +35,17 @@ public class Mestre {
             }
         }
     }
+    
+    public static void enviarComando(Comando comando, String sala) {
+        for (Socket s : slaves) {
+            try {
+                PrintWriter out = new PrintWriter(s.getOutputStream(), true);
+                String msg = comando.name() + "|" + sala;
+                out.println(msg); // Envia o nome do Enum
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }

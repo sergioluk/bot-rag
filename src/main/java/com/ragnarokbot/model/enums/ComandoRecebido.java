@@ -6,6 +6,14 @@ public class ComandoRecebido {
 	
 	Comando comando; 
 	Coordenadas coordenadas;
+	String sala;
+	
+	public ComandoRecebido(Comando comando, Coordenadas coordenadas, String sala) {
+		super();
+		this.comando = comando;
+		this.coordenadas = coordenadas;
+		this.sala = sala;
+	}
 	public Comando getComando() {
 		return comando;
 	}
@@ -18,11 +26,11 @@ public class ComandoRecebido {
 	public void setCoordenadas(Coordenadas coordenadas) {
 		this.coordenadas = coordenadas;
 	}
-	public ComandoRecebido(Comando comando, Coordenadas coordenadas) {
-		super();
-		this.comando = comando;
-		this.coordenadas = coordenadas;
+	public String getSala() {
+		return sala;
 	}
-	
+	public void setSala(String sala) {
+		this.sala = sala;
+	}
 	
 }

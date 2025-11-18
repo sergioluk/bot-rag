@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -1052,13 +1053,25 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
                 try {
                     Comando cmd = Comando.valueOf(partes[0]); //Converte String -> Enum
                     int x = 0; int y = 0;
-                    if (partes.length > 1) {
+                    String sala = "";
+                    if (partes.length == 3) {
                     	x = Integer.parseInt(partes[1]);
                     	y = Integer.parseInt(partes[2]);
                     }
+                    if (partes.length == 2) {
+                    	sala = partes[1];
+                    }
                     Coordenadas destino = new Coordenadas(x, y);
                     
-                    gameController.fila.add(new ComandoRecebido(cmd, destino));
+                 // Se o comando é ANDARPROXIMASALATOMB, garantir que só tenha 1
+                    if (cmd == Comando.ANDARPROXIMASALATOMB) {
+                        if (filaContemComando(Comando.ANDARPROXIMASALATOMB)) {
+                            System.out.println("Ignorando comando duplicado ANDARPROXIMASALATOMB");
+                            return;
+                        }
+                    }
+                    
+                    gameController.fila.add(new ComandoRecebido(cmd, destino, sala));
                     //executarComando(cmd, destino);
                 } catch (IllegalArgumentException e) {
                     System.out.println("Comando invalido recebido: " + linha);
@@ -1068,6 +1081,14 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             e.printStackTrace();
         }
 		
+	}
+	private boolean filaContemComando(Comando tipo ) {
+	    for (ComandoRecebido c : gameController.fila) {
+	        if (c.getComando() == tipo) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 
 	private void abrirConexao() {

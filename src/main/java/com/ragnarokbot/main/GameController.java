@@ -461,10 +461,10 @@ public class GameController implements Runnable {
 					case PRINTAR_TELA:
 						break;
 					case ANDAR_ATE:
-						System.out.println("Andando até " + andarAte);
-						andarAteCoordenada(andarAte);
-						int x = andarAte.x - 1;
-						int y = andarAte.y + 4;
+						System.out.println("Andando até " + comando.getCoordenadas());
+						andarAteCoordenada(comando.getCoordenadas());
+						int x = comando.getCoordenadas().x - 1;
+						int y = comando.getCoordenadas().y + 4;
 						Coordenadas novoDestino = new Coordenadas(x, y);
 						System.out.println("Subindo um pouco mais para " + novoDestino);
 						andarAteCoordenada(novoDestino);
@@ -472,9 +472,33 @@ public class GameController implements Runnable {
 						slaveEstado = Comando.IDLE;
 						break;
 					case ANDARPROXIMASALATOMB:
+						String salaDestino = comando.getSala();
+						String salaAtual = "1";
 						System.out.println("Andando até a próxima area de tomb");
 						Coordenadas c = bot.obterCoordenadasMemoria();
 						if (c.x >= 17 && c.x <= 86 && c.y >= 190 && c.y <= 259) {
+							salaAtual = "1";
+						} else if (c.x >= 197 && c.x <= 235 && c.y >= 198 && c.y <= 257) {
+							salaAtual = "2";
+						} else if (c.x >= 24 && c.x <= 91 && c.y >= 15 && c.y <= 86) {
+							salaAtual = "3";
+						} else if (c.x >= 184 && c.x <= 239 && c.y >= 50 && c.y <= 89) {
+							salaAtual = "4";
+							System.out.println("Slave está na quarta area!");
+						}
+						
+						if (salaAtual.equals(salaDestino)) {
+							System.out.println("Sala atual: " + salaAtual + " Sala Destino: " + salaDestino);
+							System.out.println("Fazendo nada...");
+							return;
+						}
+						if (Integer.parseInt(salaAtual) > Integer.parseInt(salaDestino)) {
+							System.out.println("Sala atual: " + salaAtual + " Sala Destino: " + salaDestino);
+							System.out.println("Sala atual está na frente da sala destino");
+							System.out.println("Fazendo nada...");
+							return;
+						}
+						if (salaDestino.equals("2")) {
 							System.out.println("Slave está na primeira area! Indo para a segunda area");
 							Coordenadas destino = new Coordenadas(216, 202);
 							Coordenadas portal = new Coordenadas(51, 259);
@@ -487,8 +511,8 @@ public class GameController implements Runnable {
 								bot.sleep(300);
 							} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 5);
 							System.out.println("Chegou na segunda area");
-							
-						} else if (c.x >= 197 && c.x <= 235 && c.y >= 198 && c.y <= 257) {
+						}
+						if (salaDestino.equals("3")) {
 							System.out.println("Slave está na segunda area! Indo para a terceira area");
 							Coordenadas destino = new Coordenadas(216, 202);
 							Coordenadas portal = new Coordenadas(213, 253);
@@ -501,7 +525,8 @@ public class GameController implements Runnable {
 								bot.sleep(300);
 							} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 5);
 							System.out.println("Chegou na terceira area");
-						} else if (c.x >= 24 && c.x <= 91 && c.y >= 15 && c.y <= 86) {
+						}
+						if (salaDestino.equals("4")) {
 							System.out.println("Slave está na terceira area! Indo para a quarta area");
 							Coordenadas destino = new Coordenadas(213, 51);
 							Coordenadas portal = new Coordenadas(58, 41);
@@ -514,9 +539,9 @@ public class GameController implements Runnable {
 								bot.sleep(300);
 							} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 5);
 							System.out.println("Chegou na quarta area");
-						} else if (c.x >= 184 && c.x <= 239 && c.y >= 50 && c.y <= 89) {
-							System.out.println("Slave está na quarta area!");
 						}
+						
+						
 						bot.sleep(50);
 						bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight()/2);
 						bot.sleep(50);
@@ -1642,7 +1667,7 @@ public class GameController implements Runnable {
 	// notebook
 	private void andar(Script script) {
 		int distanciaMinima = 5; // Defina a distância mínima aceitável
-
+		System.out.println("Rota: " + rota + " Passo: " + passo);
 		if (saindoDeCimaBio) {
 			bot.setarMouseEmCoordenadaTela(bot.obterCoordenadasMemoria(), new Coordenadas(135, 257));
 			bot.sleep(100);
@@ -1710,7 +1735,10 @@ public class GameController implements Runnable {
 					System.out.println("SAJDNJASD asjdnASNDja sajdnasja asdnjasndja asjdnjasd");
 					System.out.println("SAJDNJASD asjdnASNDja sajdnasja asdnjasndja asjdnjasd");
 					if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
-						Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB);
+						String sala = "";
+						if (rota == 1) sala = "2";
+						if (rota == 5) sala = "3";
+						Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB, sala);
 					}
 				}
 				passo = 0;
@@ -1819,7 +1847,10 @@ public class GameController implements Runnable {
 		System.out.println("Rota: " + rota);
 		if (script.getMapa().equals("tomb_of_remorse.png") && (rota == 1 || rota == 5)) {
 			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
-				Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB);
+				String sala = "";
+				if (rota == 1) sala = "2";
+				if (rota == 5) sala = "3";
+				Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB, sala);
 			}
 		}
 		passo = 0;
@@ -1845,7 +1876,8 @@ public class GameController implements Runnable {
 		if (script.getMapa().equals("tomb_of_remorse.png") && rota == 6 && passo == 8) {
 			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
 				System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
-				Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB);
+				String sala = "4";
+				Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB, sala);
 			}
 			
 		}
@@ -2186,6 +2218,7 @@ public class GameController implements Runnable {
 			//Mandar comando pro slave para logar
 			Mestre.enviarComando(Comando.INICIAR_INSTANCIA);
 		}
+		rota = 0; passo = 0;
 	}
 
 	private void reiniciarRota() {
