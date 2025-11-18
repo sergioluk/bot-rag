@@ -1063,14 +1063,6 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
                     }
                     Coordenadas destino = new Coordenadas(x, y);
                     
-                 // Se o comando é ANDARPROXIMASALATOMB, garantir que só tenha 1
-                    if (cmd == Comando.ANDARPROXIMASALATOMB) {
-                        if (filaContemComando(Comando.ANDARPROXIMASALATOMB)) {
-                            System.out.println("Ignorando comando duplicado ANDARPROXIMASALATOMB");
-                            continue;
-                        }
-                    }
-                    
                     gameController.fila.add(new ComandoRecebido(cmd, destino, sala));
                     //executarComando(cmd, destino);
                 } catch (IllegalArgumentException e) {
@@ -1082,14 +1074,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
         }
 		
 	}
-	private boolean filaContemComando(Comando tipo ) {
-	    for (ComandoRecebido c : gameController.fila) {
-	        if (c.getComando() == tipo) {
-	            return true;
-	        }
-	    }
-	    return false;
-	}
+
 
 	private void abrirConexao() {
 		ObjectMapper mapper = new ObjectMapper();

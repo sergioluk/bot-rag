@@ -461,6 +461,7 @@ public class GameController implements Runnable {
 					case PRINTAR_TELA:
 						break;
 					case ANDAR_ATE:
+						System.out.println("Formacao");
 						System.out.println("Andando até " + comando.getCoordenadas());
 						andarAteCoordenada(comando.getCoordenadas());
 						int x = comando.getCoordenadas().x - 1;
@@ -490,13 +491,13 @@ public class GameController implements Runnable {
 						if (salaAtual.equals(salaDestino)) {
 							System.out.println("Sala atual: " + salaAtual + " Sala Destino: " + salaDestino);
 							System.out.println("Fazendo nada...");
-							return;
+							continue;
 						}
 						if (Integer.parseInt(salaAtual) > Integer.parseInt(salaDestino)) {
 							System.out.println("Sala atual: " + salaAtual + " Sala Destino: " + salaDestino);
 							System.out.println("Sala atual está na frente da sala destino");
 							System.out.println("Fazendo nada...");
-							return;
+							continue;
 						}
 						if (salaDestino.equals("2")) {
 							System.out.println("Sala atual: " + salaAtual + " Sala Destino: " + salaDestino);
@@ -554,7 +555,7 @@ public class GameController implements Runnable {
 						slaveEstado = Comando.IDLE;
 						break;
 					case SAIRTOMBGUARDARITENS:
-						
+						System.out.println("Saindo de tomb para guardar itens");
 						if (bot.getHpAtual() <= 1) {
 
 							System.out.println("Como ta morrido, clicando no botao de voltar");
@@ -1075,7 +1076,7 @@ public class GameController implements Runnable {
 					int pixels = bot.contarPixels(azulTexto, x, y, width, height);
 
 					if (pixels > 100) { // Encontrou a mensagem azul
-						if (rota == 0) {
+						if (rota == 0 && passo > 5) {
 							System.out.println("Indo para o portal dos bixos iniciais...");
 							passo = script.getRotas().get(0).getPassos().size() - 1;
 							verificarSeLimpouTomb = false;
@@ -1801,9 +1802,12 @@ public class GameController implements Runnable {
 			break;
 		case "formacao":
 			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+				System.out.println("Caiu em formação");
 				Coordenadas destino = new Coordenadas(212, 64);
 				//Mandar comando pro slave para andar até destino
 				Mestre.enviarComando(Comando.ANDAR_ATE, destino);
+				System.out.println("Comando enviado");
+				bot.sleep(2000);
 			}
 			andarAteCoordenada(new Coordenadas(210,64));
 			
@@ -1880,7 +1884,15 @@ public class GameController implements Runnable {
 			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
 				System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
 				String sala = "4";
-				Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB, sala);
+				boolean encontrou = false;
+				for (ComandoRecebido c : fila) {
+			        if (c.getComando() == Comando.ANDARPROXIMASALATOMB) {
+			        	encontrou = true;
+			        }
+			    }
+			    if (encontrou == false) {
+			    	Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB, sala);
+			    }
 			}
 			
 		}
