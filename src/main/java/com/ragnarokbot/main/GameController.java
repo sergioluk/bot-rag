@@ -499,6 +499,7 @@ public class GameController implements Runnable {
 							return;
 						}
 						if (salaDestino.equals("2")) {
+							System.out.println("Sala atual: " + salaAtual + " Sala Destino: " + salaDestino);
 							System.out.println("Slave está na primeira area! Indo para a segunda area");
 							Coordenadas destino = new Coordenadas(216, 202);
 							Coordenadas portal = new Coordenadas(51, 259);
@@ -509,12 +510,13 @@ public class GameController implements Runnable {
 								Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOPortal, cAtual);
 								bot.moverPersonagem(cAtual, coordDestino, mapaCarregado);
 								bot.sleep(300);
-							} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 5);
+							} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 10);
 							System.out.println("Chegou na segunda area");
 						}
 						if (salaDestino.equals("3")) {
+							System.out.println("Sala atual: " + salaAtual + " Sala Destino: " + salaDestino);
 							System.out.println("Slave está na segunda area! Indo para a terceira area");
-							Coordenadas destino = new Coordenadas(216, 202);
+							Coordenadas destino = new Coordenadas(58, 18);
 							Coordenadas portal = new Coordenadas(213, 253);
 
 							do {
@@ -523,10 +525,11 @@ public class GameController implements Runnable {
 								Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOPortal, cAtual);
 								bot.moverPersonagem(cAtual, coordDestino, mapaCarregado);
 								bot.sleep(300);
-							} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 5);
+							} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 10);
 							System.out.println("Chegou na terceira area");
 						}
 						if (salaDestino.equals("4")) {
+							System.out.println("Sala atual: " + salaAtual + " Sala Destino: " + salaDestino);
 							System.out.println("Slave está na terceira area! Indo para a quarta area");
 							Coordenadas destino = new Coordenadas(213, 51);
 							Coordenadas portal = new Coordenadas(58, 41);
@@ -537,7 +540,7 @@ public class GameController implements Runnable {
 								Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOPortal, cAtual);
 								bot.moverPersonagem(cAtual, coordDestino, mapaCarregado);
 								bot.sleep(300);
-							} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 5);
+							} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 10);
 							System.out.println("Chegou na quarta area");
 						}
 						

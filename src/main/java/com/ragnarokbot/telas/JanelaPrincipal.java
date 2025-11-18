@@ -1049,7 +1049,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
             
             while((linha = in.readLine()) != null) {
             	String[] partes = linha.split("\\|");
-            	
+            	System.out.println("Comando recebido: " + linha);
                 try {
                     Comando cmd = Comando.valueOf(partes[0]); //Converte String -> Enum
                     int x = 0; int y = 0;
@@ -1067,7 +1067,7 @@ public class JanelaPrincipal extends JFrame  implements NativeKeyListener {
                     if (cmd == Comando.ANDARPROXIMASALATOMB) {
                         if (filaContemComando(Comando.ANDARPROXIMASALATOMB)) {
                             System.out.println("Ignorando comando duplicado ANDARPROXIMASALATOMB");
-                            return;
+                            continue;
                         }
                     }
                     
