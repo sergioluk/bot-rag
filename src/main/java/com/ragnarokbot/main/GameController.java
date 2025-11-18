@@ -282,7 +282,7 @@ public class GameController implements Runnable {
 
 			System.out.println("Começando...");
 			bot.sleep(1000);
-			/*
+			
 			System.out.println("Iniciando o interception");
 			Bot.iniciarInterception();
 			
@@ -315,7 +315,7 @@ public class GameController implements Runnable {
 			bot.sleep(1000);
 			bot.apertarTecla(KeyEvent.VK_DOWN);
 			bot.sleep(1000);
-			bot.zoom(-28);*/
+			bot.zoom(-28);
 			
 			
 			//buffarVip();
@@ -335,6 +335,14 @@ public class GameController implements Runnable {
 				bot.clicarMouse();
 			} while(hp != maxHp);
 			System.out.println("Já tá curado");
+			
+			//verificarChat();
+			//desequiparEquips();
+			//bot.deslogarPersonagem();
+		
+			
+			
+			
 			
 			
 			
@@ -3469,6 +3477,8 @@ public class GameController implements Runnable {
 	private void buffar() {
 		List<Integer> buffsMemoria = bot.listarStatus();
 		boolean isBuffado = false;
+		
+		verificarChat();
 
 		do {
 
@@ -3605,58 +3615,111 @@ public class GameController implements Runnable {
 
 		if (passosDesequiparEquips == 0) {
 			System.out.println("Abrir alt Q");
-			bot.apertarSegurarTecla(KeyEvent.VK_ALT);
-			//bot.getRobot().keyPress(KeyEvent.VK_ALT);
-			bot.sleep(50);
-			bot.apertarSegurarTecla(KeyEvent.VK_Q);
-			//bot.getRobot().keyPress(KeyEvent.VK_Q);
-			rectAltQ = bot.getAltQ();
-			if (rectAltQ != null) {
-				System.out.println("Alt Q aberto!!!");
-				bot.soltarTecla(KeyEvent.VK_ALT);
-				//bot.getRobot().keyRelease(KeyEvent.VK_ALT);
-				bot.sleep(50);
-				bot.soltarTecla(KeyEvent.VK_Q);
-				//bot.getRobot().keyRelease(KeyEvent.VK_Q);
-				passosDesequiparEquips = 1;
-			}
+			BufferedImage altQImg = null;
+			String path = "config/telas/altQ.png";
+			try {
+				altQImg = ImageIO.read(new File(path));
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+			do {
+				System.out.println("Procurando alt Q");
+				rectAltQ = bot.encontrarImagem(altQImg, 0.85);
+	        	if (rectAltQ != null) {
+	        		passosDesequiparEquips = 1;
+	        		break;
+	        	}
+	        	bot.sleep(1000);
+	        	bot.apertarSegurarTecla(KeyEvent.VK_ALT);
+	        	bot.sleep(50);
+	        	bot.apertarTecla(KeyEvent.VK_Q);
+	        	bot.sleep(50);
+	        	bot.soltarTecla(KeyEvent.VK_ALT);
+	        	
+			} while (true);
+			System.out.println("Alt Q aberto");
 		}
 
 		if (passosDesequiparEquips == 1) {
-			System.out.println("Clicando no botao de desequipar Hehe boy");
-			bot.sleep(100);
-			int x = rectAltQ.x + 253;
-			int y = rectAltQ.y + 159;
-			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+			int x = 0; int y = 0;
+			System.out.println("Removendo Equips");
+			BufferedImage equipQImg = null;
+			Rect pos = null;
+			String path = "config/telas/equip.png";
+			try {
+				equipQImg = ImageIO.read(new File(path));
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+			do {
+				System.out.println("Procurando alt Q");
+				pos = bot.encontrarImagem(equipQImg, 0.85);
+	        	if (pos != null) {
+	        		break;
+	        	}
+	        	bot.sleep(1000);
+	        	
+	        	System.out.println("Clicando em remover equips");
+	        	x = rectAltQ.x + 257;
+				y = rectAltQ.y + 177;
+				bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+				bot.sleep(100);
+				bot.clicarMouse();
+				bot.sleep(100);
+	        	
+			} while (true);
+			System.out.println("Equips removidos");
+			
+			
+			System.out.println("Removendo Shadow");
+			BufferedImage shadowImg = null;
+			pos = null;
+			path = "config/telas/shadow.png";
+			try {
+				shadowImg = ImageIO.read(new File(path));
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+			do {
+				System.out.println("verificando shadow limpo");
+				pos = bot.encontrarImagem(shadowImg, 0.85);
+	        	if (pos != null) {
+	        		break;
+	        	}
+	        	bot.sleep(1000);
+	        	
+	        	System.out.println("Clicando na aba shadow");
+	        	int xx = rectAltQ.x + 97;
+	        	int yy = rectAltQ.y + 27;
+	        	bot.moverMouse(bot.getxJanela() + xx, bot.getyJanela() + yy);
+				bot.sleep(100);
+				bot.clicarMouse();
+				bot.sleep(100);
+	        	System.out.println("Clicando em remover shadows");
+	        	x = rectAltQ.x + 257;
+				y = rectAltQ.y + 177;
+				bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
+				bot.sleep(100);
+				bot.clicarMouse();
+				bot.sleep(100);
+	        	
+			} while (true);
+			System.out.println("Shadows removidos");
+			
+			System.out.println("Fechando ALT Q");
+			bot.sleep(500);
+			bot.moverMouse(bot.getxJanela() + rectAltQ.x + 271, bot.getyJanela() + rectAltQ.y + 8);
 			bot.sleep(100);
 			bot.clicarMouse();
 			bot.sleep(100);
-			System.out.println("Clicando no botao de especial");
-			x = rectAltQ.x + 95;
-			y = rectAltQ.y + 10;
-			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
-			bot.sleep(100);
-			bot.clicarMouse();
-			bot.sleep(100);
-			System.out.println("Clicando no botao de desequipar Hehe boy");
-			x = rectAltQ.x + 253;
-			y = rectAltQ.y + 159;
-			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
-			bot.sleep(100);
-			bot.clicarMouse();
-			bot.sleep(100);
-			System.out.println("Clicando no botao de fechar o Alt Q");
-			x = rectAltQ.x + 273;
-			y = rectAltQ.y - 11;
-			bot.moverMouse(bot.getxJanela() + x, bot.getyJanela() + y);
-			bot.sleep(100);
-			bot.clicarMouse();
-			bot.sleep(100);
+			
 			passosDesequiparEquips = 0;
 			modoDesequiparEquips = false;
 			stateMachine.mudarEstado(Estado.NPC);
 			tentandoFalarComNpc = true;
 			finalizandoInstancia = true;
+			
+			
 		}
 
 	}
@@ -4548,6 +4611,26 @@ public class GameController implements Runnable {
 			bot.sleep(1000);
 		} while(!bot.compararCoordenadas(cAtual, destino));
 		System.out.println("Chegou ao destino");
+	}
+	
+	public void verificarChat() {
+		System.out.println("Verificando se chat está fechado");
+		BufferedImage chatImg = null;
+		String path = "config/telas/chat.png";
+		Rect pos = null;
+		do {
+			System.out.println("Procurando icone do chat e apertando enter para fechar");
+			try {
+				chatImg = ImageIO.read(new File(path));
+    		} catch (IOException e) {
+    			e.printStackTrace();
+    		}
+        	pos = bot.encontrarImagem(chatImg, 0.85);
+        	if (pos != null) break;
+        	bot.sleep(1000);
+			bot.apertarTecla(KeyEvent.VK_ENTER);
+		} while (true);
+		System.out.println("Chat está fechado");
 	}
 
 

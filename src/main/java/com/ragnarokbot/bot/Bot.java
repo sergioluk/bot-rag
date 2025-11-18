@@ -3204,18 +3204,39 @@ public class Bot {
 			sleep(1000);
 			
 			if (!imagensIguais) {
-				apertarTecla(KeyEvent.VK_ESCAPE);
-				sleep(500);
-				moverMouse(getxJanela() + 511, getyJanela() + 513);
-				sleep(300);
-				clicarMouse();
-				sleep(300);
-				clicarMouse();
-				sleep(300);
+				BufferedImage selecionarPersonagemImg = null;
+				String pathImg = "config/telas/selecionarPersonagem.png";
+				Rect pos = null;
+				try {
+	    			selecionarPersonagemImg = ImageIO.read(new File(pathImg));
+	    		} catch (IOException e) {
+	    			e.printStackTrace();
+	    		}
+				do {
+					System.out.println("Apertando ESC e clicando Selecionar Personagem");
+					pos = encontrarImagem(selecionarPersonagemImg, 0.85);
+		        	if (pos != null) {
+		        		moverMouse(getxJanela() + pos.x + pos.width/2, getyJanela() + pos.y + pos.height/2);
+						sleep(300);
+						clicarMouse();
+						sleep(300);
+		        		break;
+		        	}
+		        	sleep(1000);
+		        	apertarTecla(KeyEvent.VK_ESCAPE);
+		        	sleep(50);
+		        	moverMouse(getxJanela() + 50,getyJanela() + 50);
+					sleep(1000);
+				} while (true);
+				System.out.println("Selecionar Personagem Clicado");
+				
 			}
 			
 			sleep(1000);
 		} while( imagensIguais == false);
+		
+		
+		
 		
 		
 	}
