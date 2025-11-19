@@ -286,6 +286,7 @@ public class GameController implements Runnable {
 			System.out.println("Iniciando o interception");
 			Bot.iniciarInterception();
 			
+			/*
 			System.out.println("Apertando enter");
 			bot.apertarTecla(KeyEvent.VK_ENTER);
 			bot.sleep(5000);
@@ -315,7 +316,7 @@ public class GameController implements Runnable {
 			bot.sleep(1000);
 			bot.apertarTecla(KeyEvent.VK_DOWN);
 			bot.sleep(1000);
-			bot.zoom(-28);
+			bot.zoom(-28);*/
 			
 			
 			//buffarVip();
@@ -472,12 +473,23 @@ public class GameController implements Runnable {
 					case ANDAR_ATE:
 						System.out.println("Formacao");
 						System.out.println("Andando até " + comando.getCoordenadas());
-						andarAteCoordenada(comando.getCoordenadas());
-						int x = comando.getCoordenadas().x - 1;
+						Coordenadas destino2 = comando.getCoordenadas();
+						do {
+							Coordenadas cAtual = bot.obterCoordenadasMemoria();
+							List<Coordenadas> caminhoAteOPortal = aStar.encontrarCaminho(grafo, cAtual, destino2);
+							Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOPortal, cAtual);
+							bot.moverPersonagem(cAtual, coordDestino, mapaCarregado);
+							bot.sleep(100);
+						} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino2) > 5);
+						System.out.println("Está proximo da coordenada de destino");
+						
+						bot.sleep(50);
+						andarAteCoordenada(destino2);
+						/*int x = comando.getCoordenadas().x - 1;
 						int y = comando.getCoordenadas().y + 4;
 						Coordenadas novoDestino = new Coordenadas(x, y);
 						System.out.println("Subindo um pouco mais para " + novoDestino);
-						andarAteCoordenada(novoDestino);
+						andarAteCoordenada(novoDestino);*/
 						System.out.println("Chegou");
 						slaveEstado = Comando.IDLE;
 						break;
@@ -1095,6 +1107,13 @@ public class GameController implements Runnable {
 							passo = script.getRotas().get(1).getPassos().size() - 1;
 							verificarSeLimpouTomb = false;
 							coordsMonstrosAtrasParede.clear();
+							
+							if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+								System.out.println("Mandando slaves pro meio");
+								Coordenadas destino = new Coordenadas(214, 227);
+								Mestre.enviarComando(Comando.ANDAR_ATE, destino);
+								System.out.println("Comando enviado!");
+							}
 						} else if (rota == 6 && (pixels == 612 || pixels == 308)) {
 							System.out.println("Indo para o portal para o ultimo chefe...");
 							passo = script.getRotas().get(6).getPassos().size() - 1;
@@ -1171,7 +1190,11 @@ public class GameController implements Runnable {
 						andar(script);
 					} else {
 						// Se a tela já foi atualizada recentemente, força o movimento
-						moverParaDirecaoOposta(atual);
+						if (script.getMapa().equals("tomb_of_remorse.png") && rota >= 8 ) {
+							System.out.println("Fazendo nada");
+						} else {
+							moverParaDirecaoOposta(atual);							
+						}
 						personagemParado = false;
 					}
 
@@ -1719,6 +1742,40 @@ public class GameController implements Runnable {
 			}
 		}
 		
+		if (script.getMapa().equals("tomb_of_remorse.png")
+				&& rota == 1 && passo == 7) { //forçar formacao no primeiro boss
+			System.out.println("*************");
+			System.out.println("*************");
+			System.out.println("***gz***");
+			System.out.println("***gz********");
+			System.out.println("*************");
+			System.out.println("*************");
+			
+			System.out.println("Indo para o centra em formacao");
+			Coordenadas destino = new Coordenadas(212, 226);
+			do {
+				Coordenadas cAtual = bot.obterCoordenadasMemoria();
+				List<Coordenadas> caminhoAteOPortal = aStar.encontrarCaminho(grafo, cAtual, destino);
+				Coordenadas coordDestino = bot.escolherProximaCoordenada(caminhoAteOPortal, cAtual);
+				bot.moverPersonagem(cAtual, coordDestino, mapaCarregado);
+				bot.sleep(100);
+			} while (bot.calcularDistancia(bot.obterCoordenadasMemoria(), destino) > 5);
+			System.out.println("Está proximo da coordenada de destino");
+			bot.sleep(50);
+			andarAteCoordenada(destino);
+			bot.soltarMouse();
+			bot.sleep(50);
+			Coordenadas c = bot.obterCoordenadasMemoria();
+			bot.setarMouseEmCoordenadaTela(c, c);
+			bot.sleep(50);
+			bot.clicarMouse();
+			bot.sleep(50);
+			usarProtegerTerreno();
+			
+			aumentarRota();
+			return;
+		}
+		
 		//Fazer verificar a ultima coordenada so em tomb na parte da veia
 		if (script.getMapa().equals("tomb_of_remorse.png")
 				&& script.getRotas().get(rota).getVerificacao().getVerificarFinal() != null) {
@@ -1807,15 +1864,26 @@ public class GameController implements Runnable {
 			break;
 		case "buffs":
 			bot.soltarMouse();
+			bot.sleep(50);
+			Coordenadas atualCoord = bot.obterCoordenadasMemoria();
+			bot.setarMouseEmCoordenadaTela(atualCoord, atualCoord);
+			bot.sleep(50);
+			bot.clicarMouse();
 			ativarBuff();
 			break;
 		case "formacao":
 			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
 				System.out.println("Caiu em formação");
-				Coordenadas destino = new Coordenadas(212, 64);
+				//Coordenadas destino = new Coordenadas(212, 64);
+				Coordenadas destino = new Coordenadas(211, 68);
 				//Mandar comando pro slave para andar até destino
 				Mestre.enviarComando(Comando.ANDAR_ATE, destino);
 				System.out.println("Comando enviado");
+				bot.moverMouse(bot.getxJanela() + bot.getWidth()/2, bot.getyJanela() + bot.getHeight()/2);
+				bot.sleep(50);
+				bot.soltarMouse();
+				bot.sleep(50);
+				bot.clicarMouse();
 				bot.sleep(2000);
 			}
 			andarAteCoordenada(new Coordenadas(210,64));
@@ -1890,7 +1958,7 @@ public class GameController implements Runnable {
 			distanciaMinima = 3;
 			System.out.println("Diminuindo range de verificacao pra passar no portal");
 		}
-		if (script.getMapa().equals("tomb_of_remorse.png") && rota == 6 && passo == 8) {
+		if (script.getMapa().equals("tomb_of_remorse.png") && rota == 6 && passo == 9) {
 			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
 				System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
 				String sala = "4";
@@ -4606,9 +4674,9 @@ public class GameController implements Runnable {
 			}
 			
 			bot.setarMouseEmCoordenadaTela(cAtual, destino);
-			bot.sleep(200);
+			bot.sleep(100);
 			bot.clicarMouse();
-			bot.sleep(1000);
+			bot.sleep(300);
 		} while(!bot.compararCoordenadas(cAtual, destino));
 		System.out.println("Chegou ao destino");
 	}
