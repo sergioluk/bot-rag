@@ -488,6 +488,59 @@ public class Bot {
 		return m;
     }
     
+    public boolean isInventarioAberto() {
+    	BufferedImage inventarioImg = null;
+		String path = "config/telas/inventario.png";
+		Rect pos = null;
+		int contador = 0;
+		try {
+			inventarioImg = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		do {
+			System.out.println("Procurando pelo inventario");
+			pos = encontrarImagem(inventarioImg, 0.85);
+        	if (pos != null) {
+        		System.out.println("Inventario aberto");
+        		return true;
+        	}
+        	sleep(1000);
+        	contador++;
+		} while (contador < 5);
+		System.out.println("Inventario fechado");
+    	return false;
+    }
+    public void forcarArmazemFechado() {
+    	BufferedImage armazemImg = null;
+		String path = "config/telas/armazem.png";
+		Rect pos = null;
+		try {
+			armazemImg = ImageIO.read(new File(path));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		do {
+			System.out.println("Procurando pelo armazem");
+			pos = encontrarImagem(armazemImg, 0.85);
+        	if (pos != null) {
+        		System.out.println("Armazem aberto");
+        		moverMouse(getxJanela() + pos.x + pos.width - 10, getyJanela() + pos.y + pos.height/2);
+        		sleep(300);
+        		clicarMouse();
+        	}
+        	sleep(1000);
+        	pos = encontrarImagem(armazemImg, 0.85);
+        	if (pos != null) {
+        		System.out.println("Armazem aberto");
+        		moverMouse(getxJanela() + pos.x + pos.width - 10, getyJanela() + pos.y + pos.height/2);
+        		sleep(300);
+        		clicarMouse();
+        	}
+		} while (pos == null);
+		System.out.println("Armazem fechado");
+    }
+    
     public void guardarItensArmazem(Rect m) {
     	System.out.println("Guardando itens no armazem");
 		int x = m.x + 58;
@@ -1217,7 +1270,7 @@ public class Bot {
 			List<MatOfPoint> entities = entry.getValue();
 
 			// Filtrar monstros com altura >= 16
-			List<MatOfPoint> filtered = entities.stream().filter(monstro -> Imgproc.boundingRect(monstro).height >= 16)
+			List<MatOfPoint> filtered = entities.stream().filter(monstro -> Imgproc.boundingRect(monstro).height >= 10)
 					.toList();
 
 			// Ajustar as coordenadas para serem globais
@@ -3033,6 +3086,9 @@ public class Bot {
 		
 		List<MatOfPoint> janelinhaInstancia = new ArrayList<>();
 		do {
+			if (JanelaPrincipal.obterSlave() == true) {
+				break;
+			}
 			Scalar[] limites = calcularLimites(255, 72, 0);// Cor laranja
 			Scalar minLaranja = limites[0];
 			Scalar maxLaranja = limites[1];
@@ -3080,6 +3136,52 @@ public class Bot {
 		
 		sleep(1000);
 		
+		clicarEmEntrarInstancia(x, y);
+		
+		System.out.println("Caso tenha resetado as instancias" );
+		List<MatOfPoint> balaoNpc = null;
+		int contador = 0;
+		do {
+			System.out.println("Procurando pelo balão de npc");
+			balaoNpc = balaoNpc();
+			if (!balaoNpc.isEmpty()) {
+				apertarTecla(KeyEvent.VK_ENTER);
+				sleep(300);
+				clicarEmEntrarInstancia(x,y);
+				break;
+			}
+			contador++;
+			sleep(1000);
+			if (dg == 44) {
+				if (obterMapa().equals(Mapa.TOMB.getNome())) {
+					System.out.println("Chegou em tomb");
+					break;
+				}
+			}
+		} while (contador < 10);
+		
+		
+		boolean chegou = false;
+		if (dg == 34) {
+			do {
+				chegou = obterMapa().equals(Mapa.OLDGH.getNome());
+				System.out.println("Chegou em Old Glast Heim? " + chegou);
+				sleep(1000);
+			} while (chegou == false);
+		} else if (dg == 44) {
+			do {
+				chegou = obterMapa().equals(Mapa.TOMB.getNome());
+				System.out.println("Chegou em Tomb of Remorse? " + chegou);
+				sleep(1000);
+			} while (chegou == false);
+		}
+		sleep(3000);
+		visaoDeCima();
+		sleep(100);
+		zoom(-28);
+	}
+	
+	private void clicarEmEntrarInstancia(int x, int y) {
 		System.out.println("Clicando em entrar");
 		Scalar[] limites = calcularLimites(255, 72, 0);// Cor laranja
 		Scalar minLaranja = limites[0];
@@ -3094,7 +3196,7 @@ public class Bot {
 				moverMouse(getxJanela() + x + 48, getyJanela() + y + 304 + 17);
 				sleep(300);
 				clicarMouse();
-				sleep(300);
+				sleep(500);
 			} else {
 				System.out.println("Clicando nob botão de Ok");
 				Rect ma = Imgproc.boundingRect(btnOk.get(0));
@@ -3121,25 +3223,6 @@ public class Bot {
 			}
 			sleep(1000);
 		} while (balaoNpc.isEmpty());
-		
-		boolean chegou = false;
-		if (dg == 34) {
-			do {
-				chegou = obterMapa().equals(Mapa.OLDGH.getNome());
-				System.out.println("Chegou em Old Glast Heim? " + chegou);
-				sleep(1000);
-			} while (chegou == false);
-		} else if (dg == 44) {
-			do {
-				chegou = obterMapa().equals(Mapa.TOMB.getNome());
-				System.out.println("Chegou em Tomb of Remorse? " + chegou);
-				sleep(1000);
-			} while (chegou == false);
-		}
-		sleep(3000);
-		visaoDeCima();
-		sleep(100);
-		zoom(-28);
 	}
 	
 	private int getNumeroInstancia(String instancia) {

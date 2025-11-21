@@ -256,10 +256,6 @@ public class GameController implements Runnable {
 
 			// bot.sleep(2000);
 			// bot.executarInstancia("Tomb of Remorse");
-			
-			
-			
-			
 
 			String f1 = "1 tela0.png";
 			String f2 = "2 tela-1.png";
@@ -316,7 +312,7 @@ public class GameController implements Runnable {
 			bot.sleep(1000);
 			bot.apertarTecla(KeyEvent.VK_DOWN);
 			bot.sleep(1000);
-			bot.zoom(-28);*/
+			bot.zoom(-28);
 			
 			
 			//buffarVip();
@@ -335,7 +331,7 @@ public class GameController implements Runnable {
 				bot.sleep(50);
 				bot.clicarMouse();
 			} while(hp != maxHp);
-			System.out.println("Já tá curado");
+			System.out.println("Já tá curado");*/
 			
 			//verificarChat();
 			//desequiparEquips();
@@ -1295,6 +1291,8 @@ public class GameController implements Runnable {
 		System.out.println("BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS BOSS");
 		Skill skillDisponivel = null;
 		int pixels = 0;
+		tentativaEncontrarBoss = 50;
+		long ultimoTempoParaTrocarEquipsPraTirarDebuffDoChefe = System.currentTimeMillis();
 		do {
 			monstros = bot.procurarBoss();
 			skillDisponivel = getAvailableSkill("rosa");
@@ -1322,13 +1320,20 @@ public class GameController implements Runnable {
 						bot.moverMouse(bot.getxJanela() + centerX, bot.getyJanela() + centerY);
 						bot.apertarSegurarTecla(skillDisponivel.getTecla());
 						// System.out.println("Segurando tecla, boss está em: " + coord);
+						
+						if (System.currentTimeMillis() - ultimoTempoParaTrocarEquipsPraTirarDebuffDoChefe >= 3000) {
+							System.out.println("Trocando equips pra remover o debuff do chefe");
+							System.out.println("Trocando os acessorios mesmo");
+							equiparDoisAcessoriosBoss();
+					        ultimoTempoParaTrocarEquipsPraTirarDebuffDoChefe = System.currentTimeMillis();
+					    }
 
 					}
 				}
 				// fim atacando o boss
 
 				stateMachine.mudarEstado(Estado.ANDANDO);
-				tentativaEncontrarBoss = 10;
+				tentativaEncontrarBoss = 50;
 			} else {
 				foundBoss = false;
 				tentativaEncontrarBoss--;
@@ -1383,6 +1388,20 @@ public class GameController implements Runnable {
 				finalizarRota(script, 5);
 			}*/
 		}
+	}
+	
+	private void equiparDoisAcessoriosBoss() {
+		if (JanelaPrincipal.obterClasseSelecionada().equals("sorc")) {
+			System.out.println("Equipando o acessório!");
+			int atalhoSolomon = KeyMapper.getTeclaAtalho(skillsConfig.getAtalhoAcessorioSolomon());
+			int atalhoAcessorio = KeyMapper.getTeclaAtalho(skillsConfig.getAtalhoAcessorio());
+			
+			bot.apertarTecla(atalhoSolomon);
+			bot.sleep(20);
+			bot.apertarTecla(atalhoAcessorio);
+			
+			equiparAcessorios(skillsConfig.getAtalhoAcessorio());
+		}		
 	}
 
 	private void calcularCaminhoAlternativo(Script script, GrafoMapa grafo) {
@@ -1958,19 +1977,31 @@ public class GameController implements Runnable {
 			distanciaMinima = 3;
 			System.out.println("Diminuindo range de verificacao pra passar no portal");
 		}
-		if (script.getMapa().equals("tomb_of_remorse.png") && rota == 6 && passo == 9) {
-			if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
-				System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
-				String sala = "4";
-			    
-			    if (!comandoTombEnviado) {
-			        System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
-			        Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB, sala);
-			        comandoTombEnviado = true;
-			    }
+		if (script.getMapa().equals("tomb_of_remorse.png")) {
+			if (rota == 6 && passo == 9) {
+				if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+					System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
+					String sala = "4";
+				    
+				    if (!comandoTombEnviado) {
+				        System.out.println("Mandando os slaves irem pra sala do boss pra ganhar tempo");
+				        Mestre.enviarComando(Comando.ANDARPROXIMASALATOMB, sala);
+				        comandoTombEnviado = true;
+				    }
+				}
+			}
+			
+			if (rota == 1 && passo == 5) {
+				if (JanelaPrincipal.obterMultiBot() && JanelaPrincipal.obterMestre()) {
+					System.out.println("Mandando slaves pro meio");
+					Coordenadas destino = new Coordenadas(214, 227);
+					Mestre.enviarComando(Comando.ANDAR_ATE, destino);
+					System.out.println("Comando enviado!");
+				}
 			}
 			
 		}
+		
 		if (bot.calcularDistancia(atual, verificarCoordenadas) <= distanciaMinima) {
 			System.out.println(
 					"Rota aumentada de verdade pela verificacao do teleport : " + verificarX + " " + verificarY);
@@ -2203,6 +2234,14 @@ public class GameController implements Runnable {
 			// Fechar chat de npc
 			bot.apertarTecla(KeyEvent.VK_ENTER);
 			bot.sleep(300);*/
+			
+			boolean inventario = bot.isInventarioAberto();
+			if (inventario) {
+				bot.apertarSegurarTecla(KeyEvent.VK_ALT);
+				bot.apertarTecla(KeyEvent.VK_E);
+				bot.sleep(500);
+				bot.soltarTecla(KeyEvent.VK_ALT);
+			}
 
 			System.out.println("Visão topdown");
 			bot.visaoDeCima();
@@ -2655,6 +2694,14 @@ public class GameController implements Runnable {
 		bot.sleep(300);*/
 		
 		barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
+		
+		boolean inventario = bot.isInventarioAberto();
+		if (inventario) {
+			bot.apertarSegurarTecla(KeyEvent.VK_ALT);
+			bot.apertarTecla(KeyEvent.VK_E);
+			bot.sleep(500);
+			bot.soltarTecla(KeyEvent.VK_ALT);
+		}
 
 		// Selecionar Instancias
 		// Abrir Janela de instancias
@@ -3508,6 +3555,8 @@ public class GameController implements Runnable {
 			bot.sleep(100);
 			bot.clicarMouse();
 			bot.sleep(100);
+			
+			bot.forcarArmazemFechado();
 
 			System.out.println("Equipando os itens");
 			bot.equipandoItens(rectInventario);
@@ -3520,6 +3569,9 @@ public class GameController implements Runnable {
 			bot.sleep(100);
 			bot.clicarMouse();
 			bot.sleep(100);
+			
+			bot.forcarArmazemFechado();
+			
 
 			passosInteragirKafraRemoverItens = 0;
 			pegarEquipsArmazem2 = false;
@@ -4175,6 +4227,14 @@ public class GameController implements Runnable {
 		}
 		
 		barraSkills = Imgproc.boundingRect(bot.procurarBarraSkills().get(0));
+		
+		boolean inventario = bot.isInventarioAberto();
+		if (inventario) {
+			bot.apertarSegurarTecla(KeyEvent.VK_ALT);
+			bot.apertarTecla(KeyEvent.VK_E);
+			bot.sleep(500);
+			bot.soltarTecla(KeyEvent.VK_ALT);
+		}
 
 		// Selecionar Instancias
 		// Abrir Janela de instancias
@@ -4281,6 +4341,8 @@ public class GameController implements Runnable {
 		bot.sleep(100);
 		bot.clicarMouse();
 		bot.sleep(100);
+		
+		bot.forcarArmazemFechado();
 
 		System.out.println("Equipando os itens");
 		bot.equipandoItens(rectInventario);
@@ -4450,6 +4512,15 @@ public class GameController implements Runnable {
 				bot.sleep(2000);
 			} while (mesmaCoords == false);
 		}
+		
+		boolean inventario = bot.isInventarioAberto();
+		if (inventario) {
+			bot.apertarSegurarTecla(KeyEvent.VK_ALT);
+			bot.apertarTecla(KeyEvent.VK_E);
+			bot.sleep(500);
+			bot.soltarTecla(KeyEvent.VK_ALT);
+		}
+		
 		bot.sleep(2000);
 		bot.visaoDeCima();
 		bot.sleep(100);
@@ -4533,6 +4604,8 @@ public class GameController implements Runnable {
 		bot.sleep(100);
 		bot.clicarMouse();
 		bot.sleep(100);
+		
+		bot.forcarArmazemFechado();
 
 		System.out.println("Equipando os itens");
 		bot.equipandoItens(rectInventario);
