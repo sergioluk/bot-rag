@@ -531,13 +531,8 @@ public class Bot {
         	}
         	sleep(1000);
         	pos = encontrarImagem(armazemImg, 0.85);
-        	if (pos != null) {
-        		System.out.println("Armazem aberto");
-        		moverMouse(getxJanela() + pos.x + pos.width - 10, getyJanela() + pos.y + pos.height/2);
-        		sleep(300);
-        		clicarMouse();
-        	}
-		} while (pos == null);
+        	
+		} while (pos != null);
 		System.out.println("Armazem fechado");
     }
     

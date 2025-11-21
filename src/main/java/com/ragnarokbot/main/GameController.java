@@ -282,7 +282,7 @@ public class GameController implements Runnable {
 			System.out.println("Iniciando o interception");
 			Bot.iniciarInterception();
 			
-			/*
+			
 			System.out.println("Apertando enter");
 			bot.apertarTecla(KeyEvent.VK_ENTER);
 			bot.sleep(5000);
@@ -312,7 +312,7 @@ public class GameController implements Runnable {
 			bot.sleep(1000);
 			bot.apertarTecla(KeyEvent.VK_DOWN);
 			bot.sleep(1000);
-			bot.zoom(-28);
+			bot.zoom(-28);/*
 			
 			
 			//buffarVip();
